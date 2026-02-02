@@ -1,14 +1,20 @@
-import Link from 'next/link';
-import { LucideIcon, Phone } from 'lucide-react';
+import Link from "next/link";
+import { LucideIcon, Phone } from "lucide-react";
 
 type Props = {
   label: string;
   path: string;
   icon: LucideIcon;
+  type?: "external-link" | "internal-link";
 };
 
-export default function HomeLink({ label, path, icon: Icon }: Props) {
-  return Icon != Phone ? (
+export default function HomeLink({
+  label,
+  path,
+  icon: Icon,
+  type = "internal-link",
+}: Props) {
+  return type === "internal-link" ? (
     <Link
       href={path}
       className='
@@ -52,7 +58,7 @@ export default function HomeLink({ label, path, icon: Icon }: Props) {
         hover:border-white
         active:scale-[0.98]
         relative'
-      href={`https://wa.me/+5493794619887`}
+      href={"https://wa.me/+5493794619887"}
     >
       <span className='text-sm tracking-wide'>{label}</span>
       <span className='absolute top-1/2 right-5 -translate-y-1/2'>
