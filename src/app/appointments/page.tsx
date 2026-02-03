@@ -1,17 +1,16 @@
-import Header from "@/components/header";
 import Navbar from "@/components/navbar";
+import { Container } from "@/components/ui/container";
+import AppointmentForm from "@/components/appointment-form";
 
-export default function Home() {
+export default function Appointments() {
   return (
-    <main className='bg-linear-to-br from-fuchsia-950 to-purple-900 h-svh w-screen flex items-start justify-center font-archivo pt-10'>
-      <section className='bg-linear-to-br from-pink-500 to-fuchsia-950 max-w-4xl flex flex-col justify-center pt-4 pb-8 px-4 sm:w-5/6 lg:w-sm rounded-lg'>
+    <Container.wrapper>
+      <Container.content>
         <Navbar />
-
-        <div className='space-y-5'>
-          <Header />
-          Content
+        <div className="space-y-5 mt-5">
+          <AppointmentForm />
         </div>
-      </section>
-    </main>
+      </Container.content>
+    </Container.wrapper>
   );
 }
