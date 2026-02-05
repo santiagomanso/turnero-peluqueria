@@ -1,15 +1,13 @@
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
-import AppointmentForm from "@/components/appointment-form";
+import AppointmentForm from "./_components/appointment-form/appointment-form";
 
 export default function Appointments() {
   return (
     <Container.wrapper>
-      <Container.content>
-        <Navbar />
-        <div className="space-y-5 mt-5">
-          <AppointmentForm />
-        </div>
+      <Container.content className="space-y-5">
+        <Navbar title="Nuevo Turno" />
+        <AppointmentForm />
       </Container.content>
     </Container.wrapper>
   );

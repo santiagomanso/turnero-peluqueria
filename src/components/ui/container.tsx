@@ -15,7 +15,7 @@ const Wrapper = ({ children, className }: WrapperProps) => {
   return (
     <main
       className={cn(
-        "bg-linear-to-br from-fuchsia-950 to-purple-900 h-svh w-screen flex items-start justify-center font-archivo pt-10",
+        "bg-linear-to-br from-fuchsia-950 to-purple-900 h-svh w-screen flex items-start justify-center font-archivo pt-5 md:pt-0 md:items-center",
         className,
       )}
     >
@@ -28,7 +28,7 @@ const Content = ({ children, className }: ContentProps) => {
   return (
     <section
       className={cn(
-        "bg-linear-to-br from-pink-500 to-fuchsia-950 max-w-4xl flex flex-col justify-center pt-4 pb-8 px-4 sm:w-5/6 lg:w-sm rounded-lg",
+        "bg-linear-to-br from-pink-500 to-fuchsia-950 max-w-8xl flex flex-col justify-center pt-4 pb-8 px-4 sm:w-5/6 rounded-lg w-[90%] md:max-w-xl",
         className,
       )}
     >
