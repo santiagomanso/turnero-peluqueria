@@ -5,8 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
   date: z.date({
-    message: "Please select a date for your appointment.",
+    error: "Por favor seleccione una fecha.",
   }),
+  time: z
+    .string({
+      error: "Por favor seleccione un horario.",
+    })
+    .min(1, "Por favor seleccione un horario."),
 });
 
 type FormType = z.infer<typeof formSchema>;
@@ -15,12 +20,17 @@ export default function useAppointmentForm() {
   const [currentStep, setCurrentStep] = React.useState(1);
   const totalSteps = 3;
 
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      date: new Date(),
-    }, // Remove defaultValues entirely or set it like this:
+      date: tomorrow,
+      time: "",
+    },
   });
 
   const handleNext = async () => {
@@ -28,6 +38,8 @@ export default function useAppointmentForm() {
 
     if (currentStep === 1) {
       fieldsToValidate = ["date"];
+    } else if (currentStep === 2) {
+      fieldsToValidate = ["time"];
     }
 
     const isValid = await form.trigger(fieldsToValidate);
@@ -47,6 +59,17 @@ export default function useAppointmentForm() {
     console.log("Form submitted:", data);
   };
 
+  // Available appointment times
+  const availableTimes = [
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "16:00",
+    "17:00",
+    "18:00",
+  ];
+
   return {
     form,
     currentStep,
@@ -54,5 +77,6 @@ export default function useAppointmentForm() {
     handleNext,
     handleBack,
     onSubmit,
+    availableTimes,
   };
 }
