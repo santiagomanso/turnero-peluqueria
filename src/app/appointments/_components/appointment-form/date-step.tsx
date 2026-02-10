@@ -1,3 +1,5 @@
+"use client";
+
 import { Calendar } from "@/components/ui/calendar";
 import {
   Field,
@@ -6,16 +8,15 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Locale } from "date-fns";
 import { Controller } from "react-hook-form";
 import useAppointmentForm from "../hooks/use-appointment-form";
+import { es } from "date-fns/locale";
 
 type Props = {
   appointmentForm: ReturnType<typeof useAppointmentForm>;
-  language: Locale;
 };
 
-export default function DateStep({ appointmentForm, language }: Props) {
+export default function DateStep({ appointmentForm }: Props) {
   return (
     <div className="flex-1 flex flex-col">
       <h2 className="text-2xl font-bold text-white mb-0">Fecha</h2>
@@ -36,7 +37,7 @@ export default function DateStep({ appointmentForm, language }: Props) {
                   onSelect={(date) => {
                     field.onChange(date || new Date());
                   }}
-                  locale={language}
+                  locale={es}
                   disabled={(date) => {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);

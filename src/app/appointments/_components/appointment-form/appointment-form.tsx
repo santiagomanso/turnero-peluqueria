@@ -3,10 +3,9 @@
 import useAppointmentForm from "../hooks/use-appointment-form";
 
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import DateStep from "./date-step";
 import HourStep from "./hour-step";
+import TelephoneStep from "./telephone-step";
 
 export default function AppointmentForm() {
   const appointmentForm = useAppointmentForm();
@@ -15,7 +14,7 @@ export default function AppointmentForm() {
     <div>
       <div className="mb-3">
         <div className="flex justify-between items-center mb-2">
-          {[1, 2, 3].map((step) => (
+          {[1, 2, 3, 4].map((step) => (
             <div
               key={step}
               className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
@@ -45,7 +44,7 @@ export default function AppointmentForm() {
       >
         <div className="mb-5 min-h-100 sm:min-h-100 flex flex-col">
           {appointmentForm.currentStep === 1 && (
-            <DateStep appointmentForm={appointmentForm} language={es} />
+            <DateStep appointmentForm={appointmentForm} />
           )}
 
           {appointmentForm.currentStep === 2 && (
@@ -53,30 +52,7 @@ export default function AppointmentForm() {
           )}
 
           {appointmentForm.currentStep === 3 && (
-            <div className=" p-2">
-              <h2 className="text-2xl font-bold text-white mb-6">
-                Confirmar Información
-              </h2>
-              <div className="space-y-4 bg-white/5 rounded-lg p-6">
-                <div className="border-b border-white/20 pb-3">
-                  <p className="text-white/70 text-sm mb-1">Fecha de la cita</p>
-                  <p className="text-white text-lg font-medium">
-                    {appointmentForm.form.getValues("date")
-                      ? format(appointmentForm.form.getValues("date"), "PPP", {
-                          locale: es,
-                        })
-                      : "No proporcionada"}
-                  </p>
-                </div>
-                <div className="border-b border-white/20 pb-3">
-                  <p className="text-white/70 text-sm mb-1">Hora de la cita</p>
-                  <p className="text-white text-lg font-medium">
-                    {appointmentForm.form.getValues("time") ||
-                      "No proporcionada"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <TelephoneStep appointmentForm={appointmentForm} />
           )}
         </div>
 
