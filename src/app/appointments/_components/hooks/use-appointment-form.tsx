@@ -1,3 +1,5 @@
+"use client";
+
 import * as z from "zod";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -12,13 +14,14 @@ const formSchema = z.object({
       error: "Por favor seleccione un horario.",
     })
     .min(1, "Por favor seleccione un horario."),
+  telephone: z.string().min(9, "Teléfono inválido."),
 });
 
 type FormType = z.infer<typeof formSchema>;
 
 export default function useAppointmentForm() {
   const [currentStep, setCurrentStep] = React.useState(1);
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -30,18 +33,18 @@ export default function useAppointmentForm() {
     defaultValues: {
       date: tomorrow,
       time: "",
+      telephone: "",
     },
   });
 
   const handleNext = async () => {
-    let fieldsToValidate: (keyof FormType)[] = [];
+    const stepFieldsMap: Record<number, (keyof FormType)[]> = {
+      1: ["date"],
+      2: ["time"],
+      3: ["telephone"],
+    };
 
-    if (currentStep === 1) {
-      fieldsToValidate = ["date"];
-    } else if (currentStep === 2) {
-      fieldsToValidate = ["time"];
-    }
-
+    const fieldsToValidate = stepFieldsMap[currentStep] || [];
     const isValid = await form.trigger(fieldsToValidate);
 
     if (isValid && currentStep < totalSteps) {
