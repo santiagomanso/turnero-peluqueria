@@ -21,7 +21,7 @@ type FormType = z.infer<typeof formSchema>;
 
 export default function useAppointmentForm() {
   const [currentStep, setCurrentStep] = React.useState(1);
-  const totalSteps = 4;
+  const totalSteps = 4; // Already set to 4
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -42,6 +42,7 @@ export default function useAppointmentForm() {
       1: ["date"],
       2: ["time"],
       3: ["telephone"],
+      // Step 4 is confirmation - no validation needed
     };
 
     const fieldsToValidate = stepFieldsMap[currentStep] || [];
@@ -60,6 +61,24 @@ export default function useAppointmentForm() {
 
   const onSubmit = (data: FormType) => {
     console.log("Form submitted:", data);
+
+    // Here's where you would send to your database
+    // Example structure of what would be sent:
+    const appointmentData = {
+      date: data.date.toISOString(), // Convert to ISO string for database
+      time: data.time,
+      telephone: data.telephone,
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log("Data to send to database:", appointmentData);
+
+    // Example API call (uncomment when ready):
+    // fetch('/api/appointments', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(appointmentData),
+    // });
   };
 
   // Available appointment times
