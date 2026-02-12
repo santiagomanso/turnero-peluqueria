@@ -4,6 +4,9 @@ import * as z from "zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createAppointmentAction } from "../_actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   date: z.date({
@@ -21,7 +24,9 @@ type FormType = z.infer<typeof formSchema>;
 
 export default function useAppointmentForm() {
   const [currentStep, setCurrentStep] = React.useState(1);
-  const totalSteps = 4; // Already set to 4
+  const totalSteps = 4;
+
+  const router = useRouter();
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -42,7 +47,6 @@ export default function useAppointmentForm() {
       1: ["date"],
       2: ["time"],
       3: ["telephone"],
-      // Step 4 is confirmation - no validation needed
     };
 
     const fieldsToValidate = stepFieldsMap[currentStep] || [];
@@ -54,34 +58,34 @@ export default function useAppointmentForm() {
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
+    if (currentStep > 1 && !form.formState.isSubmitting) {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const onSubmit = (data: FormType) => {
-    console.log("Form submitted:", data);
+  const onSubmit = async (data: FormType) => {
+    console.log("entered onsubmit");
+    console.log("after isSubmitting");
 
-    // Here's where you would send to your database
-    // Example structure of what would be sent:
-    const appointmentData = {
-      date: data.date.toISOString(), // Convert to ISO string for database
-      time: data.time,
-      telephone: data.telephone,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const response = await createAppointmentAction({
+        date: data.date,
+        time: data.time,
+        telephone: data.telephone,
+      });
 
-    console.log("Data to send to database:", appointmentData);
-
-    // Example API call (uncomment when ready):
-    // fetch('/api/appointments', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(appointmentData),
-    // });
+      if (response.success) {
+        toast.success("Turno creado correctamente 🎉");
+        form.reset(); // Reset form after success
+        router.push("/");
+      } else {
+        toast.error(response.error ?? "Error al crear el turno");
+      }
+    } catch (error) {
+      toast.error("Error inesperado");
+    }
   };
 
-  // Available appointment times
   const availableTimes = [
     "08:00",
     "09:00",

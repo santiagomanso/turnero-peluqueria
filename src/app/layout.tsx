@@ -1,5 +1,6 @@
 import { Archivo, Dancing_Script, Heebo } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -35,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang='es'
+      lang="es"
       className={`
         ${archivo.variable}
         ${archivoBlack.variable}
@@ -44,7 +45,10 @@ export default function RootLayout({
         antialiased
       `}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

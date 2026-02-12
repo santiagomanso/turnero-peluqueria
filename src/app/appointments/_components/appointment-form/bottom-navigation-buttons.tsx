@@ -1,40 +1,53 @@
 import { Button } from "@/components/ui/button";
-import useAppointmentForm from "../hooks/use-appointment-form";
+import useAppointmentForm from "../../_hooks/use-appointment-form";
+import { Loader2 } from "lucide-react";
 
 type Props = {
   appointmentForm: ReturnType<typeof useAppointmentForm>;
 };
 
 export default function BottomNavigationButtons({ appointmentForm }: Props) {
+  const isLastStep = appointmentForm.currentStep === appointmentForm.totalSteps;
+  const { isSubmitted, isSubmitting } = appointmentForm.form.formState;
+
   return (
-    <div className="flex justify-between gap-4">
+    <div className="flex justify-between items-center gap-4">
       <Button
         type="button"
         onClick={appointmentForm.handleBack}
-        disabled={appointmentForm.currentStep === 1}
+        disabled={
+          appointmentForm.currentStep === 1 || isSubmitting || isSubmitted
+        }
         variant="outline"
-        className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-          appointmentForm.currentStep === 1
-            ? "bg-white/10 text-white/30 cursor-not-allowed"
-            : "bg-white/20 text-white hover:bg-white/30 border border-white/30"
-        }`}
+        className="px-6 py-3 rounded-lg font-semibold"
       >
         Atrás
       </Button>
-      {appointmentForm.currentStep < appointmentForm.totalSteps ? (
+
+      {!isLastStep ? (
         <Button
+          key="next-button"
           type="button"
           onClick={appointmentForm.handleNext}
-          className="px-6 py-3 rounded-lg font-semibold bg-white text-fuchsia-950 hover:bg-white/90 transition-all"
+          className="px-6 py-3 rounded-lg font-semibold bg-white text-fuchsia-950"
         >
           Siguiente
         </Button>
       ) : (
         <Button
+          key="submit-button"
           type="submit"
-          className="px-6 py-3 rounded-lg font-semibold bg-white text-fuchsia-950 hover:bg-white/90 transition-all"
+          disabled={isSubmitting || isSubmitted}
+          className="px-6 py-3 rounded-lg font-semibold bg-white text-fuchsia-950"
         >
-          Enviar
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              Confirmando...
+            </>
+          ) : (
+            "Confirmar turno"
+          )}
         </Button>
       )}
     </div>
