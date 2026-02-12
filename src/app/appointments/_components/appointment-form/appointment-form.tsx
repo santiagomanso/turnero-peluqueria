@@ -1,6 +1,6 @@
 "use client";
 
-import useAppointmentForm from "../hooks/use-appointment-form";
+import useAppointmentForm from "../../_hooks/use-appointment-form";
 
 import DateStep from "./date-step";
 import HourStep from "./hour-step";
@@ -11,7 +11,6 @@ import BottomNavigationButtons from "./bottom-navigation-buttons";
 
 export default function AppointmentForm() {
   const appointmentForm = useAppointmentForm();
-
   return (
     <div>
       <ProgressBar appointmentForm={appointmentForm} />

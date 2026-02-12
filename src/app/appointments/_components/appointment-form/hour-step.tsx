@@ -8,7 +8,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Controller } from "react-hook-form";
-import useAppointmentForm from "../hooks/use-appointment-form";
+import useAppointmentForm from "../../_hooks/use-appointment-form";
 
 type Props = {
   appointmentForm: ReturnType<typeof useAppointmentForm>;

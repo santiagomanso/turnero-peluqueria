@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Controller } from "react-hook-form";
-import useAppointmentForm from "../hooks/use-appointment-form";
+import useAppointmentForm from "../../_hooks/use-appointment-form";
 
 type Props = {
   appointmentForm: ReturnType<typeof useAppointmentForm>;
@@ -34,13 +34,19 @@ export default function TelephoneStep({ appointmentForm }: Props) {
                 type="tel"
                 placeholder="Ej: 3794123456"
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:bg-white/20 focus:border-white/50"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    appointmentForm.handleNext();
+                  }
+                }}
               />
 
               <FieldDescription className="text-white/70 mt-2">
                 Ingrese su número de teléfono para confirmar la cita
               </FieldDescription>
 
-              {fieldState.invalid && fieldState.isTouched && (
+              {fieldState.invalid && (
                 <FieldError
                   errors={[fieldState.error]}
                   className="text-red-300 mt-2"
