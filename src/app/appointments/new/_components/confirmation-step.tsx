@@ -1,9 +1,9 @@
+import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import { format } from "date-fns";
 import { Calendar, Clock, Phone } from "lucide-react";
-import useAppointmentForm from "../../_hooks/use-appointment-form";
 
 type Props = {
-  appointmentForm: ReturnType<typeof useAppointmentForm>;
+  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
 };
 
 export default function ConfirmationStep({ appointmentForm }: Props) {

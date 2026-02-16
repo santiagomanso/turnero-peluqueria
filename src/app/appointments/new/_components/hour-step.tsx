@@ -1,5 +1,6 @@
 "use client";
 
+import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import {
   Field,
   FieldDescription,
@@ -8,10 +9,9 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Controller } from "react-hook-form";
-import useAppointmentForm from "../../_hooks/use-appointment-form";
 
 type Props = {
-  appointmentForm: ReturnType<typeof useAppointmentForm>;
+  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
 };
 
 export default function HourStep({ appointmentForm }: Props) {

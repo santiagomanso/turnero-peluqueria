@@ -1,6 +1,6 @@
 "use server";
 
-import { createAppointment } from "@/services/appointment.service";
+import { createAppointment } from "@/services/create";
 
 type CreateAppointmentPayload = {
   date: Date;

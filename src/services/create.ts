@@ -1,12 +1,15 @@
 import { db } from "@/lib/db";
+import type { Appointment } from "@/types/appointment";
 
-type CreateAppointmentInput = {
+export type CreateAppointmentInput = {
   date: Date;
   time: string;
   telephone: string;
 };
 
-export async function createAppointment(data: CreateAppointmentInput) {
+export async function createAppointment(
+  data: CreateAppointmentInput,
+): Promise<Appointment> {
   return db.appointment.create({
     data: {
       date: data.date,

@@ -1,13 +1,14 @@
 import { Appointment } from "@/types/appointment";
 import React from "react";
 import { toast } from "sonner";
-import { getAppointmentsByPhoneAction } from "../_actions/get-appointment";
+import { getAppointmentsByPhoneAction } from "../_actions/get-by-phone";
 
 export default function useSearchAppointment() {
   const [phone, setPhone] = React.useState("");
   const [isSearching, setIsSearching] = React.useState(false);
   const [hasSearched, setHasSearched] = React.useState(false);
   const [appointments, setAppointments] = React.useState<Appointment[]>([]);
+  const [isSearchFormOpen, setIsSearchFormOpen] = React.useState(true);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,17 +30,22 @@ export default function useSearchAppointment() {
 
         if (response.data.length === 0) {
           toast.info("No se encontraron turnos para este número");
+          setIsSearchFormOpen(true); // Keep open if no results
+        } else {
+          setIsSearchFormOpen(false); // Auto-collapse when appointments found
         }
       } else {
         toast.error(response.error ?? "Error al buscar turnos");
         setAppointments([]);
         setHasSearched(true);
+        setIsSearchFormOpen(true); // Keep open on error
       }
     } catch (error) {
       console.error("Error searching appointments:", error);
       toast.error("Error inesperado al buscar turnos");
       setAppointments([]);
       setHasSearched(true);
+      setIsSearchFormOpen(true); // Keep open on error
     } finally {
       setIsSearching(false);
     }
@@ -52,5 +58,7 @@ export default function useSearchAppointment() {
     hasSearched,
     appointments,
     handleSearch,
+    isSearchFormOpen,
+    setIsSearchFormOpen,
   };
 }

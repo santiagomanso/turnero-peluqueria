@@ -14,12 +14,12 @@ export default function Home() {
 
           <ul className="space-y-4">
             <HomeLink
-              path="/appointments"
-              label="Solicitar turno"
+              path="/appointments/new"
+              label="Agendar turno"
               icon={Plus}
             />
             <HomeLink
-              path="/get-appointment"
+              path="/appointments/search"
               label="Consultar mi turno"
               icon={SquarePen}
             />

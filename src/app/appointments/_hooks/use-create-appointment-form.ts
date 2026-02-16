@@ -4,7 +4,7 @@ import * as z from "zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createAppointmentAction } from "../_actions";
+import { createAppointmentAction } from "../_actions/create";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -22,7 +22,7 @@ const formSchema = z.object({
 
 type FormType = z.infer<typeof formSchema>;
 
-export default function useAppointmentForm() {
+export default function useCreateAppointmentForm() {
   const [currentStep, setCurrentStep] = React.useState(1);
   const totalSteps = 4;
 
@@ -64,9 +64,6 @@ export default function useAppointmentForm() {
   };
 
   const onSubmit = async (data: FormType) => {
-    console.log("entered onsubmit");
-    console.log("after isSubmitting");
-
     try {
       const response = await createAppointmentAction({
         date: data.date,
