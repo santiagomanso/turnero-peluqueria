@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { getAppointmentsByPhone } from "@/services/get";
 import type { Appointment } from "@/types/appointment";
 
 export async function getAppointmentsByPhoneAction(
@@ -15,15 +15,8 @@ export async function getAppointmentsByPhoneAction(
       };
     }
 
-    // Fetch appointments from database
-    const appointments = await db.appointment.findMany({
-      where: {
-        telephone: telephone,
-      },
-      orderBy: {
-        date: "asc",
-      },
-    });
+    // Call service layer (NOT the action itself!)
+    const appointments = await getAppointmentsByPhone(telephone);
 
     return {
       success: true,

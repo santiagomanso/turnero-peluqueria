@@ -1,7 +1,7 @@
-import useAppointmentForm from "../../_hooks/use-appointment-form";
+import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 
 type Props = {
-  appointmentForm: ReturnType<typeof useAppointmentForm>;
+  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
 };
 
 export default function ProgressBar({ appointmentForm }: Props) {
