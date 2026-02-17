@@ -3,7 +3,7 @@ import React from "react";
 import { toast } from "sonner";
 import { getAppointmentsByPhoneAction } from "../_actions/get-by-phone";
 
-export default function useSearchAppointment() {
+export default function useGetAppointments() {
   const [phone, setPhone] = React.useState("");
   const [isSearching, setIsSearching] = React.useState(false);
   const [hasSearched, setHasSearched] = React.useState(false);
