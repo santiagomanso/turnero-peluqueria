@@ -7,10 +7,10 @@ import { Search, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
-import useSearchAppointment from "../../_hooks/use-search-appointment";
+import useGetAppointments from "../../_hooks/use-get-appointment";
 
-export default function SearchAppointment() {
-  const viewModel = useSearchAppointment();
+export default function GetAppointments() {
+  const viewModel = useGetAppointments();
 
   // Only show toggle button if we have appointments
   const showToggleButton = viewModel.appointments.length > 0;

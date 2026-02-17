@@ -19,7 +19,7 @@ export default function Home() {
               icon={Plus}
             />
             <HomeLink
-              path="/appointments/search"
+              path="/appointments/get"
               label="Consultar mi turno"
               icon={SquarePen}
             />

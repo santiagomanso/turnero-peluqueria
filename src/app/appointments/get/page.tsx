@@ -1,6 +1,6 @@
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
-import SearchAppointment from "./_components/search-appointment";
+import GetAppointments from "./_components/get-appointments";
 
 export default function SearchAppointmentPage() {
   return (
@@ -9,7 +9,7 @@ export default function SearchAppointmentPage() {
         <div className="flex flex-col h-full">
           <Navbar title="Mi Turno" />
           <div className="flex-1 min-h-0 mt-3">
-            <SearchAppointment />
+            <GetAppointments />
           </div>
         </div>
       </Container.content>
