@@ -15,7 +15,7 @@ export async function getAppointmentsByPhone(
 }
 
 export async function getAppointmentById(
-  id: number,
+  id: string,
 ): Promise<Appointment | null> {
   return db.appointment.findUnique({
     where: { id },

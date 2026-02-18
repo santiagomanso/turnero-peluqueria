@@ -2,24 +2,14 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar, Clock, Phone, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type Appointment = {
-  id: number;
-  date: Date;
-  time: string;
-  telephone: string;
-};
+import Link from "next/link";
+import type { Appointment } from "@/types/appointment";
 
 type Props = {
   appointment: Appointment;
 };
 
 export default function AppointmentCard({ appointment }: Props) {
-  const handleEdit = () => {
-    // TODO: Implement edit functionality
-    console.log("Edit appointment:", appointment.id);
-  };
-
   const handleCancel = () => {
     // TODO: Implement cancel functionality
     console.log("Cancel appointment:", appointment.id);
@@ -60,14 +50,19 @@ export default function AppointmentCard({ appointment }: Props) {
 
         {/* Actions */}
         <div className="grid grid-cols-2 gap-2 pt-2">
-          <Button
-            onClick={handleEdit}
-            variant="default"
-            className="px-4 py-3 font-semibold transition-all bg-black/20 border border-white/30 text-white hover:bg-white/30"
+          <Link
+            href={`/appointments/update/${appointment.id}`}
+            className="w-full"
           >
-            <Edit className="w-4 h-4 mr-2" />
-            Modificar
-          </Button>
+            <Button
+              variant="default"
+              className="w-full px-4 py-3 font-semibold transition-all bg-black/20 border border-white/30 text-white hover:bg-white/30"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Modificar
+            </Button>
+          </Link>
+
           <Button
             onClick={handleCancel}
             className="border-white/30 bg-linear-to-br from-red-400/80 via-pink-800 to-rose-950 border"

@@ -5,8 +5,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createAppointmentAction } from "../_actions/create";
+import { updateAppointmentAction } from "../_actions/update";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import type { Appointment } from "@/types/appointment";
 
 const formSchema = z.object({
   date: z.date({
@@ -22,7 +24,14 @@ const formSchema = z.object({
 
 type FormType = z.infer<typeof formSchema>;
 
-export default function useCreateAppointmentForm() {
+type UseAppointmentFormOptions = {
+  appointment?: Appointment; // Optional: if provided, we're editing
+  mode?: "create" | "update";
+};
+
+export default function useCreateAppointmentForm(
+  options?: UseAppointmentFormOptions,
+) {
   const [currentStep, setCurrentStep] = React.useState(1);
   const totalSteps = 4;
 
@@ -32,14 +41,25 @@ export default function useCreateAppointmentForm() {
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
 
+  // Determine if we're editing or creating
+  const isEditing = !!options?.appointment;
+
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
-    defaultValues: {
-      date: tomorrow,
-      time: "",
-      telephone: "",
-    },
+    defaultValues: isEditing
+      ? {
+          // Pre-fill with existing data
+          date: new Date(options.appointment!.date),
+          time: options.appointment!.time,
+          telephone: options.appointment!.telephone,
+        }
+      : {
+          // Default values for new appointment
+          date: tomorrow,
+          time: "",
+          telephone: "",
+        },
   });
 
   const handleNext = async () => {
@@ -65,18 +85,33 @@ export default function useCreateAppointmentForm() {
 
   const onSubmit = async (data: FormType) => {
     try {
-      const response = await createAppointmentAction({
-        date: data.date,
-        time: data.time,
-        telephone: data.telephone,
-      });
+      const response = isEditing
+        ? await updateAppointmentAction({
+            id: options.appointment!.id,
+            date: data.date,
+            time: data.time,
+            telephone: data.telephone,
+          })
+        : await createAppointmentAction({
+            date: data.date,
+            time: data.time,
+            telephone: data.telephone,
+          });
 
       if (response.success) {
-        toast.success("Turno creado correctamente 🎉");
-        form.reset(); // Reset form after success
-        router.push("/");
+        toast.success(
+          isEditing
+            ? "Turno actualizado correctamente 🎉"
+            : "Turno creado correctamente 🎉",
+        );
+
+        if (!isEditing) {
+          form.reset();
+        }
+
+        router.push(isEditing ? "/appointments/get" : "/");
       } else {
-        toast.error(response.error ?? "Error al crear el turno");
+        toast.error(response.error ?? "Error al procesar el turno");
       }
     } catch (error) {
       toast.error("Error inesperado");
