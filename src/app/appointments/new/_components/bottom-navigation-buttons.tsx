@@ -1,6 +1,5 @@
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import { Button } from "@/components/ui/button";
-
 import { Loader2 } from "lucide-react";
 
 type Props = {
@@ -19,8 +18,7 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
         disabled={
           appointmentForm.currentStep === 1 || isSubmitting || isSubmitted
         }
-        variant="outline"
-        className="px-6 py-3 rounded-lg font-semibold"
+        className="px-6 py-3 rounded-md font-semibold text-sm uppercase tracking-[0.08em] bg-white! border border-border-subtle text-content-secondary shadow-none hover:bg-black/5! transition-all"
       >
         Atrás
       </Button>
@@ -30,7 +28,7 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           key="next-button"
           type="button"
           onClick={appointmentForm.handleNext}
-          className="px-6 py-3 rounded-lg font-semibold bg-white text-fuchsia-950"
+          className="px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 hover:bg-gold/90 transition-all"
         >
           Siguiente
         </Button>
@@ -39,7 +37,7 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           key="submit-button"
           type="submit"
           disabled={isSubmitting || isSubmitted}
-          className="px-6 py-3 rounded-lg font-semibold bg-white text-fuchsia-950"
+          className="px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 hover:bg-gold/90 transition-all"
         >
           {isSubmitting ? (
             <>

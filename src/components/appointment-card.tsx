@@ -27,28 +27,42 @@ type Props = {
   onDelete?: (id: string) => void;
 };
 
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Calendar;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className="w-4 h-4 shrink-0 text-gold" />
+      <div>
+        <p className="text-[0.6rem] uppercase tracking-wider text-content-quaternary mb-0.5">
+          {label}
+        </p>
+        <p className="font-medium text-sm text-content">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function AppointmentCard({ appointment, onDelete }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
   const handleDelete = async () => {
     setIsDeleting(true);
-
     try {
       const response = await deleteAppointmentAction(appointment.id);
-
       if (response.success) {
         toast.success("Turno cancelado correctamente");
-
-        // Trigger slide-out animation
         setIsRemoving(true);
-
-        // Wait for animation to complete before removing from state
         setTimeout(() => {
-          if (onDelete) {
-            onDelete(appointment.id);
-          }
-        }, 300); // Match animation duration
+          if (onDelete) onDelete(appointment.id);
+        }, 300);
       } else {
         toast.error(response.error ?? "Error al cancelar el turno");
       }
@@ -69,51 +83,33 @@ export default function AppointmentCard({ appointment, onDelete }: Props) {
       }
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
-      <div className="shadow-md shadow-indigo-950 bg-white/5 rounded-lg p-3 border border-white/20 hover:bg-white/15 transition-colors">
+      <div className="bg-white rounded-xl border border-border-subtle shadow shadow-neutral-400 p-4">
         <div className="space-y-3">
-          {/* Date and Time */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-white/70" />
-              <div>
-                <p className="text-white/70 text-xs">Fecha</p>
-                <p className="text-white font-semibold">
-                  {format(appointment.date, "d 'de' MMMM", { locale: es })}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-white/70" />
-              <div>
-                <p className="text-white/70 text-xs">Hora</p>
-                <p className="text-white font-semibold">{appointment.time}</p>
-              </div>
-            </div>
+            <InfoRow
+              icon={Calendar}
+              label="Fecha"
+              value={format(appointment.date, "d 'de' MMMM", { locale: es })}
+            />
+            <InfoRow icon={Clock} label="Hora" value={appointment.time} />
           </div>
 
-          {/* Phone */}
-          <div className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-white/70" />
-            <div>
-              <p className="text-white/70 text-xs">Teléfono</p>
-              <p className="text-white font-semibold">
-                {appointment.telephone}
-              </p>
-            </div>
-          </div>
+          <InfoRow
+            icon={Phone}
+            label="Teléfono"
+            value={appointment.telephone}
+          />
 
-          {/* Actions */}
-          <div className="grid grid-cols-2 gap-2 pt-2">
+          <div className="grid grid-cols-2 gap-2 pt-1">
             <Link
               href={`/appointments/update/${appointment.id}`}
               className="w-full"
             >
               <Button
                 variant="default"
-                className="w-full px-4 py-3 font-semibold transition-all bg-black/20 border border-white/30 text-white hover:bg-white/30"
+                className="w-full text-xs font-semibold uppercase tracking-[0.08em] bg-black/4! border border-border-subtle shadow-none hover:bg-black/8! transition-all text-content-secondary"
               >
-                <Edit className="w-4 h-4 mr-2" />
+                <Edit className="w-3 h-3 mr-1.5 " />
                 Modificar
               </Button>
             </Link>
@@ -122,31 +118,31 @@ export default function AppointmentCard({ appointment, onDelete }: Props) {
               <AlertDialogTrigger asChild>
                 <Button
                   disabled={isDeleting}
-                  className="border-white/30 bg-linear-to-br from-red-400/80 via-pink-800 to-rose-950 border"
+                  className="text-xs font-semibold uppercase tracking-[0.08em] border border-red-500 transition-all text-red-500 bg-red-300/70"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-3 h-3 mr-1.5" />
                   Cancelar
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-linear-to-br from-fuchsia-950 to-purple-900 border-white/20">
+              <AlertDialogContent className="bg-white border border-border-subtle">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-white text-xl">
+                  <AlertDialogTitle className="text-xl text-content">
                     ¿Cancelar turno?
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="text-white/70">
+                  <AlertDialogDescription className="text-content-tertiary">
                     Esta acción no se puede deshacer. El turno para el{" "}
                     {format(appointment.date, "d 'de' MMMM", { locale: es })} a
                     las {appointment.time} será cancelado permanentemente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-white/10 text-white border-white/30 hover:bg-white/20">
+                  <AlertDialogCancel className="bg-white! border border-border-subtle text-content-secondary hover:bg-black/5!">
                     No, mantener
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="bg-linear-to-br from-red-500 to-rose-700 text-white hover:from-red-600 hover:to-rose-800"
+                    className="bg-danger-soft! border border-danger-border text-danger-text hover:bg-danger-soft/80!"
                   >
                     {isDeleting ? "Cancelando..." : "Sí, cancelar turno"}
                   </AlertDialogAction>

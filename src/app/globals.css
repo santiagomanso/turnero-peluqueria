@@ -1,15 +1,64 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* START CUSTOM FONTS */
+  /* FONTS */
   --font-archivo: var(--font-archivo);
   --font-archivo-black: var(--font-archivo-black);
   --font-dancingScript: var(--font-dancing-script);
   --font-heebo: var(--font-heebo);
-  /* END FONTS */
+
+  /* ── LUXURY LIGHT PALETTE ─────────────────────────────
+     4 roles: base · surface · content · gold
+  ──────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --color-base: #f9fafb; /* cards, buttons, all surfaces (gray-50) */
+  --color-surface: #ece9e4; /* outer wrapper, desktop background   */
+
+  /* Content (text & icons) */
+  --color-content: #1a1714; /* primary text                  */
+  --color-content-secondary: #6b6560; /* secondary text, nav icons     */
+  --color-content-tertiary: #9c9189; /* labels, navbar title          */
+  --color-content-quaternary: #b8a898; /* descriptions, fine print      */
+
+  /* Accent */
+  --color-gold: #c9a96e; /* icons, selected states, CTA buttons */
+  --color-gold-soft: oklch(from #c9a96e l c h / 15%); /* progress steps bg  */
+  --color-gold-border: oklch(
+    from #c9a96e l c h / 30%
+  ); /* progress steps border */
+
+  /* Progress bar */
+  --color-step-inactive-bg: #f0ede8;
+  --color-step-inactive-text: #b8a898;
+  --color-step-inactive-border: oklch(0 0 0 / 7%);
+  --color-step-done-bg: oklch(from #c9a96e l c h / 15%);
+  --color-step-done-text: #a18146;
+  --color-step-done-border: oklch(from #c9a96e l c h / 30%);
+  --color-step-line-done: oklch(from #c9a96e l c h / 40%);
+  --color-step-line-pending: oklch(0 0 0 / 8%);
+
+  /* Borders */
+  --color-border-subtle: oklch(0 0 0 / 7%); /* cards, buttons           */
+  --color-border-soft: oklch(0 0 0 / 10%); /* inputs                   */
+
+  /* Disabled / Muted */
+  --color-disabled-bg: oklch(0 0 0 / 4%); /* disabled button bg     */
+  --color-disabled-text: oklch(0 0 0 / 25%); /* disabled button text   */
+  --color-disabled-border: oklch(0 0 0 / 6%); /* disabled button border */
+
+  /* Destructive */
+  --color-danger: oklch(0.577 0.245 27.325);
+  --color-danger-soft: oklch(from oklch(0.577 0.245 27.325) l c h / 8%);
+  --color-danger-border: oklch(from oklch(0.577 0.245 27.325) l c h / 18%);
+  --color-danger-text: oklch(
+    0.45 0.2 27.325
+  ); /* readable red text on light bg */
+
+  /* ── SHADCN TOKENS (keep for component library) ──── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -125,5 +174,24 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: #c9a96e;
+  }
+  .bg-gold {
+    background-color: #c9a96e;
+  }
+  .border-gold {
+    border-color: #c9a96e;
+  }
+  .bg-gold-gradient {
+    background: linear-gradient(
+      90deg,
+      rgba(201, 169, 110, 0.9),
+      rgba(201, 169, 110, 0.2)
+    );
   }
 }

@@ -8,6 +8,20 @@ type Props = {
   type?: "external-link" | "internal-link";
 };
 
+const linkStyles =
+  "w-full py-4 px-5 flex items-center justify-between rounded-xl bg-white border border-border-subtle shadow-md transition-all active:scale-[0.98] group";
+
+function LinkContent({ label, Icon }: { label: string; Icon: LucideIcon }) {
+  return (
+    <>
+      <span className="text-sm font-medium text-content transition-colors">
+        {label}
+      </span>
+      <Icon className="w-4 h-4 text-gold" />
+    </>
+  );
+}
+
 export default function HomeLink({
   label,
   path,
@@ -15,55 +29,17 @@ export default function HomeLink({
   type = "internal-link",
 }: Props) {
   return type === "internal-link" ? (
-    <Link
-      href={path}
-      className="
-        w-full
-        bg-pink-600/20
-        border border-gray-300
-        text-gray-300
-        font-bold
-        font-archivo
-        py-4
-        rounded-full
-        px-6
-        flex items-center justify-between
-        transition
-        hover:border-white
-        active:scale-[0.98]
-        relative
-      "
-    >
-      <span className="text-sm tracking-wide">{label}</span>
-
-      <span className="absolute top-1/2 right-5 -translate-y-1/2">
-        <Icon className="w-6 h-6" />
-      </span>
+    <Link href={path} className={linkStyles}>
+      <LinkContent label={label} Icon={Icon} />
     </Link>
   ) : (
     <a
       target="_blank"
       rel="noreferrer"
-      className=" w-full
-        bg-pink-600/20
-        border border-gray-300
-        text-gray-300
-        font-bold
-        font-archivo
-        py-4
-        rounded-full
-        px-6
-        flex items-center justify-between
-        transition
-        hover:border-white
-        active:scale-[0.98]
-        relative"
       href={"https://wa.me/+5493794619887"}
+      className={linkStyles}
     >
-      <span className="text-sm tracking-wide">{label}</span>
-      <span className="absolute top-1/2 right-5 -translate-y-1/2">
-        <Icon className="w-6 h-6" />
-      </span>
+      <LinkContent label={label} Icon={Icon} />
     </a>
   );
 }
