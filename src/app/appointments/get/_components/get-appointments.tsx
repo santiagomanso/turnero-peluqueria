@@ -38,7 +38,7 @@ export default function GetAppointments() {
                 onClick={() =>
                   viewModel.setIsSearchFormOpen(!viewModel.isSearchFormOpen)
                 }
-                className="text-white hover:bg-white/10 p-0 h-auto -ml-2"
+                className="text-white hover:bg-white/10 p-0 h-auto -ml-3"
               >
                 {viewModel.isSearchFormOpen ? (
                   <>
@@ -138,17 +138,18 @@ export default function GetAppointments() {
               <h2 className="text-white text-lg font-semibold mb-2 shrink-0">
                 Tus turnos ({viewModel.appointments.length})
               </h2>
-              <div className="space-y-3 overflow-y-auto">
+              <div className="space-y-3 overflow-y-auto pb-4">
                 {viewModel.appointments.map((appointment) => (
                   <AppointmentCard
                     key={appointment.id}
                     appointment={appointment}
+                    onDelete={viewModel.handleDelete}
                   />
                 ))}
               </div>
             </div>
           ) : (
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20 text-center">
+            <div className="bg-white/10 backdrop-blur-lg rounded-lg p-8 border border-white/20 text-center">
               <p className="text-white">
                 No se encontraron turnos para este número
               </p>
