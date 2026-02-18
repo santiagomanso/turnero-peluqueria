@@ -30,25 +30,30 @@ export default function useGetAppointments() {
 
         if (response.data.length === 0) {
           toast.info("No se encontraron turnos para este número");
-          setIsSearchFormOpen(true); // Keep open if no results
+          setIsSearchFormOpen(true);
         } else {
-          setIsSearchFormOpen(false); // Auto-collapse when appointments found
+          setIsSearchFormOpen(false);
         }
       } else {
         toast.error(response.error ?? "Error al buscar turnos");
         setAppointments([]);
         setHasSearched(true);
-        setIsSearchFormOpen(true); // Keep open on error
+        setIsSearchFormOpen(true);
       }
     } catch (error) {
       console.error("Error searching appointments:", error);
       toast.error("Error inesperado al buscar turnos");
       setAppointments([]);
       setHasSearched(true);
-      setIsSearchFormOpen(true); // Keep open on error
+      setIsSearchFormOpen(true);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  // Handle delete - remove from local state
+  const handleDelete = (id: string) => {
+    setAppointments((prev) => prev.filter((apt) => apt.id !== id));
   };
 
   return {
@@ -60,5 +65,6 @@ export default function useGetAppointments() {
     handleSearch,
     isSearchFormOpen,
     setIsSearchFormOpen,
+    handleDelete, // Export this
   };
 }
