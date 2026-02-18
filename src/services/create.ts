@@ -10,6 +10,7 @@ export type CreateAppointmentInput = {
 export async function createAppointment(
   data: CreateAppointmentInput,
 ): Promise<Appointment> {
+  // Prisma will auto-generate the cuid
   return db.appointment.create({
     data: {
       date: data.date,

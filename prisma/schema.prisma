@@ -7,7 +7,7 @@ datasource db {
 }
 
 model Appointment {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   date      DateTime
   time      String
   telephone String

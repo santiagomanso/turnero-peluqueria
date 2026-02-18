@@ -7,9 +7,15 @@ import ConfirmationStep from "./confirmation-step";
 import ProgressBar from "./progress-bar";
 import BottomNavigationButtons from "./bottom-navigation-buttons";
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
+import type { Appointment } from "@/types/appointment";
 
-export default function CreateAppointmentForm() {
-  const appointmentForm = useCreateAppointmentForm();
+type Props = {
+  appointment?: Appointment; // Optional: for editing
+};
+
+export default function CreateAppointmentForm({ appointment }: Props) {
+  const appointmentForm = useCreateAppointmentForm({ appointment });
+
   return (
     <div>
       <ProgressBar appointmentForm={appointmentForm} />
