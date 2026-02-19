@@ -9,7 +9,7 @@ export default function Home() {
     <Container.wrapper>
       <Container.content>
         <Navbar title="Inicio" />
-        <div className="space-y-5 mt-3">
+        <div className="space-y-5">
           <Header />
 
           <ul className="space-y-4">
