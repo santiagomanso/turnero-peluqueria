@@ -2,24 +2,27 @@ import Header from "@/components/header";
 import HomeLink from "@/components/home-link";
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
-import { Plus, SquarePen, Trash2, ShoppingCart, Phone } from "lucide-react";
+import { Plus, SquarePen, ShoppingCart, Phone } from "lucide-react";
 
 export default function Home() {
   return (
     <Container.wrapper>
       <Container.content>
         <Navbar title="Inicio" />
-        <div className="space-y-5 mt-3">
+        <div className="space-y-5">
           <Header />
 
           <ul className="space-y-4">
             <HomeLink
-              path="/appointments"
-              label="Solicitar turno y señar"
+              path="/appointments/new"
+              label="Agendar turno"
               icon={Plus}
             />
-            <HomeLink path="/modify" label="Modificar turno" icon={SquarePen} />
-            <HomeLink path="/cancel" label="Cancelar turno" icon={Trash2} />
+            <HomeLink
+              path="/appointments/get"
+              label="Consultar mi turno"
+              icon={SquarePen}
+            />
             <HomeLink
               path="/shop"
               label="Tienda online insumos"

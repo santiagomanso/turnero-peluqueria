@@ -15,7 +15,7 @@ const Wrapper = ({ children, className }: WrapperProps) => {
   return (
     <main
       className={cn(
-        "bg-linear-to-br from-fuchsia-950 to-purple-900 h-svh w-screen flex items-start justify-center font-archivo pt-5 md:pt-0 md:items-center",
+        "min-h-svh w-screen flex items-start justify-center font-archivo bg-surface md:py-5 md:items-center overflow-hidden",
         className,
       )}
     >
@@ -28,16 +28,17 @@ const Content = ({ children, className }: ContentProps) => {
   return (
     <section
       className={cn(
-        "bg-linear-to-br from-pink-500 to-fuchsia-950 max-w-8xl flex flex-col justify-center pt-4 pb-8 px-4 sm:w-5/6 rounded-lg w-[90%] md:max-w-xl",
+        "flex flex-col pt-4 pb-8 px-5 w-full bg-base border border-border-subtle shadow-md md:w-5/6 md:rounded-2xl md:max-w-xl min-h-svh md:min-h-0 md:h-[85vh] relative overflow-hidden",
         className,
       )}
     >
+      {/* Gold accent line — top center */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-px bg-gold-gradient" />
       {children}
     </section>
   );
 };
 
-// Compound component pattern
 const Container = {
   wrapper: Wrapper,
   content: Content,
