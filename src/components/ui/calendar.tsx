@@ -203,7 +203,7 @@ function CalendarDayButton({
           ? "font-bold"
           : isRangeMiddle
             ? ""
-            : "text-[#3d3530] hover:bg-black/05 hover:text-[#1a1714]",
+            : "text-[#3d3530] hover:bg-black/05 hover:text-content",
         className,
       )}
       style={{ ...propsStyle, ...accentStyle }}

@@ -1,17 +1,12 @@
-import Header from "@/components/header";
-import Navbar from "@/components/navbar";
+import { Container } from "@/components/ui/container";
+import ShopContent from "./_components/shop-content";
 
-export default function Home() {
+export default function ShopPage() {
   return (
-    <main className='bg-linear-to-br from-fuchsia-950 to-purple-900  h-svh w-screen flex items-center justify-center font-archivo'>
-      <section className='bg-linear-to-br from-pink-500 to-fuchsia-950 max-w-4xl flex flex-col justify-center pt-4 pb-8 px-4 sm:w-5/6 lg:w-sm rounded-lg'>
-        <Navbar />
-
-        <div className='space-y-5'>
-          <Header />
-          Content
-        </div>
-      </section>
-    </main>
+    <Container.wrapper>
+      <Container.content>
+        <ShopContent />
+      </Container.content>
+    </Container.wrapper>
   );
 }
