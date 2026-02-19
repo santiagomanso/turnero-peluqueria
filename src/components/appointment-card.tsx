@@ -118,7 +118,7 @@ export default function AppointmentCard({ appointment, onDelete }: Props) {
               <AlertDialogTrigger asChild>
                 <Button
                   disabled={isDeleting}
-                  className="text-xs font-semibold uppercase tracking-[0.08em] border border-red-500 transition-all text-red-500 bg-red-300/70"
+                  className="text-xs font-semibold uppercase tracking-[0.08em] border border-red-500 transition-all bg-linear-to-br from-rose-400/70 to-red-800 text-white"
                 >
                   <Trash2 className="w-3 h-3 mr-1.5" />
                   Cancelar
@@ -142,7 +142,7 @@ export default function AppointmentCard({ appointment, onDelete }: Props) {
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="bg-danger-soft! border border-danger-border text-danger-text hover:bg-danger-soft/80!"
+                    className="bg-linear-to-br from-rose-400 to-red-800 border border-danger-border text-white hover:bg-danger-soft/80!"
                   >
                     {isDeleting ? "Cancelando..." : "Sí, cancelar turno"}
                   </AlertDialogAction>
