@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Header() {
   return (
     <header className="flex flex-col items-center text-center mb-4">
-      <div className="flex items-end gap-3 -ml-3">
+      <div className="flex items-end gap-3">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden bg-white border border-border-subtle shrink-0">
           <Image
             src="/logo.png"

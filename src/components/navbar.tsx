@@ -10,7 +10,7 @@ export default function Navbar({ title }: Props) {
     <nav className="flex justify-between items-center mb-5">
       <Link
         href={"/"}
-        className="p-2 -ml-1 rounded-lg bg-white border border-border-subtle text-content transition-colors hover:text-content"
+        className="p-2 rounded-lg bg-white border border-border-subtle text-content transition-colors hover:text-content"
       >
         <Home strokeWidth={1.5} className="h-5 w-5" />
       </Link>
