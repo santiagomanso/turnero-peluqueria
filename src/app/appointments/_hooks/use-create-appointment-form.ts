@@ -7,8 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createAppointmentAction } from "../_actions/create";
 import { updateAppointmentAction } from "../_actions/update";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Appointment } from "@/types/appointment";
+import { createPaymentPreferenceAction } from "../_actions/payment-preference";
 
 const formSchema = z.object({
   date: z.date({
@@ -25,7 +26,7 @@ const formSchema = z.object({
 type FormType = z.infer<typeof formSchema>;
 
 type UseAppointmentFormOptions = {
-  appointment?: Appointment; // Optional: if provided, we're editing
+  appointment?: Appointment;
   mode?: "create" | "update";
 };
 
@@ -33,15 +34,17 @@ export default function useCreateAppointmentForm(
   options?: UseAppointmentFormOptions,
 ) {
   const [currentStep, setCurrentStep] = React.useState(1);
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
+  const [isAutoCreating, setIsAutoCreating] = React.useState(false);
   const totalSteps = 4;
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
 
-  // Determine if we're editing or creating
   const isEditing = !!options?.appointment;
 
   const form = useForm<FormType>({
@@ -49,18 +52,55 @@ export default function useCreateAppointmentForm(
     mode: "onChange",
     defaultValues: isEditing
       ? {
-          // Pre-fill with existing data
           date: new Date(options.appointment!.date),
           time: options.appointment!.time,
           telephone: options.appointment!.telephone,
         }
       : {
-          // Default values for new appointment
           date: tomorrow,
           time: "",
           telephone: "",
         },
   });
+
+  // On mount — check if we're returning from MP payment
+  React.useEffect(() => {
+    const status = searchParams.get("status");
+    const paymentId = searchParams.get("payment_id");
+    const dateParam = searchParams.get("date");
+    const hourParam = searchParams.get("hour");
+    const telephoneParam = searchParams.get("telephone");
+
+    if (
+      status === "approved" &&
+      paymentId &&
+      dateParam &&
+      hourParam &&
+      telephoneParam
+    ) {
+      const [year, month, day] = dateParam.split("-").map(Number);
+      const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+
+      setIsAutoCreating(true);
+
+      createAppointmentAction({
+        date,
+        time: decodeURIComponent(hourParam),
+        telephone: decodeURIComponent(telephoneParam),
+      }).then((response) => {
+        if (response.success) {
+          toast.success("Turno creado correctamente 🎉");
+          router.push("/");
+        } else {
+          toast.error(response.error ?? "Error al crear el turno");
+          setIsAutoCreating(false);
+        }
+      });
+
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, "", cleanUrl);
+    }
+  }, [searchParams]);
 
   const handleNext = async () => {
     const stepFieldsMap: Record<number, (keyof FormType)[]> = {
@@ -72,7 +112,9 @@ export default function useCreateAppointmentForm(
     const fieldsToValidate = stepFieldsMap[currentStep] || [];
     const isValid = await form.trigger(fieldsToValidate);
 
-    if (isValid && currentStep < totalSteps) {
+    if (!isValid) return;
+
+    if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -83,50 +125,48 @@ export default function useCreateAppointmentForm(
     }
   };
 
+  // Called when user clicks "Confirmar y Pagar" on step 4
   const onSubmit = async (data: FormType) => {
-    try {
-      const response = isEditing
-        ? await updateAppointmentAction({
-            id: options.appointment!.id,
-            date: data.date,
-            time: data.time,
-            telephone: data.telephone,
-          })
-        : await createAppointmentAction({
-            date: data.date,
-            time: data.time,
-            telephone: data.telephone,
-          });
+    if (isEditing) {
+      try {
+        const response = await updateAppointmentAction({
+          id: options.appointment!.id,
+          date: data.date,
+          time: data.time,
+          telephone: data.telephone,
+        });
 
-      if (response.success) {
-        toast.success(
-          isEditing
-            ? "Turno actualizado correctamente 🎉"
-            : "Turno creado correctamente 🎉",
-        );
-
-        if (!isEditing) {
-          form.reset();
+        if (response.success) {
+          toast.success("Turno actualizado correctamente 🎉");
+          router.push("/appointments/get");
+        } else {
+          toast.error(response.error ?? "Error al actualizar el turno");
         }
-
-        router.push(isEditing ? "/appointments/get" : "/");
-      } else {
-        toast.error(response.error ?? "Error al procesar el turno");
+      } catch {
+        toast.error("Error inesperado");
       }
-    } catch (error) {
-      toast.error("Error inesperado");
+      return;
     }
-  };
 
-  const availableTimes = [
-    "08:00",
-    "09:00",
-    "10:00",
-    "11:00",
-    "16:00",
-    "17:00",
-    "18:00",
-  ];
+    // New appointment — redirect to MP
+    const dateStr = data.date.toISOString().split("T")[0];
+
+    setIsRedirecting(true);
+
+    const response = await createPaymentPreferenceAction({
+      date: dateStr,
+      hour: data.time,
+      telephone: data.telephone,
+    });
+
+    if (!response.success || !response.initPoint) {
+      toast.error(response.error ?? "Error al iniciar el pago");
+      setIsRedirecting(false);
+      return;
+    }
+
+    router.push(response.initPoint);
+  };
 
   return {
     form,
@@ -135,6 +175,7 @@ export default function useCreateAppointmentForm(
     handleNext,
     handleBack,
     onSubmit,
-    availableTimes,
+    isRedirecting,
+    isAutoCreating,
   };
 }

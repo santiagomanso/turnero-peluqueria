@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import DateStep from "./date-step";
 import HourStep from "./hour-step";
 import TelephoneStep from "./telephone-step";
@@ -13,7 +15,18 @@ type Props = {
   appointment?: Appointment;
 };
 
-export default function CreateAppointmentForm({ appointment }: Props) {
+function FormSkeleton() {
+  return (
+    <div className="w-full flex flex-col items-center justify-center min-h-100 gap-3">
+      <Loader2 className="w-6 h-6 animate-spin text-gold" />
+      <p className="text-xs text-content-quaternary uppercase tracking-widest">
+        Cargando...
+      </p>
+    </div>
+  );
+}
+
+function AppointmentFormInner({ appointment }: Props) {
   const appointmentForm = useCreateAppointmentForm({ appointment });
 
   return (
@@ -24,7 +37,6 @@ export default function CreateAppointmentForm({ appointment }: Props) {
         onSubmit={appointmentForm.form.handleSubmit(appointmentForm.onSubmit)}
         className="w-full"
       >
-        {/* White card wrapping the step content */}
         <div className="bg-white rounded-xl border border-border-subtle shadow-sm p-5 mb-4 min-h-100 flex flex-col w-full">
           {appointmentForm.currentStep === 1 && (
             <DateStep appointmentForm={appointmentForm} />
@@ -43,5 +55,13 @@ export default function CreateAppointmentForm({ appointment }: Props) {
         <BottomNavigationButtons appointmentForm={appointmentForm} />
       </form>
     </div>
+  );
+}
+
+export default function CreateAppointmentForm({ appointment }: Props) {
+  return (
+    <Suspense fallback={<FormSkeleton />}>
+      <AppointmentFormInner appointment={appointment} />
+    </Suspense>
   );
 }

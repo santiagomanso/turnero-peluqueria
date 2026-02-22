@@ -49,7 +49,7 @@ export default function DateStep({ appointmentForm }: Props) {
                 mode="single"
                 selected={field.value || undefined}
                 onSelect={(date) => {
-                  field.onChange(date || new Date());
+                  if (date) field.onChange(date); // ← don't update if undefined (deselect click)
                 }}
                 locale={es}
                 disabled={(date) => {
