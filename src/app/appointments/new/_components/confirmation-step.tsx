@@ -1,6 +1,6 @@
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import { format } from "date-fns";
-import { Calendar, Clock, Phone } from "lucide-react";
+import { Calendar, Clock, CreditCard, DollarSign, Phone } from "lucide-react";
 
 type Props = {
   appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
@@ -69,6 +69,17 @@ export default function ConfirmationStep({ appointmentForm }: Props) {
           label="Teléfono"
           value={`..${formData.telephone.slice(4)}`}
         />
+        <InfoCard icon={DollarSign} label="Precio" value="$1.000 ARS" />
+
+        {/* Full width MP row */}
+        <div className="col-span-2 flex items-center gap-3 p-4 rounded-md bg-[#009ee3]/8 border border-[#009ee3]/20">
+          <CreditCard className="w-4 h-4 shrink-0 text-[#009ee3]" />
+          <p className="text-xs text-content-tertiary leading-relaxed">
+            El pago se procesará de forma segura a través de{" "}
+            <strong className="text-content-secondary">Mercado Pago</strong>.
+            Serás redirigido al checkout al confirmar.
+          </p>
+        </div>
       </div>
     </div>
   );
