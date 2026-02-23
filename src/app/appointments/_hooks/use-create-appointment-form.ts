@@ -41,6 +41,8 @@ export default function useCreateAppointmentForm(
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const paymentId = searchParams.get("payment_id") ?? undefined;
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
@@ -87,6 +89,7 @@ export default function useCreateAppointmentForm(
         date,
         time: decodeURIComponent(hourParam),
         telephone: decodeURIComponent(telephoneParam),
+        paymentId,
       }).then((response) => {
         if (response.success) {
           toast.success("Turno creado correctamente 🎉");
