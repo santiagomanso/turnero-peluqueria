@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,7 +33,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log("MP Webhook verified:", JSON.stringify(body, null, 2));
+    // Update appointment with paymentId when payment is approved
+    if (body.type === "payment" && body.data?.id) {
+      const paymentId = String(body.data.id);
+
+      await db.appointment.updateMany({
+        where: {
+          paymentId: null,
+          createdAt: {
+            gte: new Date(Date.now() - 1000 * 60 * 30), // last 30 minutes
+          },
+        },
+        data: { paymentId },
+      });
+    }
+
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (error) {
     console.error("Webhook error:", error);
