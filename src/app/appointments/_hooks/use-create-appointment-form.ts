@@ -41,8 +41,6 @@ export default function useCreateAppointmentForm(
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const paymentId = searchParams.get("payment_id") ?? undefined;
-
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
@@ -68,7 +66,7 @@ export default function useCreateAppointmentForm(
   // On mount — check if we're returning from MP payment
   React.useEffect(() => {
     const status = searchParams.get("status");
-    const paymentId = searchParams.get("payment_id");
+    const paymentId = searchParams.get("payment_id") ?? undefined;
     const dateParam = searchParams.get("date");
     const hourParam = searchParams.get("hour");
     const telephoneParam = searchParams.get("telephone");
@@ -128,7 +126,6 @@ export default function useCreateAppointmentForm(
     }
   };
 
-  // Called when user clicks "Confirmar y Pagar" on step 4
   const onSubmit = async (data: FormType) => {
     if (isEditing) {
       try {
@@ -151,9 +148,7 @@ export default function useCreateAppointmentForm(
       return;
     }
 
-    // New appointment — redirect to MP
     const dateStr = data.date.toISOString().split("T")[0];
-
     setIsRedirecting(true);
 
     const response = await createPaymentPreferenceAction({
