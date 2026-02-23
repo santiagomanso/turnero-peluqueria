@@ -42,7 +42,11 @@ export async function createPaymentPreferenceAction(
         auto_return: "approved",
       },
     });
-
+    console.log(
+      "back_urls.success:",
+      `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new/success`,
+    );
+    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
     return { success: true, initPoint: result.init_point };
   } catch (error) {
     console.error("Error creating MP preference:", error);
