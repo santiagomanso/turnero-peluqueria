@@ -90,7 +90,7 @@ export default function useCreateAppointmentForm(
       }).then((response) => {
         if (response.success) {
           toast.success("Turno creado correctamente 🎉");
-          router.push("/");
+          router.push("/appointments/new/success");
         } else {
           toast.error(response.error ?? "Error al crear el turno");
           setIsAutoCreating(false);

@@ -38,7 +38,7 @@ export async function createPaymentPreferenceAction(
       },
     });
 
-    return { success: true, initPoint: result.sandbox_init_point };
+    return { success: true, initPoint: result.init_point };
   } catch (error) {
     console.error("Error creating MP preference:", error);
     return { success: false, error: "No se pudo iniciar el pago." };
