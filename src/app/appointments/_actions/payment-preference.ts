@@ -34,7 +34,7 @@ export async function createPaymentPreferenceAction(
           failure: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new?status=failure`,
           pending: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new?status=pending`,
         },
-        // auto_return: "approved",
+        auto_return: "approved",
       },
     });
 
