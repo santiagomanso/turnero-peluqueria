@@ -4,8 +4,8 @@ import * as z from "zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createAppointmentAction } from "../_actions/create";
 import { updateAppointmentAction } from "../_actions/update";
+import { createAppointmentAction } from "../_actions/create";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Appointment } from "@/types/appointment";
@@ -66,40 +66,9 @@ export default function useCreateAppointmentForm(
   // On mount — check if we're returning from MP payment
   React.useEffect(() => {
     const status = searchParams.get("status");
-    const paymentId = searchParams.get("payment_id") ?? undefined;
-    const dateParam = searchParams.get("date");
-    const hourParam = searchParams.get("hour");
-    const telephoneParam = searchParams.get("telephone");
 
-    if (
-      status === "approved" &&
-      paymentId &&
-      dateParam &&
-      hourParam &&
-      telephoneParam
-    ) {
-      const [year, month, day] = dateParam.split("-").map(Number);
-      const date = new Date(year, month - 1, day, 0, 0, 0, 0);
-
-      setIsAutoCreating(true);
-
-      createAppointmentAction({
-        date,
-        time: decodeURIComponent(hourParam),
-        telephone: decodeURIComponent(telephoneParam),
-        paymentId,
-      }).then((response) => {
-        if (response.success) {
-          toast.success("Turno creado correctamente 🎉");
-          router.push("/appointments/new/success");
-        } else {
-          toast.error(response.error ?? "Error al crear el turno");
-          setIsAutoCreating(false);
-        }
-      });
-
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, "", cleanUrl);
+    if (status === "approved") {
+      router.push("/appointments/new/success");
     }
   }, [searchParams]);
 

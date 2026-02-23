@@ -7,8 +7,8 @@ const client = new MercadoPagoConfig({
 });
 
 type CreatePreferencePayload = {
-  date: string; // "2026-02-26"
-  hour: string; // "10:00"
+  date: string;
+  hour: string;
   telephone: string;
 };
 
@@ -22,15 +22,20 @@ export async function createPaymentPreferenceAction(
       body: {
         items: [
           {
-            id: "turno",
-            title: `Luckete Colorista - Turno ${data.date.split("-").reverse().join("-")} - ${data.hour}`,
+            id: `turno-${data.date}-${data.hour}`,
+            title: "Luckete Colorista",
             quantity: 1,
             unit_price: 20,
             currency_id: "ARS",
           },
         ],
+        external_reference: JSON.stringify({
+          date: data.date,
+          hour: data.hour,
+          telephone: data.telephone,
+        }),
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new?date=${data.date}&hour=${encodeURIComponent(data.hour)}&telephone=${encodeURIComponent(data.telephone)}&status=approved`,
+          success: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new/success`,
           failure: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new?status=failure`,
           pending: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new?status=pending`,
         },
