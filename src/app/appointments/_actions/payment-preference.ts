@@ -25,7 +25,7 @@ export async function createPaymentPreferenceAction(
             id: "turno",
             title: `Luckete Colorista - Turno ${data.date.split("-").reverse().join("-")} - ${data.hour}`,
             quantity: 1,
-            unit_price: 500,
+            unit_price: 20,
             currency_id: "ARS",
           },
         ],
