@@ -36,7 +36,7 @@ export async function createPaymentPreferenceAction(
           {
             id: `turno-${data.date}-${data.hour}`,
             title: "Turno",
-            description: "Reserva de turno en Luckete Colorista",
+            description: "Luckete Colorista",
             category_id: "services",
             quantity: 1,
             unit_price: 20,
