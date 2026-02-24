@@ -1,8 +1,12 @@
+export type AppointmentStatus = "PENDING" | "PAID";
+
 export type Appointment = {
-  id: string; // Changed from number to string
+  id: string;
   date: Date;
   time: string;
   telephone: string;
+  paymentId: string | null;
+  status: AppointmentStatus;
   createdAt: Date;
   updatedAt: Date;
 };

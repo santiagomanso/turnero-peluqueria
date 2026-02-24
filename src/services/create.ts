@@ -17,6 +17,7 @@ export async function createAppointment(
       time: data.time,
       telephone: data.telephone,
       paymentId: data.paymentId,
+      status: "PENDING",
     },
   });
 }

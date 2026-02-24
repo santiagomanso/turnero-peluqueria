@@ -1,6 +1,7 @@
 "use server";
 
 import MercadoPagoConfig, { Preference } from "mercadopago";
+import { createAppointment } from "@/services/create";
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
@@ -16,6 +17,17 @@ export async function createPaymentPreferenceAction(
   data: CreatePreferencePayload,
 ) {
   try {
+    // 1. Create PENDING appointment first
+    const [year, month, day] = data.date.split("-").map(Number);
+    const appointmentDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+
+    const appointment = await createAppointment({
+      date: appointmentDate,
+      time: data.hour,
+      telephone: data.telephone,
+    });
+
+    // 2. Create MP preference with appointment id as external_reference
     const preference = new Preference(client);
 
     const result = await preference.create({
@@ -23,18 +35,14 @@ export async function createPaymentPreferenceAction(
         items: [
           {
             id: `turno-${data.date}-${data.hour}`,
-            title: "Luckete Colorista",
+            title: "Turno",
             quantity: 1,
             unit_price: 20,
             currency_id: "ARS",
             picture_url: "https://i.ibb.co/hFZ6ctBz/logo.png",
           },
         ],
-        external_reference: JSON.stringify({
-          date: data.date,
-          hour: data.hour,
-          telephone: data.telephone,
-        }),
+        external_reference: appointment.id,
         back_urls: {
           success: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new/success`,
           failure: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new?status=failure`,
@@ -43,11 +51,7 @@ export async function createPaymentPreferenceAction(
         auto_return: "approved",
       },
     });
-    console.log(
-      "back_urls.success:",
-      `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new/success`,
-    );
-    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
+
     return { success: true, initPoint: result.init_point };
   } catch (error) {
     console.error("Error creating MP preference:", error);

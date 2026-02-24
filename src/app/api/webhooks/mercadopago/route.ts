@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { createAppointment } from "@/services/create";
+import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Handle approved payment
     if (body.type === "payment" && body.data?.id) {
       const paymentId = String(body.data.id);
 
@@ -49,24 +48,20 @@ export async function POST(req: NextRequest) {
       );
 
       const payment = await paymentResponse.json();
-      console.log("MP Payment:", JSON.stringify(payment, null, 2));
+      console.log("MP Payment status:", payment.status);
+      console.log("MP external_reference:", payment.external_reference);
 
       if (payment.status === "approved" && payment.external_reference) {
-        const { date, hour, telephone } = JSON.parse(
-          payment.external_reference,
-        );
-
-        const [year, month, day] = date.split("-").map(Number);
-        const appointmentDate = new Date(year, month - 1, day, 0, 0, 0, 0);
-
-        await createAppointment({
-          date: appointmentDate,
-          time: hour,
-          telephone,
-          paymentId,
+        // Find appointment by id and mark as PAID
+        await db.appointment.update({
+          where: { id: payment.external_reference },
+          data: {
+            status: "PAID",
+            paymentId,
+          },
         });
 
-        console.log("Appointment created via webhook for payment:", paymentId);
+        console.log("Appointment marked as PAID:", payment.external_reference);
       }
     }
 

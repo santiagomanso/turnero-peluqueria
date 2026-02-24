@@ -6,14 +6,20 @@ datasource db {
   provider = "postgresql"
 }
 
+enum AppointmentStatus {
+  PENDING
+  PAID
+}
+
 model Appointment {
-  id        String   @id @default(cuid())
+  id        String            @id @default(cuid())
   date      DateTime
   time      String
   telephone String
   paymentId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status    AppointmentStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   @@map("appointments")
 }
