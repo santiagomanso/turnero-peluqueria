@@ -25,7 +25,7 @@ export async function createPaymentPreferenceAction(
             id: `turno-${data.date}-${data.hour}`,
             title: "Luckete Colorista",
             quantity: 1,
-            unit_price: 1,
+            unit_price: 20,
             currency_id: "ARS",
             picture_url: "https://i.ibb.co/hFZ6ctBz/logo.png",
           },
