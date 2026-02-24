@@ -63,12 +63,16 @@ export default function useCreateAppointmentForm(
         },
   });
 
-  // On mount — check if we're returning from MP payment
   React.useEffect(() => {
     const status = searchParams.get("status");
+    const collectionStatus = searchParams.get("collection_status");
 
-    if (status === "approved") {
+    if (status === "approved" || collectionStatus === "approved") {
       router.push("/appointments/new/success");
+    }
+
+    if (status === "failure") {
+      toast.error("El pago no pudo procesarse. Intentá de nuevo.");
     }
   }, [searchParams]);
 
