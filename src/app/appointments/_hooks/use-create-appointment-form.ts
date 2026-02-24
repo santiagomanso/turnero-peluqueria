@@ -5,7 +5,6 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateAppointmentAction } from "../_actions/update";
-import { createAppointmentAction } from "../_actions/create";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Appointment } from "@/types/appointment";
@@ -35,7 +34,6 @@ export default function useCreateAppointmentForm(
 ) {
   const [currentStep, setCurrentStep] = React.useState(1);
   const [isRedirecting, setIsRedirecting] = React.useState(false);
-  const [isAutoCreating, setIsAutoCreating] = React.useState(false);
   const totalSteps = 4;
 
   const router = useRouter();
@@ -147,6 +145,5 @@ export default function useCreateAppointmentForm(
     handleBack,
     onSubmit,
     isRedirecting,
-    isAutoCreating,
   };
 }
