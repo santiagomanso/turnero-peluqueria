@@ -36,12 +36,15 @@ export async function createPaymentPreferenceAction(
           {
             id: `turno-${data.date}-${data.hour}`,
             title: "Turno",
+            description: "Reserva de turno en Luckete Colorista",
+            category_id: "services",
             quantity: 1,
             unit_price: 20,
             currency_id: "ARS",
             picture_url: "https://i.ibb.co/hFZ6ctBz/logo.png",
           },
         ],
+        statement_descriptor: "LUCKETE COLORISTA",
         external_reference: appointment.id,
         back_urls: {
           success: `${process.env.NEXT_PUBLIC_APP_URL}/appointments/new/success`,
