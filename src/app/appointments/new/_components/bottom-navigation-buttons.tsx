@@ -56,8 +56,10 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           {isSubmitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Redirigiendo...
+              Guardando...
             </>
+          ) : appointmentForm.isEditing ? (
+            "Confirmar"
           ) : (
             "Pagar"
           )}
