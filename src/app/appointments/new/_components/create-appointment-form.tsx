@@ -17,7 +17,7 @@ type Props = {
 
 function FormSkeleton() {
   return (
-    <div className="w-full flex flex-col items-center justify-center min-h-100 gap-3">
+    <div className="w-full flex flex-col items-center justify-center gap-3">
       <Loader2 className="w-6 h-6 animate-spin text-gold" />
       <p className="text-xs text-content-quaternary uppercase tracking-widest">
         Cargando...
@@ -30,14 +30,14 @@ function AppointmentFormInner({ appointment }: Props) {
   const appointmentForm = useCreateAppointmentForm({ appointment });
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col flex-1">
       <ProgressBar appointmentForm={appointmentForm} />
 
       <form
         onSubmit={appointmentForm.form.handleSubmit(appointmentForm.onSubmit)}
-        className="w-full"
+        className="w-full flex flex-col flex-1"
       >
-        <div className="bg-white rounded-xl border border-border-subtle shadow-sm p-5 mb-4 min-h-100 flex flex-col w-full">
+        <div className="bg-white rounded-xl border border-border-subtle shadow-sm p-5 mb-4 flex flex-col flex-1 overflow-y-auto">
           {appointmentForm.currentStep === 1 && (
             <DateStep appointmentForm={appointmentForm} />
           )}
