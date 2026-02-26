@@ -13,6 +13,12 @@ type SendReminderParams = {
   hour: string;
 };
 
+function formatArgentinePhone(telephone: string): string {
+  const digits = telephone.replace(/\D/g, "");
+  if (digits.startsWith("54")) return digits;
+  return `549${digits}`;
+}
+
 async function sendWhatsAppMessage(body: object) {
   const response = await fetch(WHATSAPP_API_URL, {
     method: "POST",
@@ -41,7 +47,7 @@ export async function sendAppointmentConfirmation({
 }: SendConfirmationParams) {
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
-    to: telephone,
+    to: formatArgentinePhone(telephone),
     type: "template",
     template: {
       name: "appointment_confirmation_1",
@@ -56,12 +62,6 @@ export async function sendAppointmentConfirmation({
             { type: "text", text: "https://maps.app.goo.gl/fXLVneR8ndBgTUxG6" },
           ],
         },
-        {
-          type: "button",
-          sub_type: "url",
-          index: "0",
-          parameters: [{ type: "text", text: appointmentId }],
-        },
       ],
     },
   });
@@ -74,7 +74,7 @@ export async function sendAppointmentReminder({
 }: SendReminderParams) {
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
-    to: telephone,
+    to: formatArgentinePhone(telephone),
     type: "template",
     template: {
       name: "appointment_reminder_2",
