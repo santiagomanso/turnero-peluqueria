@@ -72,6 +72,8 @@ export async function sendAppointmentReminder({
   date,
   hour,
 }: SendReminderParams) {
+  const mapsLink = "https://maps.app.goo.gl/fXLVneR8ndBgTUxG6";
+
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
     to: formatArgentinePhone(telephone),
@@ -83,9 +85,21 @@ export async function sendAppointmentReminder({
         {
           type: "body",
           parameters: [
-            { type: "text", text: date },
-            { type: "text", text: hour },
-            { type: "text", text: "https://maps.app.goo.gl/fXLVneR8ndBgTUxG6" },
+            { type: "text", text: "Cliente" }, // {{1}} name
+            { type: "text", text: date }, // {{2}} date
+            { type: "text", text: hour }, // {{3}} hour
+            { type: "text", text: mapsLink }, // {{4}} location text
+          ],
+        },
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [
+            {
+              type: "text",
+              text: mapsLink,
+            },
           ],
         },
       ],
