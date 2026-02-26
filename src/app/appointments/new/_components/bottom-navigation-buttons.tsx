@@ -59,7 +59,7 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
               Redirigiendo...
             </>
           ) : (
-            "Confirmar y Pagar"
+            "Pagar"
           )}
         </Button>
       )}

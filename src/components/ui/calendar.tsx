@@ -29,7 +29,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "group/calendar p-3 [--cell-size:--spacing(8)]",
+        "group/calendar p-1 [--cell-size:--spacing(6)] sm:[--cell-size:--spacing(8)]",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className,
@@ -85,10 +85,10 @@ function Calendar({
         table: "w-full border-collapse",
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "rounded-md flex-1 font-normal text-[0.8rem] select-none",
+          "rounded-md flex-1 font-normal text-[0.75rem] select-none",
           defaultClassNames.weekday,
         ),
-        week: cn("flex w-full mt-2", defaultClassNames.week),
+        week: cn("flex w-full mt-1", defaultClassNames.week),
         week_number_header: cn(
           "select-none w-(--cell-size)",
           defaultClassNames.week_number_header,
@@ -196,7 +196,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal items-center justify-center rounded-md transition-colors",
+        "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal items-center justify-center rounded-md transition-colors text-sm",
         "[&>span]:text-xs [&>span]:opacity-70",
         "data-[range-end=true]:rounded-md data-[range-start=true]:rounded-md data-[range-middle=true]:rounded-none",
         isSelected

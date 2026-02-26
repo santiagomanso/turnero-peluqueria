@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
+import { sendAppointmentConfirmation } from "@/services/whatsapp";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,8 +55,7 @@ export async function POST(req: NextRequest) {
       console.log("MP external_reference:", payment.external_reference);
 
       if (payment.status === "approved" && payment.external_reference) {
-        // Find appointment by id and mark as PAID
-        await db.appointment.update({
+        const updated = await db.appointment.update({
           where: { id: payment.external_reference },
           data: {
             status: "PAID",
@@ -62,6 +64,16 @@ export async function POST(req: NextRequest) {
         });
 
         console.log("Appointment marked as PAID:", payment.external_reference);
+
+        // Send WhatsApp confirmation
+        await sendAppointmentConfirmation({
+          telephone: updated.telephone,
+          date: format(updated.date, "dd/MM/yyyy", { locale: es }),
+          hour: updated.time,
+          appointmentId: updated.id,
+        });
+
+        console.log("WhatsApp confirmation sent to:", updated.telephone);
       }
     }
 
