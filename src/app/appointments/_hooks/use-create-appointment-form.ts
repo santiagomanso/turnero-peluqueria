@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Appointment } from "@/types/appointment";
 import { createPaymentPreferenceAction } from "../_actions/payment-preference";
+import { is } from "date-fns/locale";
 
 const formSchema = z.object({
   date: z.date({
@@ -52,7 +53,7 @@ export default function useCreateAppointmentForm(
       ? {
           date: new Date(options.appointment!.date),
           time: options.appointment!.time,
-          telephone: options.appointment!.telephone,
+          telephone: options.appointment!.telephone.replace(/^549/, ""),
         }
       : {
           date: tomorrow,
@@ -141,6 +142,7 @@ export default function useCreateAppointmentForm(
     form,
     currentStep,
     totalSteps,
+    isEditing,
     handleNext,
     handleBack,
     onSubmit,

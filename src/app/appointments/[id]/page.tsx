@@ -1,8 +1,7 @@
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
 import { getAppointmentByIdAction } from "../_actions/get-by-id";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatInTimeZone } from "date-fns-tz";
 import {
   Calendar,
   Clock,
@@ -50,6 +49,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
 
   const appointment = response.data;
   const isPaid = appointment.status === "PAID";
+  const TZ = "America/Argentina/Buenos_Aires";
 
   return (
     <Container.wrapper>
@@ -74,9 +74,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
             <InfoCard
               icon={Calendar}
               label="Fecha"
-              value={format(new Date(appointment.date), "dd/MM/yyyy", {
-                locale: es,
-              })}
+              value={formatInTimeZone(appointment.date, TZ, "dd/MM/yyyy")}
             />
             <InfoCard icon={Clock} label="Hora" value={appointment.time} />
             <InfoCard
