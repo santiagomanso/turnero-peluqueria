@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { formatArgentinianPhone } from "@/lib/format-phone";
 import type { Appointment } from "@/types/appointment";
 
 export type CreateAppointmentInput = {
@@ -8,12 +9,6 @@ export type CreateAppointmentInput = {
   paymentId?: string;
 };
 
-function normalizeArgentinePhone(telephone: string): string {
-  const digits = telephone.replace(/\D/g, "");
-  if (digits.startsWith("54")) return digits;
-  return `549${digits}`;
-}
-
 export async function createAppointment(
   data: CreateAppointmentInput,
 ): Promise<Appointment> {
@@ -21,7 +16,7 @@ export async function createAppointment(
     data: {
       date: data.date,
       time: data.time,
-      telephone: normalizeArgentinePhone(data.telephone),
+      telephone: formatArgentinianPhone(data.telephone),
       paymentId: data.paymentId,
       status: "PENDING",
     },

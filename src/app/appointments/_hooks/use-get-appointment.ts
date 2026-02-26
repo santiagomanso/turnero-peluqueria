@@ -2,6 +2,7 @@ import { Appointment } from "@/types/appointment";
 import React from "react";
 import { toast } from "sonner";
 import { getAppointmentsByPhoneAction } from "../_actions/get-by-phone";
+import { formatArgentinianPhone } from "@/lib/format-phone";
 
 export default function useGetAppointments() {
   const [phone, setPhone] = React.useState("");
@@ -22,7 +23,9 @@ export default function useGetAppointments() {
     setHasSearched(false);
 
     try {
-      const response = await getAppointmentsByPhoneAction(phone);
+      const response = await getAppointmentsByPhoneAction(
+        formatArgentinianPhone(phone),
+      );
 
       if (response.success && response.data) {
         setAppointments(response.data);

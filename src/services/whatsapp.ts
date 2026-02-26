@@ -1,3 +1,5 @@
+import { formatArgentinianPhone } from "@/lib/format-phone";
+
 const WHATSAPP_API_URL = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_ID}/messages`;
 
 type SendConfirmationParams = {
@@ -13,12 +15,6 @@ type SendReminderParams = {
   hour: string;
   appointmentId: string;
 };
-
-function formatArgentinePhone(telephone: string): string {
-  const digits = telephone.replace(/\D/g, "");
-  if (digits.startsWith("54")) return digits;
-  return `549${digits}`;
-}
 
 async function sendWhatsAppMessage(body: object) {
   const response = await fetch(WHATSAPP_API_URL, {
@@ -48,7 +44,7 @@ export async function sendAppointmentConfirmation({
 }: SendConfirmationParams) {
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
-    to: formatArgentinePhone(telephone),
+    to: formatArgentinianPhone(telephone),
     type: "template",
     template: {
       name: "appointment_confirmation_1",
@@ -85,7 +81,7 @@ export async function sendAppointmentReminder({
 
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
-    to: formatArgentinePhone(telephone),
+    to: formatArgentinianPhone(telephone),
     type: "template",
     template: {
       name: "appointment_reminder_2",
