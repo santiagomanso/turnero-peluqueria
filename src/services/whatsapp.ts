@@ -11,6 +11,7 @@ type SendReminderParams = {
   telephone: string;
   date: string;
   hour: string;
+  appointmentId: string;
 };
 
 function formatArgentinePhone(telephone: string): string {
@@ -73,6 +74,7 @@ export async function sendAppointmentReminder({
   hour,
 }: SendReminderParams) {
   const mapsLink = "https://maps.app.goo.gl/fXLVneR8ndBgTUxG6";
+  const appointmentId = "1234"; // replace with real id
 
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
@@ -85,10 +87,10 @@ export async function sendAppointmentReminder({
         {
           type: "body",
           parameters: [
-            { type: "text", text: "Cliente" }, // {{1}} name
-            { type: "text", text: date }, // {{2}} date
-            { type: "text", text: hour }, // {{3}} hour
-            { type: "text", text: mapsLink }, // {{4}} location text
+            { type: "text", text: date }, // {{1}}
+            { type: "text", text: hour }, // {{2}}
+            { type: "text", text: appointmentId }, // {{3}}
+            { type: "text", text: mapsLink }, // {{4}}
           ],
         },
         {
