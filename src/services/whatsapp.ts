@@ -72,9 +72,16 @@ export async function sendAppointmentReminder({
   telephone,
   date,
   hour,
-}: SendReminderParams) {
-  const mapsLink = "https://maps.app.goo.gl/fXLVneR8ndBgTUxG6";
-  const appointmentId = "1234"; // replace with real id
+  appointmentId, // you may not need this for reminder
+  name,
+}: {
+  telephone: string;
+  date: string;
+  hour: string;
+  appointmentId?: string;
+  name: string;
+}) {
+  const mapsLink = "https://maps.app.goo.gl/T56dNBbQZaFUNDJi6";
 
   return sendWhatsAppMessage({
     messaging_product: "whatsapp",
@@ -87,21 +94,11 @@ export async function sendAppointmentReminder({
         {
           type: "body",
           parameters: [
-            { type: "text", text: date }, // {{1}}
-            { type: "text", text: hour }, // {{2}}
-            { type: "text", text: appointmentId }, // {{3}}
-            { type: "text", text: mapsLink }, // {{4}}
-          ],
-        },
-        {
-          type: "button",
-          sub_type: "url",
-          index: "0",
-          parameters: [
-            {
-              type: "text",
-              text: mapsLink,
-            },
+            { type: "text", text: name }, // {{1}}
+            { type: "text", text: "Luckete Colorista" }, // {{2}}
+            { type: "text", text: date }, // {{3}}
+            { type: "text", text: hour }, // {{4}}
+            { type: "text", text: mapsLink }, // {{5}}
           ],
         },
       ],

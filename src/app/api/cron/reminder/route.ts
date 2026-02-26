@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
           telephone: appointment.telephone,
           date: format(appointment.date, "dd/MM/yyyy", { locale: es }),
           hour: appointment.time,
-          appointmentId: appointment.id, // ✅ add this
+          name: "Cliente", // make sure this exists in your DB
         }),
       ),
     );
