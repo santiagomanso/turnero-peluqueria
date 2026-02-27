@@ -6,7 +6,7 @@ A Next.js appointment booking web app for a hair salon called **Luckete Colorist
 Users book appointments, pay via MercadoPago, and receive WhatsApp notifications.
 
 - **Production URL:** https://turnero-peluqueria.vercel.app
-- **Stack:** Next.js 15, TypeScript, Prisma, PostgreSQL (Neon), TailwindCSS, Vercel
+- **Stack:** Next.js 16, TypeScript, Prisma, PostgreSQL (Neon), TailwindCSS, Vercel
 - **Package manager:** pnpm
 - **Repo:** GitHub (deployed via Vercel)
 
