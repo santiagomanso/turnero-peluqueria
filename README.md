@@ -37,7 +37,7 @@ enum AppointmentStatus {
 ### Key Notes
 
 - `date` is stored as UTC midnight (e.g., `2026-02-27 00:00:00`). Always use `formatInTimeZone` from `date-fns-tz` with `"America/Argentina/Buenos_Aires"` to display correctly.
-- `telephone` is stored in full Argentine format: `549XXXXXXXXXX` (e.g., `5493794807735`)
+- `telephone` is stored in full Argentine format: `549XXXXXXXXXX` 
 - `status` starts as `PENDING` on creation, becomes `PAID` when webhook fires
 - `paymentId` is the MercadoPago payment ID, set by webhook
 
