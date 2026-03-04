@@ -1,4 +1,4 @@
-import { Home, Share2 } from "lucide-react";
+import { Home, UserRound } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -21,9 +21,12 @@ export default function Navbar({ title }: Props) {
         </h2>
       )}
 
-      <button className="p-2 rounded-lg bg-white border border-border-subtle text-content transition-colors hover:text-content">
-        <Share2 strokeWidth={1.5} className="h-5 w-5" />
-      </button>
+      <Link
+        href="/admin"
+        className="p-2 rounded-lg bg-white border border-border-subtle text-content transition-colors hover:text-content"
+      >
+        <UserRound strokeWidth={1.5} className="h-5 w-5" />
+      </Link>
     </nav>
   );
 }

@@ -2,7 +2,7 @@ import Header from "@/components/header";
 import HomeLink from "@/components/home-link";
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
-import { Plus, SquarePen, ShoppingCart, Phone, Settings2 } from "lucide-react";
+import { Plus, SquarePen, ShoppingCart, Phone } from "lucide-react";
 
 export default function Home() {
   return (
@@ -35,16 +35,6 @@ export default function Home() {
               type="external-link"
             />
           </ul>
-
-          {/* Admin — separado visualmente */}
-          <div className="pt-2 border-t border-border-subtle">
-            <HomeLink
-              path="/admin"
-              label="Administración"
-              icon={Settings2}
-              type="subtle"
-            />
-          </div>
         </div>
       </Container.content>
     </Container.wrapper>
