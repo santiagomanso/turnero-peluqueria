@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
             payment: {
               create: {
                 mercadopagoId: paymentId,
-                amount: Math.round(payment.transaction_amount * 100),
+                amount: payment.transaction_amount,
                 status: payment.status,
               },
             },
