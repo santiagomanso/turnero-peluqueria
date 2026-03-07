@@ -79,6 +79,7 @@ export function MetricsView() {
                 label="Total turnos"
                 value={String(d.stats.total)}
                 delta={d.stats.totalDelta}
+                period={period}
               />
               <StatCard
                 icon={CheckCircle}
@@ -86,18 +87,21 @@ export function MetricsView() {
                 labelMobile="Pagados"
                 value={String(d.stats.paid)}
                 delta={d.stats.paidDelta}
+                period={period}
               />
               <StatCard
                 icon={XCircle}
                 label="Cancelaciones"
                 value={String(d.stats.cancelled)}
                 delta={d.stats.cancelledDelta}
+                period={period}
               />
               <StatCard
                 icon={TrendingUp}
                 label="Ganancias"
                 value={d.stats.revenue}
                 delta={d.stats.revenueDelta}
+                period={period}
               />
             </div>
             <div className="grid grid-cols-3 gap-4 max-lg:grid-cols-1">

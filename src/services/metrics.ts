@@ -1,6 +1,11 @@
 import { db } from "@/lib/db";
 import type { Period, PeriodData } from "@/types/metrics";
 
+function calcDelta(current: number, previous: number): number {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
 export async function getMetrics(period: Period): Promise<PeriodData> {
   const now = new Date();
   const from = new Date(now);
@@ -9,15 +14,37 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
   else if (period === "month") from.setMonth(now.getMonth() - 1);
   else from.setFullYear(now.getFullYear() - 1);
 
-  const appointments = await db.appointment.findMany({
-    where: { date: { gte: from, lte: now } },
-    select: { date: true, time: true, status: true, price: true },
-  });
+  const prevFrom = new Date(from);
+  if (period === "week") prevFrom.setDate(prevFrom.getDate() - 7);
+  else if (period === "month") prevFrom.setMonth(prevFrom.getMonth() - 1);
+  else prevFrom.setFullYear(prevFrom.getFullYear() - 1);
 
+  const [appointments, prevAppointments] = await Promise.all([
+    db.appointment.findMany({
+      where: { date: { gte: from } },
+      select: { date: true, time: true, status: true, price: true },
+    }),
+    db.appointment.findMany({
+      where: { date: { gte: prevFrom, lte: from } },
+      select: { date: true, status: true, price: true },
+    }),
+  ]);
+
+  // Current period stats
   const total = appointments.length;
   const paid = appointments.filter((a) => a.status === "PAID").length;
   const cancelled = appointments.filter((a) => a.status === "CANCELLED").length;
   const revenue = appointments
+    .filter((a) => a.status === "PAID")
+    .reduce((acc, a) => acc + (a.price ?? 0), 0);
+
+  // Previous period stats
+  const prevTotal = prevAppointments.length;
+  const prevPaid = prevAppointments.filter((a) => a.status === "PAID").length;
+  const prevCancelled = prevAppointments.filter(
+    (a) => a.status === "CANCELLED",
+  ).length;
+  const prevRevenue = prevAppointments
     .filter((a) => a.status === "PAID")
     .reduce((acc, a) => acc + (a.price ?? 0), 0);
 
@@ -43,18 +70,7 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
     .sort((a, b) => b.turnos - a.turnos)
     .slice(0, 5);
 
-  // growth: current period vs previous period
-  const prevFrom = new Date(from);
-  const prevTo = new Date(from);
-  if (period === "week") prevFrom.setDate(prevFrom.getDate() - 7);
-  else if (period === "month") prevFrom.setMonth(prevFrom.getMonth() - 1);
-  else prevFrom.setFullYear(prevFrom.getFullYear() - 1);
-
-  const prevAppointments = await db.appointment.findMany({
-    where: { date: { gte: prevFrom, lte: prevTo } },
-    select: { date: true, status: true },
-  });
-
+  // growth chart
   const currentMap: Record<string, number> = {};
   const previousMap: Record<string, number> = {};
 
@@ -84,13 +100,13 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
   return {
     stats: {
       total,
-      totalDelta: 0,
+      totalDelta: calcDelta(total, prevTotal),
       paid,
-      paidDelta: 0,
+      paidDelta: calcDelta(paid, prevPaid),
       cancelled,
-      cancelledDelta: 0,
+      cancelledDelta: calcDelta(cancelled, prevCancelled),
       revenue: `$${revenue.toLocaleString("es-AR")}`,
-      revenueDelta: 0,
+      revenueDelta: calcDelta(revenue, prevRevenue),
     },
     byDay,
     byHour,
