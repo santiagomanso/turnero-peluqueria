@@ -23,3 +23,14 @@ model Appointment {
 
   @@map("appointments")
 }
+
+model Config {
+  id            String   @id @default("singleton")
+  days          Json
+  hours         Json
+  bookingCost   Int
+  discountCodes Json     @default("[]")
+  updatedAt     DateTime @updatedAt
+
+  @@map("config")
+}
