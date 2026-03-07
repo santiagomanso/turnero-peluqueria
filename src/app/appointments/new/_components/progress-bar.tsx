@@ -1,14 +1,11 @@
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
-};
+type Props = { appointmentForm: ReturnType<typeof useCreateAppointmentForm> };
 
 function Step({ step, currentStep }: { step: number; currentStep: number }) {
   const isActive = currentStep === step;
   const isDone = currentStep > step;
-
   return (
     <div
       className={cn(
@@ -17,7 +14,7 @@ function Step({ step, currentStep }: { step: number; currentStep: number }) {
         isDone && "bg-gold-soft text-gold border border-gold-border",
         !isActive &&
           !isDone &&
-          "bg-step-inactive-bg text-step-inactive-text border border-step-inactive-border",
+          "bg-step-inactive-bg text-step-inactive-text border border-step-inactive-border dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700",
       )}
     >
       {step}
@@ -30,7 +27,7 @@ function Line({ done }: { done: boolean }) {
     <div
       className={cn(
         "flex-1 h-px mx-2 transition-all",
-        done ? "bg-gold/40" : "bg-black/8",
+        done ? "bg-gold/40" : "bg-black/8 dark:bg-white/10",
       )}
     />
   );
@@ -38,7 +35,6 @@ function Line({ done }: { done: boolean }) {
 
 export default function ProgressBar({ appointmentForm }: Props) {
   const { currentStep } = appointmentForm;
-
   return (
     <div className="w-full mb-5">
       <div className="flex flex-row items-center w-full">

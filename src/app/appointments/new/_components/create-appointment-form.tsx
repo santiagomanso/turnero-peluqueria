@@ -11,15 +11,13 @@ import BottomNavigationButtons from "./bottom-navigation-buttons";
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import type { Appointment } from "@/types/appointment";
 
-type Props = {
-  appointment?: Appointment;
-};
+type Props = { appointment?: Appointment };
 
 function FormSkeleton() {
   return (
     <div className="w-full flex flex-col items-center justify-center gap-3">
       <Loader2 className="w-6 h-6 animate-spin text-gold" />
-      <p className="text-xs text-content-quaternary uppercase tracking-widest">
+      <p className="text-xs text-content-quaternary dark:text-zinc-600 uppercase tracking-widest">
         Cargando...
       </p>
     </div>
@@ -28,16 +26,14 @@ function FormSkeleton() {
 
 function AppointmentFormInner({ appointment }: Props) {
   const appointmentForm = useCreateAppointmentForm({ appointment });
-
   return (
     <div className="w-full flex flex-col flex-1">
       <ProgressBar appointmentForm={appointmentForm} />
-
       <form
         onSubmit={appointmentForm.form.handleSubmit(appointmentForm.onSubmit)}
         className="w-full flex flex-col flex-1"
       >
-        <div className="bg-white rounded-xl border border-border-subtle shadow-sm p-5 mb-4 flex flex-col flex-1 overflow-y-auto">
+        <div className="bg-white dark:bg-zinc-800 rounded-xl border border-border-subtle dark:border-zinc-700 shadow-sm p-5 mb-4 flex flex-col flex-1 overflow-y-auto">
           {appointmentForm.currentStep === 1 && (
             <DateStep appointmentForm={appointmentForm} />
           )}
@@ -51,7 +47,6 @@ function AppointmentFormInner({ appointment }: Props) {
             <ConfirmationStep appointmentForm={appointmentForm} />
           )}
         </div>
-
         <BottomNavigationButtons appointmentForm={appointmentForm} />
       </form>
     </div>

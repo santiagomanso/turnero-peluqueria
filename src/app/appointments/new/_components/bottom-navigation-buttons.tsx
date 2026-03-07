@@ -2,9 +2,7 @@ import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appoi
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-type Props = {
-  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
-};
+type Props = { appointmentForm: ReturnType<typeof useCreateAppointmentForm> };
 
 export default function BottomNavigationButtons({ appointmentForm }: Props) {
   const isLastStep = appointmentForm.currentStep === appointmentForm.totalSteps;
@@ -22,7 +20,7 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           isSubmitted ||
           appointmentForm.isRedirecting
         }
-        className="px-6 py-3 rounded-md font-semibold text-sm uppercase tracking-[0.08em] bg-white! border border-border-subtle text-content-secondary shadow-none hover:bg-black/5! transition-all"
+        className="px-6 py-3 rounded-md font-semibold text-sm uppercase tracking-[0.08em] bg-white! dark:bg-zinc-800! border border-border-subtle dark:border-zinc-700 text-content-secondary dark:text-zinc-400 shadow-none hover:bg-black/5! dark:hover:bg-zinc-700! transition-all"
       >
         Atrás
       </Button>

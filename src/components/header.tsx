@@ -4,18 +4,18 @@ export default function Header() {
   return (
     <header className="flex flex-col items-center text-center mb-4">
       <div className="flex items-end gap-3">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden bg-white border border-border-subtle shrink-0">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden bg-white dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 shrink-0">
           <Image
             src="/logo.png"
             alt="Luckete Colorista Logo"
             width={56}
             height={56}
-            className="w-full h-full object-contain p-2"
+            className="w-full h-full object-contain p-2 dark:brightness-0 dark:invert"
             priority
           />
         </div>
         <div className="text-left">
-          <h1 className="font-bold font-heebo text-2xl tracking-tight leading-tight text-content">
+          <h1 className="font-bold font-heebo text-2xl tracking-tight leading-tight text-content dark:text-zinc-100">
             Luckete Colorista
           </h1>
           <p className="text-[0.65rem] uppercase tracking-[0.14em] font-archivo text-gold">

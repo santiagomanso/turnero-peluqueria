@@ -9,6 +9,7 @@ datasource db {
 enum AppointmentStatus {
   PENDING
   PAID
+  CANCELLED
 }
 
 model Appointment {
@@ -16,10 +17,35 @@ model Appointment {
   date      DateTime
   time      String
   telephone String
-  paymentId String?
+  price     Int               @default(0)
   status    AppointmentStatus @default(PENDING)
+  payment   Payment?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
   @@map("appointments")
+}
+
+model Payment {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  mercadopagoId String
+  amount        Int
+  status        String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("payments")
+}
+
+model Config {
+  id            String   @id @default("singleton")
+  days          Json
+  hours         Json
+  bookingCost   Int
+  discountCodes Json     @default("[]")
+  updatedAt     DateTime @updatedAt
+
+  @@map("config")
 }

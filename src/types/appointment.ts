@@ -1,12 +1,23 @@
-export type AppointmentStatus = "PENDING" | "PAID";
+export type AppointmentStatus = "PENDING" | "PAID" | "CANCELLED";
+
+export type Payment = {
+  id: string;
+  appointmentId: string;
+  mercadopagoId: string;
+  amount: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type Appointment = {
   id: string;
   date: Date;
   time: string;
   telephone: string;
-  paymentId: string | null;
+  price: number;
   status: AppointmentStatus;
+  payment?: Payment;
   createdAt: Date;
   updatedAt: Date;
 };

@@ -52,11 +52,11 @@ function Calendar({
           defaultClassNames.nav,
         ),
         button_previous: cn(
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-[#6b6560] hover:bg-black/05 hover:text-[#1a1714] transition-colors",
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-zinc-100 transition-colors",
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-[#6b6560] hover:bg-black/05 hover:text-[#1a1714] transition-colors",
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-zinc-100 transition-colors",
           defaultClassNames.button_next,
         ),
         month_caption: cn(
@@ -68,7 +68,7 @@ function Calendar({
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(
-          "relative has-focus:border-black/20 border border-black/10 shadow-xs has-focus:ring-black/10 has-focus:ring-[3px] rounded-md",
+          "relative has-focus:border-black/20 dark:has-focus:border-zinc-500 border border-black/10 dark:border-zinc-700 shadow-xs has-focus:ring-black/10 dark:has-focus:ring-zinc-600 has-focus:ring-[3px] rounded-md",
           defaultClassNames.dropdown_root,
         ),
         dropdown: cn(
@@ -76,7 +76,7 @@ function Calendar({
           defaultClassNames.dropdown,
         ),
         caption_label: cn(
-          "select-none font-medium text-[#1a1714]",
+          "select-none font-medium text-content dark:text-zinc-100",
           captionLayout === "label"
             ? "text-sm"
             : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-white/50 [&>svg]:size-3.5",
@@ -85,7 +85,7 @@ function Calendar({
         table: "w-full border-collapse",
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "rounded-md flex-1 font-normal text-[0.75rem] select-none",
+          "rounded-md flex-1 font-normal text-[0.75rem] select-none text-content-tertiary dark:text-zinc-500",
           defaultClassNames.weekday,
         ),
         week: cn("flex w-full mt-1", defaultClassNames.week),
@@ -94,7 +94,7 @@ function Calendar({
           defaultClassNames.week_number_header,
         ),
         week_number: cn(
-          "text-[0.8rem] select-none text-[#b8a898]",
+          "text-[0.8rem] select-none text-content-quaternary dark:text-zinc-600",
           defaultClassNames.week_number,
         ),
         day: cn(
@@ -108,8 +108,14 @@ function Calendar({
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn("rounded-r-md", defaultClassNames.range_end),
         today: cn(defaultClassNames.today),
-        outside: cn("text-[#d4cec8]", defaultClassNames.outside),
-        disabled: cn("text-[#d4cec8] opacity-40", defaultClassNames.disabled),
+        outside: cn(
+          "text-content-quaternary dark:text-zinc-600",
+          defaultClassNames.outside,
+        ),
+        disabled: cn(
+          "text-content-quaternary dark:text-zinc-600 opacity-40",
+          defaultClassNames.disabled,
+        ),
         hidden: cn("invisible", defaultClassNames.hidden),
         ...classNames,
       }}
@@ -203,7 +209,7 @@ function CalendarDayButton({
           ? "font-bold"
           : isRangeMiddle
             ? ""
-            : "text-[#3d3530] hover:bg-black/05 hover:text-content",
+            : "text-content dark:text-zinc-100 hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-zinc-100",
         className,
       )}
       style={{ ...propsStyle, ...accentStyle }}
