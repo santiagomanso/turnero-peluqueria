@@ -15,7 +15,7 @@ const Wrapper = ({ children, className }: WrapperProps) => {
   return (
     <main
       className={cn(
-        "min-h-svh w-screen flex items-start justify-center font-archivo bg-surface md:py-5 md:items-center overflow-hidden pt-safe",
+        "min-h-svh w-screen flex items-start justify-center font-archivo bg-surface dark:bg-zinc-950 md:py-5 md:items-center overflow-hidden pt-safe",
         className,
       )}
     >
@@ -28,7 +28,7 @@ const Content = ({ children, className }: ContentProps) => {
   return (
     <section
       className={cn(
-        "flex flex-col pt-4 pb-8 px-5 w-full bg-base border border-border-subtle shadow-md md:w-5/6 md:rounded-2xl md:max-w-xl min-h-svh md:min-h-0 md:h-[85vh] relative",
+        "flex flex-col pt-4 pb-8 px-5 w-full bg-base dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 shadow-md md:w-5/6 md:rounded-2xl md:max-w-xl min-h-svh md:min-h-0 md:h-[85vh] relative",
         className,
       )}
     >

@@ -2,6 +2,7 @@ import { Archivo, Dancing_Script, Heebo, Space_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { PublicThemeProvider } from "@/components/public-theme-provider";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -43,7 +44,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const isDark = cookieStore.get("admin-theme")?.value === "dark";
+  const themeCookie = cookieStore.get("admin-theme");
+  const isDark = themeCookie?.value === "dark";
+  const hasCookie = !!themeCookie;
 
   return (
     <html
@@ -59,7 +62,9 @@ export default async function RootLayout({
       `}
     >
       <body>
-        {children}
+        <PublicThemeProvider defaultDark={isDark} hasCookie={hasCookie}>
+          {children}
+        </PublicThemeProvider>
         <Toaster />
       </body>
     </html>

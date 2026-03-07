@@ -24,12 +24,13 @@ export function AppointmentControls() {
   return (
     <div className="flex items-center gap-2">
       <AdminCreateAppointment />
+
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         onClick={vm.handleRefresh}
         disabled={vm.isLoading}
-        className="h-9 w-9 border border-border-subtle bg-white shadow-sm text-content-secondary hover:text-content hover:bg-gold/8"
+        className="h-9 w-9 shadow-sm"
       >
         <RefreshCw
           className={`w-4 h-4 ${vm.isLoading ? "animate-spin" : ""}`}
@@ -39,14 +40,17 @@ export function AppointmentControls() {
       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant="ghost"
-            className="h-9 px-3 gap-2 text-sm font-semibold text-content-secondary border border-border-subtle bg-white shadow-sm hover:text-content hover:bg-gold/8!"
+            variant="outline"
+            className="h-9 px-3 gap-2 text-sm font-semibold shadow-sm"
           >
             <CalendarDays className="w-4 h-4 text-gold" />
             {dateLabel}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-white border border-border-subtle shadow-lg rounded-xl">
+        <PopoverContent
+          className="w-auto p-0 bg-white dark:bg-zinc-900 border border-border-subtle dark:border-zinc-700 shadow-lg rounded-xl"
+          align="end"
+        >
           <Calendar
             mode="single"
             selected={vm.selectedDate}

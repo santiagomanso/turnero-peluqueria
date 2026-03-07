@@ -1,5 +1,5 @@
-import AdminMetrics from "../../_components/admin-metrics";
+import { MetricsView } from "./_components/metrics-view";
 
 export default function MetricsPage() {
-  return <AdminMetrics />;
+  return <MetricsView />;
 }

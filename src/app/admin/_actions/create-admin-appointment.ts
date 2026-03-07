@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAppointment } from "@/services/create";
+import { getConfig } from "@/services/config";
 
 type CreateAdminAppointmentInput = {
   date: Date;
@@ -20,10 +21,14 @@ export async function createAdminAppointmentAction(
     ];
     const appointmentDate = new Date(year, month, day, 0, 0, 0, 0);
 
+    const config = await getConfig();
+    const price = config?.bookingCost ?? 0;
+
     await createAppointment({
       date: appointmentDate,
       time: data.time,
       telephone: data.telephone,
+      price,
     });
 
     revalidatePath("/admin");

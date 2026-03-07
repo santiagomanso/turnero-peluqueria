@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, Home, Settings } from "lucide-react";
+import {
+  Menu,
+  Home,
+  Settings,
+  CalendarPlus,
+  Search,
+  ShoppingBag,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -12,12 +19,20 @@ import { CalendarDays, BarChart2, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/admin/appointments", label: "Turnos", icon: CalendarDays },
   { href: "/admin/metrics", label: "Métricas", icon: BarChart2 },
   { href: "/admin/config", label: "Configuración", icon: Settings },
+];
+
+const PUBLIC_ITEMS = [
+  { href: "/", label: "Inicio", icon: Home },
+  { href: "/appointments/new", label: "Agendar turno", icon: CalendarPlus },
+  { href: "/appointments/get", label: "Consultar turno", icon: Search },
+  { href: "/shop", label: "Tienda online", icon: ShoppingBag },
 ];
 
 export default function AdminMobileSheet({
@@ -31,9 +46,9 @@ export default function AdminMobileSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="p-2 rounded-lg border border-border-subtle dark:border-zinc-700 text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-zinc-800 transition-all">
+        <Button variant="outline" size="icon" className="rounded-lg">
           <Menu className="w-5 h-5" />
-        </button>
+        </Button>
       </SheetTrigger>
       <SheetContent
         side="left"
@@ -41,21 +56,26 @@ export default function AdminMobileSheet({
       >
         <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
 
+        {/* Header */}
         <div className="py-5 border-b border-border-subtle dark:border-zinc-800 flex flex-col items-center gap-2">
           <Image
             src="/logo.png"
             alt="Luckete Colorista"
-            width={36}
-            height={36}
-            className="object-contain"
+            width={48}
+            height={48}
+            className="object-contain dark:brightness-0 dark:invert"
             priority
           />
-          <p className="text-[0.6rem] uppercase tracking-[0.15em] text-content dark:text-zinc-500 leading-tight">
-            Panel de control
+          <p className="text-sm font-semibold text-content dark:text-zinc-100 tracking-wide">
+            Luckete Colorista
           </p>
         </div>
 
-        <nav className="flex flex-col flex-1 px-3 pt-4">
+        <nav className="flex flex-col flex-1 px-3 pt-4 overflow-y-auto">
+          {/* Panel de Control */}
+          <p className="text-[0.6rem] uppercase tracking-[0.15em] text-content-tertiary dark:text-zinc-500 px-2 pb-2">
+            Panel de Control
+          </p>
           <div className="space-y-1">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname.startsWith(item.href);
@@ -78,22 +98,34 @@ export default function AdminMobileSheet({
             })}
           </div>
 
-          <div className="mt-auto pt-4 border-t border-border-subtle dark:border-zinc-800 flex flex-col gap-1">
-            <Link
-              href="/"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-sm font-medium text-content-tertiary dark:text-zinc-500 hover:bg-gold/8 dark:hover:bg-zinc-800 hover:text-content dark:hover:text-zinc-100 transition-all"
-            >
-              <Home className="w-4 h-4 shrink-0" />
-              Inicio
-            </Link>
-            <button
+          {/* Público */}
+          <p className="text-[0.6rem] uppercase tracking-[0.15em] text-content-tertiary dark:text-zinc-500 px-2 pt-4 pb-2">
+            Público
+          </p>
+          <div className="space-y-1">
+            {PUBLIC_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-sm font-medium text-content-secondary dark:text-zinc-400 border border-transparent hover:bg-gold/8 dark:hover:bg-zinc-800 hover:text-content dark:hover:text-zinc-100 transition-all"
+              >
+                <item.icon className="w-4 h-4 shrink-0" />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Cerrar sesión */}
+          <div className="mt-auto pt-4 border-t border-border-subtle dark:border-zinc-800">
+            <Button
+              variant="ghost"
               onClick={onLogout}
-              className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-sm font-medium text-content-tertiary dark:text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+              className="w-full justify-start px-2.5 rounded-xl text-content-tertiary dark:text-zinc-500 hover:bg-gold/8 dark:hover:bg-zinc-800 hover:text-content dark:hover:text-zinc-100"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               Cerrar sesión
-            </button>
+            </Button>
           </div>
         </nav>
       </SheetContent>

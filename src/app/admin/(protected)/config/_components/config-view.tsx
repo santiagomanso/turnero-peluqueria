@@ -11,7 +11,6 @@ import type {
   Hour,
   HoursConfig,
   DiscountCode,
-  ConfigData,
 } from "@/types/config";
 
 import { AvailableDays } from "./available-days";
@@ -20,8 +19,7 @@ import { BookingPrice } from "./booking-price";
 import { ThemeSwitcher } from "./theme-switcher";
 import { DiscountCodes } from "./discount-codes";
 import { useAdminTheme } from "@/app/admin/_components/admin-theme-provider";
-
-// ── Defaults ──────────────────────────────────────────────────────────
+import { useConfigStore } from "../_hooks/use-config-store";
 
 const DEFAULT_DAYS: DaysConfig = {
   monday: true,
@@ -32,7 +30,6 @@ const DEFAULT_DAYS: DaysConfig = {
   saturday: false,
   sunday: false,
 };
-
 const DEFAULT_HOURS: HoursConfig = {
   "08:00": { enabled: true, maxBookings: 1 },
   "09:00": { enabled: true, maxBookings: 1 },
@@ -48,51 +45,53 @@ const DEFAULT_HOURS: HoursConfig = {
   "19:00": { enabled: false, maxBookings: 1 },
 };
 
-const DEFAULT_CODES: DiscountCode[] = [];
-
-// ── Props ─────────────────────────────────────────────────────────────
-
-interface ConfigPageProps {
-  initialData: ConfigData | null;
+export function ConfigView({
+  initialTheme,
+}: {
   initialTheme: "dark" | "light";
-}
-
-// ── Component ─────────────────────────────────────────────────────────
-
-export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
+}) {
   const { isDark, toggle: toggleTheme } = useAdminTheme();
+  const {
+    data: storedConfig,
+    isLoading,
+    hasFetched,
+    fetch: fetchConfig,
+    update: updateStore,
+  } = useConfigStore();
 
-  const initial = {
-    days: initialData?.days ?? DEFAULT_DAYS,
-    hours: initialData?.hours ?? DEFAULT_HOURS,
-    bookingCost: initialData?.bookingCost
-      ? String(initialData.bookingCost)
-      : "10000",
-    codes: initialData?.discountCodes ?? DEFAULT_CODES,
-  };
+  React.useEffect(() => {
+    fetchConfig();
+  }, [fetchConfig]);
 
-  const [days, setDays] = React.useState<DaysConfig>(initial.days);
-  const [savedDays, setSavedDays] = React.useState<DaysConfig>(initial.days);
-
-  const [hours, setHours] = React.useState<HoursConfig>(initial.hours);
-  const [savedHours, setSavedHours] = React.useState<HoursConfig>(
-    initial.hours,
-  );
-
-  const [bookingCost, setBookingCost] = React.useState(initial.bookingCost);
-  const [savedBookingCost, setSavedBookingCost] = React.useState(
-    initial.bookingCost,
-  );
-
+  const [days, setDays] = React.useState<DaysConfig>(DEFAULT_DAYS);
+  const [savedDays, setSavedDays] = React.useState<DaysConfig>(DEFAULT_DAYS);
+  const [hours, setHours] = React.useState<HoursConfig>(DEFAULT_HOURS);
+  const [savedHours, setSavedHours] =
+    React.useState<HoursConfig>(DEFAULT_HOURS);
+  const [bookingCost, setBookingCost] = React.useState("10000");
+  const [savedBookingCost, setSavedBookingCost] = React.useState("10000");
   const [theme, setTheme] = React.useState(initialTheme);
   const [savedTheme, setSavedTheme] = React.useState(initialTheme);
-
-  const [codes, setCodes] = React.useState<DiscountCode[]>(initial.codes);
-  const [savedCodes, setSavedCodes] = React.useState<DiscountCode[]>(
-    initial.codes,
-  );
-
+  const [codes, setCodes] = React.useState<DiscountCode[]>([]);
+  const [savedCodes, setSavedCodes] = React.useState<DiscountCode[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
+
+  // Sync local state when store loads for the first time
+  const didSyncRef = React.useRef(false);
+  React.useEffect(() => {
+    if (hasFetched && storedConfig && !didSyncRef.current) {
+      didSyncRef.current = true;
+      const bc = String(storedConfig.bookingCost);
+      setDays(storedConfig.days);
+      setSavedDays(storedConfig.days);
+      setHours(storedConfig.hours);
+      setSavedHours(storedConfig.hours);
+      setBookingCost(bc);
+      setSavedBookingCost(bc);
+      setCodes(storedConfig.discountCodes);
+      setSavedCodes(storedConfig.discountCodes);
+    }
+  }, [hasFetched, storedConfig]);
 
   const hasChanges =
     JSON.stringify(days) !== JSON.stringify(savedDays) ||
@@ -100,8 +99,6 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
     bookingCost !== savedBookingCost ||
     theme !== savedTheme ||
     JSON.stringify(codes) !== JSON.stringify(savedCodes);
-
-  // ── Handlers ──────────────────────────────────────────────────────
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -112,7 +109,6 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
       discountCodes: codes,
     });
     setIsSaving(false);
-
     if (!result.success) {
       toast.error(result.error ?? "Error al guardar");
       return;
@@ -124,11 +120,17 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
     setSavedTheme(theme);
     setSavedCodes([...codes]);
 
+    updateStore({
+      days,
+      hours,
+      bookingCost: Number(bookingCost),
+      discountCodes: codes,
+    });
+
     if (theme !== savedTheme) {
       const themeWantsDark = theme === "dark";
       if (themeWantsDark !== isDark) toggleTheme();
     }
-
     toast.success("Configuración guardada correctamente");
   };
 
@@ -143,13 +145,11 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
 
   const toggleDay = (day: DayKey) =>
     setDays((prev) => ({ ...prev, [day]: !prev[day] }));
-
   const toggleHour = (hour: Hour) =>
     setHours((prev) => ({
       ...prev,
       [hour]: { ...prev[hour], enabled: !prev[hour].enabled },
     }));
-
   const setHourMaxBookings = (hour: Hour, value: number) => {
     const clamped = Math.max(1, Math.min(10, value));
     setHours((prev) => ({
@@ -157,14 +157,10 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
       [hour]: { ...prev[hour], maxBookings: clamped },
     }));
   };
-
   const handleAddCode = (code: DiscountCode) =>
     setCodes((prev) => [code, ...prev]);
-
   const handleDeleteCode = (id: string) =>
     setCodes((prev) => prev.filter((c) => c.id !== id));
-
-  // ── Render ────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col h-full max-md:pt-0">
@@ -180,23 +176,31 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-7 py-5 max-md:px-0 max-md:py-0 flex flex-col gap-4 max-md:gap-0">
-          <AvailableDays days={days} onToggle={toggleDay} />
-          <AvailableHours
-            hours={hours}
-            onToggle={toggleHour}
-            onSetMax={setHourMaxBookings}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-md:gap-0">
-            <BookingPrice value={bookingCost} onChange={setBookingCost} />
-            <ThemeSwitcher theme={theme} onSelect={setTheme} />
+        {isLoading && !hasFetched ? (
+          <div className="px-7 py-10 flex items-center justify-center">
+            <p className="text-sm text-content-tertiary dark:text-zinc-500 animate-pulse">
+              Cargando configuración...
+            </p>
           </div>
-          <DiscountCodes
-            codes={codes}
-            onAdd={handleAddCode}
-            onDelete={handleDeleteCode}
-          />
-        </div>
+        ) : (
+          <div className="px-7 py-5 max-md:px-0 max-md:py-0 flex flex-col gap-4 max-md:gap-0">
+            <AvailableDays days={days} onToggle={toggleDay} />
+            <AvailableHours
+              hours={hours}
+              onToggle={toggleHour}
+              onSetMax={setHourMaxBookings}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-md:gap-0">
+              <BookingPrice value={bookingCost} onChange={setBookingCost} />
+              <ThemeSwitcher theme={theme} onSelect={setTheme} />
+            </div>
+            <DiscountCodes
+              codes={codes}
+              onAdd={handleAddCode}
+              onDelete={handleDeleteCode}
+            />
+          </div>
+        )}
       </div>
 
       <div className="sticky bottom-0 z-10 border-t border-border-subtle dark:border-zinc-800 bg-white dark:bg-zinc-900 px-7 max-lg:px-4 h-17 flex items-center justify-between gap-3">
@@ -225,7 +229,7 @@ export function ConfigView({ initialData, initialTheme }: ConfigPageProps) {
             size="sm"
             onClick={handleReset}
             disabled={!hasChanges || isSaving}
-            className="gap-1.5 border-border-subtle text-content-secondary hover:text-content"
+            className="gap-1.5"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="max-lg:hidden">Restablecer</span>

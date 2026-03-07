@@ -2,7 +2,19 @@
 
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { DAYS, DayKey, DaysConfig } from "@/types/config";
+
+const DAYS = [
+  { key: "monday", label: "Lun" },
+  { key: "tuesday", label: "Mar" },
+  { key: "wednesday", label: "Mie" },
+  { key: "thursday", label: "Jue" },
+  { key: "friday", label: "Vie" },
+  { key: "saturday", label: "Sab" },
+  { key: "sunday", label: "Dom" },
+] as const;
+
+export type DayKey = (typeof DAYS)[number]["key"];
+export type DaysConfig = Record<DayKey, boolean>;
 
 interface AvailableDaysProps {
   days: DaysConfig;

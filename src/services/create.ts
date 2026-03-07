@@ -6,7 +6,7 @@ export type CreateAppointmentInput = {
   date: Date;
   time: string;
   telephone: string;
-  paymentId?: string;
+  price: number;
 };
 
 export async function createAppointment(
@@ -17,7 +17,7 @@ export async function createAppointment(
       date: data.date,
       time: data.time,
       telephone: formatArgentinianPhone(data.telephone),
-      paymentId: data.paymentId,
+      price: data.price,
       status: "PENDING",
     },
   });

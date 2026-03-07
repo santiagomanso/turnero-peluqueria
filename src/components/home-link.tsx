@@ -9,10 +9,10 @@ type Props = {
 };
 
 const linkStyles =
-  "w-full py-4 px-5 flex items-center justify-between rounded-xl bg-white border border-border-subtle shadow-md transition-all active:scale-[0.98] group";
+  "w-full py-4 px-5 flex items-center justify-between rounded-xl bg-white dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 shadow-md transition-all active:scale-[0.98] group";
 
 const subtleStyles =
-  "w-full py-3 px-5 flex items-center justify-between rounded-xl bg-transparent border border-border-subtle/50 transition-all active:scale-[0.98] group";
+  "w-full py-3 px-5 flex items-center justify-between rounded-xl bg-transparent border border-border-subtle/50 dark:border-zinc-700/50 transition-all active:scale-[0.98] group";
 
 function LinkContent({
   label,
@@ -26,14 +26,12 @@ function LinkContent({
   return (
     <>
       <span
-        className={`text-sm font-medium transition-colors ${
-          subtle ? "text-content-tertiary" : "text-content"
-        }`}
+        className={`text-sm font-medium transition-colors ${subtle ? "text-content-tertiary dark:text-zinc-500" : "text-content dark:text-zinc-100"}`}
       >
         {label}
       </span>
       <Icon
-        className={`w-4 h-4 ${subtle ? "text-content-quaternary" : "text-gold"}`}
+        className={`w-4 h-4 ${subtle ? "text-content-quaternary dark:text-zinc-600" : "text-gold"}`}
       />
     </>
   );

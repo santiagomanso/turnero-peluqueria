@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Loader2 } from "lucide-react";
+import { Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { verifyAdminPasswordAction } from "../../_actions/verify-admin-password";
@@ -12,6 +12,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,30 +32,48 @@ export default function LoginForm() {
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-6">
-      <div className="bg-white rounded-2xl border border-border-subtle shadow-sm p-8 w-full max-w-xs">
+      <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-border-subtle dark:border-zinc-700 shadow-sm p-8 w-full max-w-xs">
         <div className="flex flex-col items-center gap-1 mb-6">
           <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mb-1">
             <Lock className="w-5 h-5 text-gold" />
           </div>
-          <h2 className="text-lg font-bold text-content">Área admin</h2>
-          <p className="text-xs text-content-tertiary">Ingresá tu contraseña</p>
+          <h2 className="text-lg font-bold text-content dark:text-zinc-100">
+            Área admin
+          </h2>
+          <p className="text-xs text-content-tertiary dark:text-zinc-500">
+            Ingresá tu contraseña
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <Input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={`bg-white text-content border ${
-              authError ? "border-red-400" : "border-border-soft"
-            }`}
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={authError ? "border-red-400 pr-10" : "pr-10"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
           {authError && (
             <p className="text-xs text-red-500 text-center">
               Contraseña incorrecta
             </p>
           )}
+
           <Button
             type="submit"
             disabled={password.length < 1 || isVerifying}
