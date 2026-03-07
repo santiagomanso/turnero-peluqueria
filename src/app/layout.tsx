@@ -1,4 +1,5 @@
-import { Archivo, Dancing_Script, Heebo } from "next/font/google";
+import { Archivo, Dancing_Script, Heebo, Space_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { Toaster } from "sonner";
 
@@ -29,11 +30,21 @@ const heebo = Heebo({
   variable: "--font-heebo",
 });
 
-export default function RootLayout({
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  variable: "--font-space-mono",
+});
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const isDark = cookieStore.get("admin-theme")?.value === "dark";
+
   return (
     <html
       lang="es"
@@ -42,6 +53,8 @@ export default function RootLayout({
         ${archivoBlack.variable}
         ${dancingScript.variable}
         ${heebo.variable}
+        ${spaceMono.variable}
+        ${isDark ? "dark" : ""}
         antialiased
       `}
     >

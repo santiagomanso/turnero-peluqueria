@@ -8,9 +8,13 @@ import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appoi
 
 type Props = {
   appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
+  allowToday?: boolean;
 };
 
-export default function DateStep({ appointmentForm }: Props) {
+export default function DateStep({
+  appointmentForm,
+  allowToday = false,
+}: Props) {
   return (
     <div className="flex-1 flex flex-col">
       {/* Two-column header */}
@@ -31,11 +35,13 @@ export default function DateStep({ appointmentForm }: Props) {
           <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
             Paso 1 de 4
           </p>
-          <p className="text-[0.65rem] text-content-quaternary leading-relaxed">
-            Turnos con{" "}
-            <strong className="text-content-secondary">+24 hs</strong> de
-            anticipación.
-          </p>
+          {!allowToday && (
+            <p className="text-[0.65rem] text-content-quaternary leading-relaxed">
+              Turnos con{" "}
+              <strong className="text-content-secondary">+24 hs</strong> de
+              anticipación.
+            </p>
+          )}
         </div>
       </div>
 
@@ -49,13 +55,13 @@ export default function DateStep({ appointmentForm }: Props) {
                 mode="single"
                 selected={field.value || undefined}
                 onSelect={(date) => {
-                  if (date) field.onChange(date); // ← don't update if undefined (deselect click)
+                  if (date) field.onChange(date);
                 }}
                 locale={es}
                 disabled={(date) => {
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
-                  return date <= today;
+                  return allowToday ? date < today : date <= today;
                 }}
                 className="w-full"
               />
