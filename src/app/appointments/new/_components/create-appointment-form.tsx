@@ -11,7 +11,7 @@ import BottomNavigationButtons from "./bottom-navigation-buttons";
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import type { Appointment } from "@/types/appointment";
 
-type Props = { appointment?: Appointment };
+type Props = { appointment?: Appointment; bookingCost?: number };
 
 function FormSkeleton() {
   return (
@@ -24,7 +24,7 @@ function FormSkeleton() {
   );
 }
 
-function AppointmentFormInner({ appointment }: Props) {
+function AppointmentFormInner({ appointment, bookingCost = 0 }: Props) {
   const appointmentForm = useCreateAppointmentForm({ appointment });
   return (
     <div className="w-full flex flex-col flex-1">
@@ -44,7 +44,10 @@ function AppointmentFormInner({ appointment }: Props) {
             <TelephoneStep appointmentForm={appointmentForm} />
           )}
           {appointmentForm.currentStep === 4 && (
-            <ConfirmationStep appointmentForm={appointmentForm} />
+            <ConfirmationStep
+              appointmentForm={appointmentForm}
+              bookingCost={bookingCost}
+            />
           )}
         </div>
         <BottomNavigationButtons appointmentForm={appointmentForm} />
@@ -53,10 +56,16 @@ function AppointmentFormInner({ appointment }: Props) {
   );
 }
 
-export default function CreateAppointmentForm({ appointment }: Props) {
+export default function CreateAppointmentForm({
+  appointment,
+  bookingCost,
+}: Props) {
   return (
     <Suspense fallback={<FormSkeleton />}>
-      <AppointmentFormInner appointment={appointment} />
+      <AppointmentFormInner
+        appointment={appointment}
+        bookingCost={bookingCost}
+      />
     </Suspense>
   );
 }
