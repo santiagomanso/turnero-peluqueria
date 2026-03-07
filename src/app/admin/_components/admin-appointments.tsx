@@ -1,145 +1,93 @@
 "use client";
 
-import { es } from "date-fns/locale";
-import { CalendarDays, RefreshCw, LogOut } from "lucide-react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import dynamic from "next/dynamic";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
 import { useAdminAppointments } from "../_hooks/use-admin-appointments";
-import { formatDateShort, formatDateLong, isToday } from "@/lib/format-date";
-import { logoutAdminAction } from "../_actions/verify-admin-password";
+import { formatDateLong } from "@/lib/format-date";
+
+const AppointmentControls = dynamic(
+  () =>
+    import("./admin-appointments-controls").then((m) => ({
+      default: m.AppointmentControls,
+    })),
+  { ssr: false },
+);
 
 export default function AdminAppointments() {
   const vm = useAdminAppointments();
-  const router = useRouter();
 
-  const handleLogout = async () => {
-    await logoutAdminAction();
-    router.push("/admin/login");
-  };
-
-  const dateLabel = isToday(vm.selectedDate)
-    ? "Hoy"
-    : formatDateShort(vm.selectedDate);
+  useEffect(() => {
+    if (!vm.hasFetched) {
+      vm.fetchAppointments(vm.selectedDate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-content leading-tight">
-            Turnos del día
-          </h1>
-          <div className="w-6 h-px mt-1.5 bg-gold-gradient" />
+    <div className="flex flex-col h-full max-md:pt-0">
+      {/* Page header — desktop only */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 px-7 h-19 flex items-center gap-4 max-md:hidden">
+        <div className="relative pr-5">
+          <div className="relative inline-block">
+            <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
+              Turnos
+            </h1>
+            {vm.hasFetched && !vm.isLoading && vm.appointments.length > 0 && (
+              <span className="absolute -top-1 -right-4.5 min-w-4 h-4 flex items-center justify-center text-[0.6rem] font-bold text-white bg-gold rounded-full px-1 leading-none">
+                {vm.appointments.length}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
+            {formatDateLong(vm.selectedDate)}
+          </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          {/* Logout */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="h-9 w-9 text-content-quaternary hover:text-red-500 hover:bg-red-50"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
-
-          {/* Refresh */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={vm.handleRefresh}
-            disabled={vm.isLoading}
-            className="h-9 w-9 text-content-secondary hover:text-content hover:bg-black/5"
-          >
-            <RefreshCw
-              className={`w-4 h-4 ${vm.isLoading ? "animate-spin" : ""}`}
-            />
-          </Button>
-
-          {/* Date picker */}
-          <Popover open={vm.isCalendarOpen} onOpenChange={vm.setIsCalendarOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-9 px-3 gap-2 text-sm font-semibold text-content border border-border-subtle bg-white shadow-sm hover:bg-black/4!"
-              >
-                <CalendarDays className="w-4 h-4 text-gold" />
-                {dateLabel}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white border border-border-subtle shadow-lg rounded-xl">
-              <Calendar
-                mode="single"
-                selected={vm.selectedDate}
-                onSelect={vm.handleDateSelect}
-                locale={es}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+        <AppointmentControls />
       </div>
 
-      {/* Count badge */}
-      {vm.hasFetched && !vm.isLoading && (
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs uppercase tracking-[0.15em] text-gold font-semibold bg-white shadow-md border border-gold-border px-2 py-1 rounded-full">
-            {vm.appointments.length}{" "}
-            {vm.appointments.length === 1 ? "turno" : "turnos"}
-          </span>
-          <span className="text-xs text-content-quaternary">
-            {formatDateLong(vm.selectedDate)}
-          </span>
-        </div>
-      )}
-
-      {/* Loading */}
-      {vm.isLoading && (
-        <div className="space-y-3 overflow-y-auto">
-          <AppointmentSkeleton />
-          <AppointmentSkeleton />
-          <AppointmentSkeleton />
-        </div>
-      )}
-
-      {/* Results */}
-      <AnimatePresence>
-        {vm.hasFetched && !vm.isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex-1 min-h-0 overflow-y-auto"
-          >
-            {vm.appointments.length > 0 ? (
-              <div className="space-y-3 pb-4">
-                {vm.appointments.map((appointment) => (
-                  <AppointmentCard
-                    key={appointment.id}
-                    appointment={appointment}
-                    onDelete={vm.handleDelete}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl p-8 border border-border-subtle shadow-sm text-center">
-                <p className="text-content font-medium">Sin turnos</p>
-                <p className="text-xs text-content-quaternary mt-2 leading-relaxed">
-                  No hay turnos agendados para este día.
-                </p>
-              </div>
-            )}
-          </motion.div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-7 py-5 max-md:px-4">
+        {vm.isLoading && (
+          <div className="space-y-3">
+            <AppointmentSkeleton />
+            <AppointmentSkeleton />
+            <AppointmentSkeleton />
+          </div>
         )}
-      </AnimatePresence>
+
+        <AnimatePresence>
+          {vm.hasFetched && !vm.isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {vm.appointments.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                  {vm.appointments.map((appointment) => (
+                    <AppointmentCard
+                      key={appointment.id}
+                      appointment={appointment}
+                      onDelete={vm.handleDelete}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-border-subtle dark:border-zinc-800 shadow-sm text-center max-w-sm mt-4">
+                  <p className="text-content dark:text-zinc-100 font-medium">
+                    Sin turnos
+                  </p>
+                  <p className="text-xs text-content-quaternary dark:text-zinc-500 mt-2 leading-relaxed">
+                    No hay turnos agendados para este día.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

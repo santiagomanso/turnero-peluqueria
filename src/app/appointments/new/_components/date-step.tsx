@@ -8,37 +8,40 @@ import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appoi
 
 type Props = {
   appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
+  allowToday?: boolean;
 };
 
-export default function DateStep({ appointmentForm }: Props) {
+export default function DateStep({
+  appointmentForm,
+  allowToday = false,
+}: Props) {
   return (
     <div className="flex-1 flex flex-col">
-      {/* Two-column header */}
       <div className="flex justify-between items-start mb-4">
-        {/* Left: title */}
         <div>
-          <h2 className="text-2xl font-bold text-content leading-tight">
+          <h2 className="text-2xl font-bold text-content dark:text-zinc-100 leading-tight">
             Fecha
           </h2>
-          <p className="text-xs text-content-tertiary mt-1">
+          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-1">
             Seleccionar fecha
           </p>
           <div className="w-8 h-px mt-2 bg-gold-gradient" />
         </div>
-
-        {/* Right: step + policy */}
         <div className="text-right max-w-36">
           <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
             Paso 1 de 4
           </p>
-          <p className="text-[0.65rem] text-content-quaternary leading-relaxed">
-            Turnos con{" "}
-            <strong className="text-content-secondary">+24 hs</strong> de
-            anticipación.
-          </p>
+          {!allowToday && (
+            <p className="text-[0.65rem] text-content-quaternary dark:text-zinc-600 leading-relaxed">
+              Turnos con{" "}
+              <strong className="text-content-secondary dark:text-zinc-400">
+                +24 hs
+              </strong>{" "}
+              de anticipación.
+            </p>
+          )}
         </div>
       </div>
-
       <FieldGroup className="flex-1 flex flex-col">
         <Controller
           name="date"
@@ -49,17 +52,16 @@ export default function DateStep({ appointmentForm }: Props) {
                 mode="single"
                 selected={field.value || undefined}
                 onSelect={(date) => {
-                  if (date) field.onChange(date); // ← don't update if undefined (deselect click)
+                  if (date) field.onChange(date);
                 }}
                 locale={es}
                 disabled={(date) => {
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
-                  return date <= today;
+                  return allowToday ? date < today : date <= today;
                 }}
                 className="w-full"
               />
-
               {fieldState.invalid && (
                 <FieldError
                   errors={[fieldState.error]}

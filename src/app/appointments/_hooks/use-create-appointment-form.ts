@@ -8,8 +8,7 @@ import { updateAppointmentAction } from "../_actions/update";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Appointment } from "@/types/appointment";
-import { createPaymentPreferenceAction } from "../_actions/payment-preference";
-import { is } from "date-fns/locale";
+import { createPaymentPreferenceAction } from "../_actions/mercadopago";
 
 const formSchema = z.object({
   date: z.date({

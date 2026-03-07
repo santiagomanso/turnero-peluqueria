@@ -1,67 +1,58 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { create } from "zustand";
 import { toZonedTime } from "date-fns-tz";
 import type { Appointment } from "@/types/appointment";
 import { getAppointmentsByDateAction } from "../_actions/get-by-date";
 
 const TZ = "America/Argentina/Buenos_Aires";
 
-export function useAdminAppointments() {
-  const [selectedDate, setSelectedDate] = useState<Date>(
-    toZonedTime(new Date(), TZ),
-  );
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
-
-  const fetchAppointments = useCallback(async (date: Date) => {
-    setIsLoading(true);
-    setHasFetched(false);
-
-    const normalized = new Date(date);
-    normalized.setUTCHours(0, 0, 0, 0);
-
-    const result = await getAppointmentsByDateAction(normalized);
-    if (result.success) {
-      setAppointments(result.data);
-    } else {
-      setAppointments([]);
-    }
-    setIsLoading(false);
-    setHasFetched(true);
-  }, []);
-
-  // Cargar turnos de hoy al montar
-  useEffect(() => {
-    fetchAppointments(toZonedTime(new Date(), TZ));
-  }, [fetchAppointments]);
-
-  const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return;
-    setSelectedDate(date);
-    setIsCalendarOpen(false);
-    fetchAppointments(date);
-  };
-
-  const handleRefresh = () => {
-    fetchAppointments(selectedDate);
-  };
-
-  const handleDelete = (id: string) => {
-    setAppointments((prev) => prev.filter((a) => a.id !== id));
-  };
-
-  return {
-    selectedDate,
-    isCalendarOpen,
-    setIsCalendarOpen,
-    appointments,
-    isLoading,
-    hasFetched,
-    handleDateSelect,
-    handleRefresh,
-    handleDelete,
-  };
+interface AdminAppointmentsStore {
+  selectedDate: Date;
+  appointments: Appointment[];
+  isLoading: boolean;
+  hasFetched: boolean;
+  fetchAppointments: (date: Date) => Promise<void>;
+  handleDateSelect: (date: Date | undefined) => void;
+  handleRefresh: () => void;
+  handleDelete: (id: string) => void;
 }
+
+export const useAdminAppointments = create<AdminAppointmentsStore>(
+  (set, get) => ({
+    selectedDate: toZonedTime(new Date(), TZ),
+    appointments: [],
+    isLoading: false,
+    hasFetched: false,
+
+    fetchAppointments: async (date: Date) => {
+      set({ isLoading: true, hasFetched: false });
+
+      const normalized = new Date(date);
+      normalized.setUTCHours(0, 0, 0, 0);
+
+      const result = await getAppointmentsByDateAction(normalized);
+      set({
+        appointments: result.success ? result.data : [],
+        isLoading: false,
+        hasFetched: true,
+      });
+    },
+
+    handleDateSelect: (date) => {
+      if (!date) return;
+      set({ selectedDate: date });
+      get().fetchAppointments(date);
+    },
+
+    handleRefresh: () => {
+      get().fetchAppointments(get().selectedDate);
+    },
+
+    handleDelete: (id) => {
+      set((state) => ({
+        appointments: state.appointments.filter((a) => a.id !== id),
+      }));
+    },
+  }),
+);

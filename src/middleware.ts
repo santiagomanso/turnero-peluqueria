@@ -20,7 +20,6 @@ export async function middleware(request: NextRequest) {
     await jwtVerify(token, getSecret());
     return NextResponse.next();
   } catch {
-    // Token inválido o expirado
     const response = NextResponse.redirect(
       new URL("/admin/login", request.url),
     );
@@ -30,5 +29,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin"],
+  matcher: ["/admin", "/admin/appointments", "/admin/metrics", "/admin/config"],
 };

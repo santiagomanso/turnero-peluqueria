@@ -2,6 +2,7 @@
 
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { createAppointment } from "@/services/create";
+import { getConfig } from "@/services/config";
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
@@ -17,7 +18,12 @@ export async function createPaymentPreferenceAction(
   data: CreatePreferencePayload,
 ) {
   try {
-    // 1. Create PENDING appointment first
+    // 1. Leer precio actual de la config
+    const config = await getConfig();
+    if (!config) throw new Error("No se pudo leer la configuración.");
+    const price = config.bookingCost;
+
+    // 2. Crear appointment PENDING con snapshot del precio
     const [year, month, day] = data.date.split("-").map(Number);
     const appointmentDate = new Date(year, month - 1, day, 0, 0, 0, 0);
 
@@ -25,9 +31,10 @@ export async function createPaymentPreferenceAction(
       date: appointmentDate,
       time: data.hour,
       telephone: data.telephone,
+      price,
     });
 
-    // 2. Create MP preference with appointment id as external_reference
+    // 3. Crear preference en MP con el precio real
     const preference = new Preference(client);
 
     const result = await preference.create({
@@ -39,7 +46,7 @@ export async function createPaymentPreferenceAction(
             description: "Luckete Colorista",
             category_id: "services",
             quantity: 1,
-            unit_price: 20,
+            unit_price: price,
             currency_id: "ARS",
             picture_url: "https://i.ibb.co/hFZ6ctBz/logo.png",
           },

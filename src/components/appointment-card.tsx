@@ -1,9 +1,23 @@
 "use client";
 
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { Calendar, Clock, Phone, Edit, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Phone,
+  Edit,
+  Trash2,
+  DollarSign,
+  ChevronDown,
+  Check,
+} from "lucide-react";
+import { formatDateShort } from "@/lib/format-date";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,14 +34,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { deleteAppointmentAction } from "@/app/appointments/_actions/delete";
+import { updateAppointmentStatusAction } from "@/app/admin/_actions/update-status";
 import type { Appointment } from "@/types/appointment";
+import { AppointmentStatus } from "@prisma/client";
 
 type Props = {
   appointment: Appointment;
   onDelete?: (id: string) => void;
 };
 
-function InfoRow({
+function InfoRowLeft({
   icon: Icon,
   label,
   value,
@@ -37,21 +53,79 @@ function InfoRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4 shrink-0 text-gold" />
-      <div>
-        <p className="text-[0.6rem] uppercase tracking-wider text-content-quaternary mb-0.5">
+    <div>
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <Icon className="w-3 h-3 text-gold" />
+        <p className="text-[0.6rem] uppercase tracking-wider text-content-quaternary dark:text-zinc-600">
           {label}
         </p>
-        <p className="font-medium text-sm text-content">{value}</p>
       </div>
+      <p className="font-medium text-sm text-content dark:text-zinc-100">
+        {value}
+      </p>
     </div>
+  );
+}
+
+function InfoRowRight({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Calendar;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="text-right">
+      <div className="flex items-center justify-end gap-1.5 mb-0.5">
+        <p className="text-[0.6rem] uppercase tracking-wider text-content-quaternary dark:text-zinc-600">
+          {label}
+        </p>
+        <Icon className="w-3 h-3 text-gold" />
+      </div>
+      <p className="font-medium text-sm text-content dark:text-zinc-100">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: Appointment["status"] }) {
+  const isPaid = status === "PAID";
+  return (
+    <span
+      className={`absolute -top-2 -right-4 text-[0.55rem] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border rotate-12 shadow-sm ${
+        isPaid
+          ? "bg-green-50 text-green-700 border-green-200"
+          : "bg-amber-50 text-amber-700 border-amber-200"
+      }`}
+    >
+      {isPaid ? "Pagado" : "Pendiente"}
+    </span>
   );
 }
 
 export default function AppointmentCard({ appointment, onDelete }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [status, setStatus] = useState<AppointmentStatus>(appointment.status);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  const handleStatusChange = async (newStatus: AppointmentStatus) => {
+    if (newStatus === status) return;
+    setIsUpdatingStatus(true);
+    setStatus(newStatus);
+    const result = await updateAppointmentStatusAction(
+      appointment.id,
+      newStatus,
+    );
+    if (!result.success) {
+      setStatus(status);
+      toast.error(result.error ?? "Error al actualizar el estado");
+    }
+    setIsUpdatingStatus(false);
+  };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -83,33 +157,82 @@ export default function AppointmentCard({ appointment, onDelete }: Props) {
       }
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
-      <div className="bg-white rounded-xl border border-border-subtle shadow shadow-neutral-400 p-4">
+      <div className="relative bg-white dark:bg-zinc-800 rounded-xl border border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none p-4 overflow-visible">
+        {status !== "PAID" && <StatusBadge status={status} />}
+
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <InfoRow
+          <div className="flex justify-between">
+            <InfoRowLeft
               icon={Calendar}
               label="Fecha"
-              value={format(appointment.date, "d 'de' MMMM", { locale: es })}
+              value={formatDateShort(appointment.date)}
             />
-            <InfoRow icon={Clock} label="Hora" value={appointment.time} />
+            <InfoRowRight icon={Clock} label="Hora" value={appointment.time} />
+          </div>
+          <div className="flex justify-between">
+            <InfoRowLeft
+              icon={Phone}
+              label="Teléfono"
+              value={appointment.telephone}
+            />
+            <InfoRowRight icon={DollarSign} label="Monto" value="$10.000" />
           </div>
 
-          <InfoRow
-            icon={Phone}
-            label="Teléfono"
-            value={appointment.telephone}
-          />
-
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <Link
-              href={`/appointments/update/${appointment.id}`}
-              className="w-full"
-            >
-              <Button
-                variant="default"
-                className="w-full text-xs font-semibold uppercase tracking-[0.08em] bg-black/4! border border-border-subtle shadow-none hover:bg-black/8! transition-all text-content-secondary"
+          <div className="flex items-center justify-between pt-2 border-t border-border-subtle dark:border-zinc-700">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isUpdatingStatus}
+                  className="h-8 px-3 text-xs font-medium gap-1.5"
+                >
+                  {status === "PAID" ? "Pagado" : "Pendiente"}
+                  <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-36 bg-white dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 shadow-md rounded-xl"
               >
-                <Edit className="w-3 h-3 mr-1.5 " />
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange(AppointmentStatus.PAID)}
+                  className="text-xs gap-2 cursor-pointer"
+                >
+                  {status === "PAID" && <Check className="w-3 h-3 text-gold" />}
+                  <span
+                    className={
+                      status === "PAID" ? "text-gold font-semibold" : ""
+                    }
+                  >
+                    Pagado
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange(AppointmentStatus.PENDING)}
+                  className="text-xs gap-2 cursor-pointer"
+                >
+                  {status === "PENDING" && (
+                    <Check className="w-3 h-3 text-gold" />
+                  )}
+                  <span
+                    className={
+                      status === "PENDING" ? "text-gold font-semibold" : ""
+                    }
+                  >
+                    Pendiente
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link href={`/appointments/update/${appointment.id}`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 text-xs font-medium gap-1.5"
+              >
+                <Edit className="w-3 h-3" />
                 Modificar
               </Button>
             </Link>
@@ -118,25 +241,27 @@ export default function AppointmentCard({ appointment, onDelete }: Props) {
               <AlertDialogTrigger asChild>
                 <Button
                   disabled={isDeleting}
-                  className="text-xs font-semibold uppercase tracking-[0.08em] border border-red-500 transition-all bg-linear-to-br from-rose-400/70 to-red-800 text-white"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-3 text-xs font-medium gap-1.5"
                 >
-                  <Trash2 className="w-3 h-3 mr-1.5" />
+                  <Trash2 className="w-3 h-3 text-danger/70" />
                   Cancelar
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-white border border-border-subtle">
+              <AlertDialogContent className="bg-white dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-xl text-content">
+                  <AlertDialogTitle className="text-xl text-content dark:text-zinc-100">
                     ¿Cancelar turno?
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="text-content-tertiary">
+                  <AlertDialogDescription className="text-content-tertiary dark:text-zinc-500">
                     Esta acción no se puede deshacer. El turno para el{" "}
-                    {format(appointment.date, "d 'de' MMMM", { locale: es })} a
-                    las {appointment.time} será cancelado permanentemente.
+                    {formatDateShort(appointment.date)} a las {appointment.time}{" "}
+                    será cancelado permanentemente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-white! border border-border-subtle text-content-secondary hover:bg-black/5!">
+                  <AlertDialogCancel className="bg-white! dark:bg-zinc-800! border border-border-subtle dark:border-zinc-700 text-content-secondary dark:text-zinc-400 hover:bg-black/5! dark:hover:bg-zinc-700!">
                     No, mantener
                   </AlertDialogCancel>
                   <AlertDialogAction

@@ -59,7 +59,13 @@ export async function POST(req: NextRequest) {
           where: { id: payment.external_reference },
           data: {
             status: "PAID",
-            paymentId,
+            payment: {
+              create: {
+                mercadopagoId: paymentId,
+                amount: Math.round(payment.transaction_amount * 100),
+                status: payment.status,
+              },
+            },
           },
         });
 
