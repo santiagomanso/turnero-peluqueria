@@ -2,7 +2,10 @@ import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appoi
 import { format } from "date-fns";
 import { Calendar, Clock, CreditCard, DollarSign, Phone } from "lucide-react";
 
-type Props = { appointmentForm: ReturnType<typeof useCreateAppointmentForm> };
+type Props = {
+  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
+  bookingCost: number;
+};
 
 function InfoCard({
   icon: Icon,
@@ -28,8 +31,13 @@ function InfoCard({
   );
 }
 
-export default function ConfirmationStep({ appointmentForm }: Props) {
+export default function ConfirmationStep({
+  appointmentForm,
+  bookingCost,
+}: Props) {
   const formData = appointmentForm.form.getValues();
+  const formattedPrice = `$${bookingCost.toLocaleString("es-AR")}`;
+
   return (
     <div>
       <div className="flex justify-between items-start mb-5">
@@ -67,7 +75,7 @@ export default function ConfirmationStep({ appointmentForm }: Props) {
           label="Teléfono"
           value={`..${formData.telephone.slice(4)}`}
         />
-        <InfoCard icon={DollarSign} label="Precio" value="$1.000 ARS" />
+        <InfoCard icon={DollarSign} label="Precio" value={formattedPrice} />
         <div className="col-span-2 flex items-center gap-3 p-4 rounded-md bg-[#009ee3]/8 border border-[#009ee3]/20">
           <CreditCard className="w-4 h-4 shrink-0 text-[#009ee3]" />
           <p className="text-xs text-content-tertiary dark:text-zinc-400 leading-relaxed">
