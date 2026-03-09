@@ -40,8 +40,7 @@ export function MetricsView() {
               Estadísticas generales del negocio
             </p>
           </div>
-          <PeriodTabs />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
@@ -53,6 +52,9 @@ export function MetricsView() {
                 className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
               />
             </Button>
+            <div className="h-9 flex items-center">
+              <PeriodTabs />
+            </div>
           </div>
         </div>
       </div>

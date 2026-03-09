@@ -1,6 +1,7 @@
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 type Props = { appointmentForm: ReturnType<typeof useCreateAppointmentForm> };
 
@@ -31,7 +32,7 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           type="button"
           onClick={appointmentForm.handleNext}
           disabled={appointmentForm.isRedirecting}
-          className="px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 hover:bg-gold/90 transition-all"
+          className="px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-zinc-950 dark:shadow-xl hover:bg-gold/90 transition-all"
         >
           {appointmentForm.isRedirecting && isPaymentStep ? (
             <>
@@ -47,9 +48,12 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           key="submit-button"
           type="submit"
           disabled={
-            isSubmitting || isSubmitted || appointmentForm.isRedirecting
+            isSubmitting ||
+            isSubmitted ||
+            appointmentForm.isRedirecting ||
+            appointmentForm.isValidatingDiscount
           }
-          className="px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 hover:bg-gold/90 transition-all"
+          className="py-3 px-3 rounded-md bg-[#009ee3] hover:bg-[#008fd0] transition-colors shadow-md shadow-[#009ee3]/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <>
@@ -59,7 +63,13 @@ export default function BottomNavigationButtons({ appointmentForm }: Props) {
           ) : appointmentForm.isEditing ? (
             "Confirmar"
           ) : (
-            "Pagar"
+            <Image
+              src="/MP_RGB_HANDSHAKE_pluma_horizontal.svg"
+              alt="Pagar con Mercado Pago"
+              width={130}
+              height={28}
+              className="object-contain brightness-0 invert"
+            />
           )}
         </Button>
       )}

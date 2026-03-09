@@ -19,7 +19,7 @@ export async function createAdminAppointmentAction(
       data.date.getMonth(),
       data.date.getDate(),
     ];
-    const appointmentDate = new Date(year, month, day, 0, 0, 0, 0);
+    const appointmentDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
 
     const config = await getConfig();
     const price = config?.bookingCost ?? 0;

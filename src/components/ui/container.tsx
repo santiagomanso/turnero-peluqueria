@@ -28,7 +28,7 @@ const Content = ({ children, className }: ContentProps) => {
   return (
     <section
       className={cn(
-        "flex flex-col pt-4 pb-8 px-5 w-full bg-base dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 shadow-md md:w-5/6 md:rounded-2xl md:max-w-xl min-h-svh md:min-h-0 md:h-[85vh] relative",
+        "flex flex-col pt-4 pb-8 px-4 w-full bg-base dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 shadow-md md:w-5/6 md:rounded-2xl md:max-w-xl min-h-svh md:min-h-0 md:h-[85vh] relative",
         className,
       )}
     >

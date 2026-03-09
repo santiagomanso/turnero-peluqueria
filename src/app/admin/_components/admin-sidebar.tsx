@@ -19,14 +19,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const AppointmentControls = dynamic(
+const AppointmentsMobileControls = dynamic(
   () =>
-    import("./admin-appointments-controls").then((m) => ({
-      default: m.AppointmentControls,
+    import("./appointments-mobile-controls").then((m) => ({
+      default: m.AppointmentsMobileControls,
     })),
   { ssr: false },
 );
-const PeriodTabs = dynamic(() => import("./period-tabs"), { ssr: false });
+const MetricsMobileControls = dynamic(
+  () =>
+    import("./sidebar-metrics-mobile-controls.tsx").then((m) => ({
+      default: m.SidebarMetricsMobileControls,
+    })),
+  { ssr: false },
+);
 const MobileSheet = dynamic(() => import("./admin-mobile-sheet"), {
   ssr: false,
 });
@@ -124,7 +130,7 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Mobile/tablet topbar */}
-      <div className="hidden max-lg:flex fixed top-0 left-0 right-0 z-30 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 h-14 items-center justify-between px-4">
+      <div className="hidden max-lg:flex fixed top-0 left-0 right-0 z-30 bg-gray-100 dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 h-14 items-center justify-between px-4">
         <MobileSheet onLogout={handleLogout} />
         <div className="relative flex items-center">
           <p className="font-heebo text-sm font-semibold tracking-wide text-content dark:text-zinc-100">
@@ -139,8 +145,8 @@ export default function AdminSidebar() {
               </span>
             )}
         </div>
-        {pathname === "/admin/appointments" && <AppointmentControls />}
-        {pathname === "/admin/metrics" && <PeriodTabs />}
+        {pathname === "/admin/appointments" && <AppointmentsMobileControls />}
+        {pathname === "/admin/metrics" && <MetricsMobileControls />}
         {pathname === "/admin/config" && <div className="w-9" />}
       </div>
     </>

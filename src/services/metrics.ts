@@ -6,6 +6,38 @@ function calcDelta(current: number, previous: number): number {
   return Math.round(((current - previous) / previous) * 100);
 }
 
+function getUTCDay(date: Date): number {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      12,
+      0,
+      0,
+      0,
+    ),
+  ).getUTCDay();
+}
+
+function getUTCLabel(date: Date, period: Period): string {
+  const d = new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      12,
+      0,
+      0,
+      0,
+    ),
+  );
+  if (period === "year") {
+    return d.toLocaleString("es", { month: "short", timeZone: "UTC" });
+  }
+  return `${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
+}
+
 export async function getMetrics(period: Period): Promise<PeriodData> {
   const now = new Date();
   const from = new Date(now);
@@ -30,7 +62,6 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
     }),
   ]);
 
-  // Current period stats
   const total = appointments.length;
   const paid = appointments.filter((a) => a.status === "PAID").length;
   const cancelled = appointments.filter((a) => a.status === "CANCELLED").length;
@@ -38,7 +69,6 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
     .filter((a) => a.status === "PAID")
     .reduce((acc, a) => acc + (a.price ?? 0), 0);
 
-  // Previous period stats
   const prevTotal = prevAppointments.length;
   const prevPaid = prevAppointments.filter((a) => a.status === "PAID").length;
   const prevCancelled = prevAppointments.filter(
@@ -48,11 +78,10 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
     .filter((a) => a.status === "PAID")
     .reduce((acc, a) => acc + (a.price ?? 0), 0);
 
-  // byDay
   const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
   const byDayMap: Record<string, number> = {};
   for (const a of appointments) {
-    const label = dayNames[new Date(a.date).getDay()];
+    const label = dayNames[getUTCDay(a.date)];
     byDayMap[label] = (byDayMap[label] ?? 0) + 1;
   }
   const byDay = dayNames.map((label) => ({
@@ -60,7 +89,6 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
     turnos: byDayMap[label] ?? 0,
   }));
 
-  // byHour
   const byHourMap: Record<string, number> = {};
   for (const a of appointments) {
     byHourMap[a.time] = (byHourMap[a.time] ?? 0) + 1;
@@ -70,21 +98,15 @@ export async function getMetrics(period: Period): Promise<PeriodData> {
     .sort((a, b) => b.turnos - a.turnos)
     .slice(0, 5);
 
-  // growth chart
   const currentMap: Record<string, number> = {};
   const previousMap: Record<string, number> = {};
 
-  const getLabel = (date: Date) =>
-    period === "year"
-      ? date.toLocaleString("es", { month: "short" })
-      : `${date.getDate()}/${date.getMonth() + 1}`;
-
   for (const a of appointments) {
-    const label = getLabel(new Date(a.date));
+    const label = getUTCLabel(a.date, period);
     currentMap[label] = (currentMap[label] ?? 0) + 1;
   }
   for (const a of prevAppointments) {
-    const label = getLabel(new Date(a.date));
+    const label = getUTCLabel(a.date, period);
     previousMap[label] = (previousMap[label] ?? 0) + 1;
   }
 

@@ -27,3 +27,34 @@ export function formatDateISO(date: Date): string {
 export function isToday(date: Date): boolean {
   return formatDateISO(date) === formatDateISO(new Date());
 }
+
+/** "27 de febrero" para fechas que pueden venir con offset desde Server Actions */
+export function formatDateFromISO(date: Date | string): string {
+  const str = typeof date === "string" ? date : date.toISOString();
+  const [year, month, day] = str.slice(0, 10).split("-").map(Number);
+  const utcDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+  return formatDateShort(utcDate);
+}
+
+/** "27/02/2026" para fechas que pueden venir con offset desde Server Actions */
+export function formatDateNumericFromISO(date: Date | string): string {
+  const str = typeof date === "string" ? date : date.toISOString();
+  const [year, month, day] = str.slice(0, 10).split("-").map(Number);
+  const utcDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+  return formatDate(utcDate);
+}
+
+/** "viernes 27 de febrero" para fechas que pueden venir con offset desde Server Actions */
+export function formatDateLongFromISO(date: Date | string): string {
+  const str = typeof date === "string" ? date : date.toISOString();
+  const [year, month, day] = str.slice(0, 10).split("-").map(Number);
+  const utcDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+  return formatDateLong(utcDate);
+}
+
+/** isToday para fechas que pueden venir con offset desde Server Actions */
+export function isTodayFromISO(date: Date | string): boolean {
+  const str = typeof date === "string" ? date : date.toISOString();
+  const dateStr = str.slice(0, 10);
+  return dateStr === formatDateISO(new Date());
+}

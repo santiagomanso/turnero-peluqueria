@@ -12,29 +12,42 @@ type CreatePreferencePayload = {
   date: string;
   hour: string;
   telephone: string;
+  discountCode: string | null;
 };
 
 export async function createPaymentPreferenceAction(
   data: CreatePreferencePayload,
 ) {
   try {
-    // 1. Leer precio actual de la config
     const config = await getConfig();
     if (!config) throw new Error("No se pudo leer la configuración.");
-    const price = config.bookingCost;
 
-    // 2. Crear appointment PENDING con snapshot del precio
+    const basePrice = config.bookingCost;
+
+    // Aplicar descuento solo si hay código
+    let finalPrice = basePrice;
+    if (data.discountCode) {
+      const codes = config.discountCodes;
+      const found = codes.find(
+        (c) => c.code.toUpperCase() === data.discountCode!.toUpperCase(),
+      );
+      if (found) {
+        finalPrice = Math.round(basePrice * (1 - found.discount / 100));
+      }
+    }
+
     const [year, month, day] = data.date.split("-").map(Number);
-    const appointmentDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const appointmentDate = new Date(
+      Date.UTC(year, month - 1, day, 0, 0, 0, 0),
+    );
 
     const appointment = await createAppointment({
       date: appointmentDate,
       time: data.hour,
       telephone: data.telephone,
-      price,
+      price: finalPrice,
     });
 
-    // 3. Crear preference en MP con el precio real
     const preference = new Preference(client);
 
     const result = await preference.create({
@@ -46,7 +59,7 @@ export async function createPaymentPreferenceAction(
             description: "Luckete Colorista",
             category_id: "services",
             quantity: 1,
-            unit_price: price,
+            unit_price: finalPrice,
             currency_id: "ARS",
             picture_url: "https://i.ibb.co/hFZ6ctBz/logo.png",
           },

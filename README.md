@@ -13,35 +13,237 @@ The admin panel allows the salon owner to manage, create, and update appointment
 
 ---
 
+## FILE TREE
+
+```
+├── prisma
+│   └── schema.prisma
+├── public
+│   ├── logo.png
+│   └── logo2.jpg
+├── README.md
+└── src
+    ├── app
+    │   ├── admin
+    │   │   ├── _actions
+    │   │   │   ├── create-admin-appointment.ts
+    │   │   │   ├── get-by-date.ts
+    │   │   │   ├── get-config.ts
+    │   │   │   ├── get-metrics.ts
+    │   │   │   ├── save-config.ts
+    │   │   │   ├── set-theme-cookie.ts
+    │   │   │   ├── update-status.ts
+    │   │   │   └── verify-admin-password.ts
+    │   │   ├── _components
+    │   │   │   ├── admin-appointments-controls.tsx
+    │   │   │   ├── admin-appointments.tsx
+    │   │   │   ├── admin-create-appointment.tsx
+    │   │   │   ├── admin-mobile-sheet.tsx
+    │   │   │   ├── admin-sidebar.tsx
+    │   │   │   ├── admin-theme-provider.tsx
+    │   │   │   ├── appointments-mobile-controls.tsx
+    │   │   │   ├── period-tabs.tsx
+    │   │   │   └── sidebar-metrics-mobile-controls.tsx
+    │   │   ├── _hooks
+    │   │   │   ├── use-admin-appointments.ts
+    │   │   │   ├── use-admin-create-form.ts
+    │   │   │   └── use-period.ts
+    │   │   ├── (protected)
+    │   │   │   ├── appointments
+    │   │   │   │   └── page.tsx
+    │   │   │   ├── config
+    │   │   │   │   ├── _components
+    │   │   │   │   │   ├── available-days.tsx
+    │   │   │   │   │   ├── available-hours.tsx
+    │   │   │   │   │   ├── booking-price.tsx
+    │   │   │   │   │   ├── config-view.tsx
+    │   │   │   │   │   ├── discount-codes.tsx
+    │   │   │   │   │   └── theme-switcher.tsx
+    │   │   │   │   ├── _hooks
+    │   │   │   │   │   └── use-config-store.ts
+    │   │   │   │   ├── loading.tsx
+    │   │   │   │   └── page.tsx
+    │   │   │   ├── layout.tsx
+    │   │   │   ├── metrics
+    │   │   │   │   ├── _components
+    │   │   │   │   │   ├── conversion.tsx
+    │   │   │   │   │   ├── day-chart.tsx
+    │   │   │   │   │   ├── growth.tsx
+    │   │   │   │   │   ├── metrics-view.tsx
+    │   │   │   │   │   ├── stat-card.tsx
+    │   │   │   │   │   └── top-hours.tsx
+    │   │   │   │   ├── _hooks
+    │   │   │   │   │   └── use-metrics-store.ts
+    │   │   │   │   └── page.tsx
+    │   │   │   └── page.tsx
+    │   │   └── login
+    │   │       ├── _components
+    │   │       │   └── login-form.tsx
+    │   │       └── page.tsx
+    │   ├── api
+    │   │   ├── cron
+    │   │   │   └── reminder
+    │   │   │       └── route.ts
+    │   │   └── webhooks
+    │   │       └── mercadopago
+    │   │           └── route.ts
+    │   ├── appointments
+    │   │   ├── _actions
+    │   │   │   ├── delete.ts
+    │   │   │   ├── get-by-id.ts
+    │   │   │   ├── get-by-phone.ts
+    │   │   │   ├── mercadopago.ts
+    │   │   │   └── update.ts
+    │   │   ├── _hooks
+    │   │   │   ├── use-create-appointment-form.ts
+    │   │   │   └── use-get-appointment.ts
+    │   │   ├── [id]
+    │   │   │   └── page.tsx
+    │   │   ├── get
+    │   │   │   ├── _components
+    │   │   │   │   └── get-appointments.tsx
+    │   │   │   └── page.tsx
+    │   │   ├── new
+    │   │   │   ├── _components
+    │   │   │   │   ├── bottom-navigation-buttons.tsx
+    │   │   │   │   ├── confirmation-step.tsx
+    │   │   │   │   ├── create-appointment-form.tsx
+    │   │   │   │   ├── create-appointment-view.tsx
+    │   │   │   │   ├── date-step.tsx
+    │   │   │   │   ├── hour-step.tsx
+    │   │   │   │   ├── progress-bar.tsx
+    │   │   │   │   └── telephone-step.tsx
+    │   │   │   ├── page.tsx
+    │   │   │   └── success
+    │   │   │       └── page.tsx
+    │   │   └── update
+    │   │       ├── _components
+    │   │       │   └── update-appointment-view.tsx
+    │   │       └── [id]
+    │   │           └── page.tsx
+    │   ├── globals.css
+    │   ├── layout.tsx
+    │   ├── page.tsx
+    │   └── shop
+    │       ├── _components
+    │       │   └── shop-content.tsx
+    │       └── page.tsx
+    ├── components
+    │   ├── appointment-card.tsx
+    │   ├── appointment-skeleton.tsx
+    │   ├── header.tsx
+    │   ├── home-link.tsx
+    │   ├── navbar.tsx
+    │   ├── public-theme-provider.tsx
+    │   ├── theme-toggle.tsx
+    │   └── ui
+    │       ├── alert-dialog.tsx
+    │       ├── badge.tsx
+    │       ├── button.tsx
+    │       ├── calendar.tsx
+    │       ├── collapsible.tsx
+    │       ├── container.tsx
+    │       ├── dialog.tsx
+    │       ├── drawer.tsx
+    │       ├── dropdown-menu.tsx
+    │       ├── field.tsx
+    │       ├── input.tsx
+    │       ├── label.tsx
+    │       ├── popover.tsx
+    │       ├── separator.tsx
+    │       ├── sheet.tsx
+    │       ├── sonner.tsx
+    │       ├── switch.tsx
+    │       └── table.tsx
+    ├── hooks
+    │   └── use-media-query.ts
+    ├── lib
+    │   ├── db.ts
+    │   ├── format-date.ts
+    │   ├── format-phone.ts
+    │   └── utils.ts
+    ├── middleware.ts
+    ├── seeder.ts
+    ├── services
+    │   ├── config.ts
+    │   ├── create.ts
+    │   ├── delete.ts
+    │   ├── get.ts
+    │   ├── metrics.ts
+    │   ├── update.ts
+    │   └── whatsapp.ts
+    └── types
+        ├── appointment.ts
+        ├── config.ts
+        ├── css.d.ts
+        └── metrics.ts
+```
+
+---
+
 ## DATABASE (Neon PostgreSQL + Prisma)
 
-### Appointment Schema
+### Schema Prisma (estado actual)
 
 ```prisma
-model Appointment {
-  id         String            @id @default(cuid())
-  date       DateTime
-  time       String
-  telephone  String
-  paymentId  String?
-  status     AppointmentStatus @default(PENDING)
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
 }
 
 enum AppointmentStatus {
   PENDING
   PAID
+  CANCELLED
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  date      DateTime
+  time      String
+  telephone String
+  price     Int               @default(0)
+  status    AppointmentStatus @default(PENDING)
+  payment   Payment?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  @@map("appointments")
+}
+
+model Payment {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  mercadopagoId String
+  amount        Int
+  status        String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  @@map("payments")
+}
+
+model Config {
+  id            String   @id @default("singleton")
+  days          Json
+  hours         Json
+  bookingCost   Int
+  discountCodes Json     @default("[]")
+  updatedAt     DateTime @updatedAt
+  @@map("config")
 }
 ```
 
 ### Key Notes
 
-- `date` is stored as UTC midnight (e.g., `2026-02-27 00:00:00`). Always use `formatInTimeZone` from `date-fns-tz` with `"America/Argentina/Buenos_Aires"` to display correctly.
-- `telephone` is stored in full Argentine format: `549XXXXXXXXXX`
-- `status` starts as `PENDING` on creation, becomes `PAID` when webhook fires
-- `paymentId` is the MercadoPago payment ID, set by webhook
-- Admin-created appointments are `PENDING` by default and skip the payment flow
+- `date` stored as UTC midnight. Always use `formatInTimeZone` from `date-fns-tz` with `"America/Argentina/Buenos_Aires"`.
+- `telephone` stored as `549XXXXXXXXXX`. Strip prefix for display.
+- `status` enum: `PENDING` | `PAID` | `CANCELLED`
+- `price` field (Int, default 0) — set from `bookingCost` in Config at creation time.
+- `Payment` table linked 1:1 with Appointment.
+- `Config` is a singleton (`id = "singleton"`), saved via upsert.
 
 ---
 
@@ -57,12 +259,12 @@ export function formatArgentinianPhone(telephone: string): string {
 }
 ```
 
-### Usage
+### Display Rules
 
-- **On creation:** Applied in `src/services/create.ts` before saving to DB
-- **On update:** Applied in `src/services/update.ts` before saving to DB
-- **On search:** Applied in `use-get-appointments.ts` hook before querying
-- **On display:** Strip `549` prefix with `.replace(/^549/, "")` for user-facing inputs
+- **Store:** `549XXXXXXXXXX`
+- **Card display:** `appointment.telephone.slice(-10)` → últimos 10 dígitos (e.g. `3794800756`)
+- **AlertDialog confirm:** muestra teléfono completo
+- **WhatsApp links:** usa `appointment.telephone` completo
 
 ---
 
@@ -72,30 +274,22 @@ export function formatArgentinianPhone(telephone: string): string {
 
 1. User fills form (date → time → telephone → confirmation)
 2. Hook calls `createPaymentPreferenceAction`
-3. Action creates `PENDING` appointment in DB with `cuid` ID
+3. Action reads `bookingCost` from Config, creates `PENDING` appointment with `price: bookingCost`
 4. Action creates MercadoPago preference with `external_reference = appointment.id`
-5. User is redirected to MercadoPago checkout (`init_point`)
-6. After payment, MP webhook fires → marks appointment as `PAID` + sends WhatsApp confirmation
+5. User redirected to MP checkout (`init_point`)
+6. After payment, MP webhook → marks `PAID`, creates `Payment` record, sends WhatsApp
 
 ### Admin Creation (Panel)
 
-1. Admin fills dialog form (date → time → telephone — no payment step)
-2. `createAdminAppointmentAction` creates `PENDING` appointment directly in DB
-3. No MercadoPago preference is created
-4. List refreshes automatically via zustand store
-
-### Update Flow
-
-- User goes to `/appointments/update/[id]`
-- Same form as creation but in edit mode
-- `updateAppointmentAction` → `updateAppointment` service
-- Only updates `date`, `time`, `telephone` — never touches `status` or `paymentId`
+1. Admin fills dialog (date → time → telephone)
+2. `createAdminAppointmentAction` → `PENDING` appointment, no MP preference
+3. List refreshes via zustand store
 
 ### Status Update (Admin)
 
-- Admin can change status from the appointment card dropdown (Pagado / Pendiente)
+- Admin changes status from card dropdown
 - `updateAppointmentStatusAction` in `src/app/admin/_actions/update-status.ts`
-- Updates optimistically in UI, reverts on error
+- Optimistic update, reverts on error
 
 ---
 
@@ -103,119 +297,152 @@ export function formatArgentinianPhone(telephone: string): string {
 
 ### Auth
 
-- JWT-based via `jose`, stored as cookie `admin_token`
+- JWT via `jose`, cookie `admin_token`
 - Middleware protects `/admin` routes (except `/admin/login`)
-- `verifyAdminAction` / `logoutAdminAction` in `verify-admin-password.ts`
 
 ### State Management
 
-- `useAdminAppointments` is a **zustand store** (singleton, shared across all components)
-- Avoids duplicate fetches: `hasFetched` flag prevents re-fetching on page navigation
-- Refresh button and post-creation both call `handleRefresh()` on the store
+- **`useAdminAppointments`** — zustand singleton, `hasFetched` previene re-fetch, `handleRefresh()` lo bypasea
+- **`useConfigStore`** — `fetch()` solo si `!hasFetched`, `update(data)` para sincronizar localmente
+- **`useMetricsStore`** — cachea por período (`Partial<Record<Period, PeriodData>>`), `fetch(period)` condicional, `refresh(period)` siempre fetcha
 
 ### Admin Components
 
-| File                           | Purpose                                                              |
-| ------------------------------ | -------------------------------------------------------------------- |
-| `admin-dashboard.tsx`          | Layout shell, page switcher                                          |
-| `admin-sidebar.tsx`            | Desktop sidebar + mobile topbar                                      |
-| `admin-mobile-sheet.tsx`       | Mobile nav drawer (dynamic, ssr:false to prevent hydration mismatch) |
-| `admin-appointments.tsx`       | Appointments grid + AppointmentControls                              |
-| `admin-create-appointment.tsx` | Dialog form (3 steps: date → time → telephone)                       |
-| `admin-metrics.tsx`            | Metrics page (charts, stat cards)                                    |
-| `period-tabs.tsx`              | Period switcher for metrics                                          |
+| File                                  | Purpose                                                                    |
+| ------------------------------------- | -------------------------------------------------------------------------- |
+| `admin-sidebar.tsx`                   | Desktop sidebar + mobile topbar (breakpoint `lg`)                          |
+| `admin-mobile-sheet.tsx`              | Mobile nav drawer (`dynamic ssr:false`)                                    |
+| `appointments-mobile-controls.tsx`    | Controls del topbar mobile en página Turnos                                |
+| `sidebar-metrics-mobile-controls.tsx` | Controls del topbar mobile en página Métricas (dropdown período + refresh) |
+| `admin-appointments.tsx`              | Grid de turnos                                                             |
+| `admin-appointments-controls.tsx`     | Controls desktop: `[ml-auto] [+] [↻] [📅]`                                 |
+| `admin-create-appointment.tsx`        | Dialog 3 pasos (date → time → telephone)                                   |
+| `period-tabs.tsx`                     | Selector período métricas desktop (`h-9` fijo)                             |
+| `admin-theme-provider.tsx`            | Lee/escribe cookie `admin-theme`, aplica `.dark` en `<html>`               |
+
+### Layout Structure (`src/app/admin/(protected)/layout.tsx`)
+
+```
+main (outer) — bg-white / dark:bg-zinc-900 mobile; gradiente md+
+  └── div (container) — border+shadow+rounded solo md+
+        ├── AdminSidebar (w-55, max-lg:hidden)
+        └── main (content) — flex-1, overflow-y-auto, max-lg:pt-14
+```
+
+- Desktop: `md:h-[85vh]`, `md:max-w-5xl`, `md:rounded-2xl`
+- Mobile: full screen, no outer padding
+
+### Breakpoints Admin
+
+- **`lg`** = límite sidebar/topbar
+  - `< lg` → topbar fija `h-14` + contenido `pt-14`
+  - `>= lg` → sidebar izquierdo `w-55`
+
+### Sticky Headers (desktop only)
+
+Todas las páginas tienen header sticky `h-19` (76px) alineado con el logo del sidebar. Solo visible `max-lg:hidden`.
+
+### Desktop Controls Layout
+
+**Appointments:** `[título+subtítulo] [ml-auto] [+] [↻] [📅 Hoy/fecha]`
+
+- Botón `+` usa `createOpen` state local + `open/onOpenChange` props en `AdminCreateAppointment`
+
+**Metrics:** `[Métricas/subtítulo] [ml-auto] [↻] [Semana Mes Año]`
+
+- `PeriodTabs` con `h-9` fijo + `py-1` interno para igualar altura con botón refresh
 
 ### Hydration Mismatch Prevention
 
-Radix UI components (Sheet, Popover, Dialog) generate `aria-controls` IDs that differ between server and client. All such components are imported with `dynamic(..., { ssr: false })`:
-
-- `AppointmentControls` — has `Popover` calendar
-- `PeriodTabs` — has animated tabs
-- `AdminMobileSheet` — has `Sheet` drawer
-- `AdminCreateAppointment` — has `Dialog`
-
-### Appointment Card (`src/components/appointment-card.tsx`)
-
-- `InfoRowLeft` — icon + label on same line, value below (left column)
-- `InfoRowRight` — label + icon reversed, value right-aligned (right column)
-- `StatusBadge` — floats `absolute` top-right with `rotate-12`, only shown when `PENDING`
-- Status dropdown — ghost button, optimistic update via `updateAppointmentStatusAction`
-- Delete — `AlertDialog` confirmation before calling `deleteAppointmentAction`
-- Animation — `framer-motion` slide-out on delete
+Todos los componentes Radix con portales usan `dynamic(..., { ssr: false })`:
+`AppointmentControls`, `PeriodTabs`, `AdminMobileSheet`, `AdminCreateAppointment`, `MetricsMobileControls`
 
 ---
 
-## MERCADOPAGO INTEGRATION
+## APPOINTMENT CARD (`src/components/appointment-card.tsx`)
 
-### Credentials (Vercel env vars)
+### Mobile (`sm:hidden`)
+
+- **Top bar** (`bg-black/20 dark:bg-black/30`): texto "Turno" + circulito amber si PENDING + botón `...`
+- **Barra lateral izquierda**: `w-[3px] bg-amber-500` solo si PENDING, todo el alto sin rounded
+- **Body**: cajita hora (`w-8 h-8 rounded-lg bg-gold/10 border-gold/20`, texto `font-heebo text-gold`) + grid 2×2
+- **Grid 2×2**: Fecha (izq) | Turno `#shortId` gold (der) / Teléfono (izq) | Monto (der)
+- Teléfono muestra `shortPhone` = `telephone.slice(-10)`
+
+### Desktop (`sm+`, `hidden sm:flex`)
+
+- Fila horizontal `overflow-hidden items-stretch`
+- **Barra lateral izquierda**: `w-[3px] self-stretch bg-amber-500` solo si PENDING
+- Avatar hora (`ml-3` si PENDING, `ml-4` si no) | teléfono + fecha·hora debajo | monto | botón `...`
+
+### Dropdown Acciones (`ActionsMenu`, compartido mobile/desktop)
 
 ```
-MP_ACCESS_TOKEN=...
-MP_PUBLIC_KEY=...
-MP_WEBHOOK_SECRET=...
+Estado (sub-menú)           ← ✓ Pagado / 🕐 Pendiente
+────────────────────────────
+Enviar WhatsApp (sub-menú)  ← ✂️ Sobre el turno
+                               🏪 Desde Luckete
+                               💬 General
+────────────────────────────
+✏️ Modificar turno
+🗑️ Cancelar turno
 ```
 
-### Preference config
+### WhatsApp Links
 
-```typescript
-{
-  items: [{ title: "Turno en Luckete Colorista", quantity: 1, unit_price: 1000 }],
-  external_reference: appointmentId,
-  statement_descriptor: "LUCKETE COLORISTA",
-  back_urls: { success, failure, pending },
-  notification_url: `${APP_URL}/api/webhooks/mercadopago`,
-}
+- **Sobre el turno** (Scissors): `Hola! Te contactamos por tu turno del ${formatDateShort(date)} a las ${time} hs.`
+- **Desde Luckete** (Store): `Hola! Nos comunicamos desde Luckete 👋`
+- **General** (MessageCircle): `https://wa.me/${telephone}` sin texto
+
+### Lucide Imports
+
+```ts
+(Calendar,
+  Clock,
+  Phone,
+  Edit,
+  Trash2,
+  DollarSign,
+  Check,
+  MoreHorizontal,
+  MessageCircle,
+  Scissors,
+  Store);
 ```
-
-### Webhook endpoint: `/api/webhooks/mercadopago`
-
-- POST handler, verifies `x-signature` HMAC SHA256
-- On `approved`: updates DB status to `PAID` + sends WhatsApp confirmation
 
 ---
 
-## WHATSAPP INTEGRATION
+## DESIGN SYSTEM
 
-### Credentials (Vercel env vars)
+### Light Mode Tokens
 
-```
-WHATSAPP_ACCESS_TOKEN=...
-WHATSAPP_PHONE_ID=976682535533891
-```
+| Token                     | Valor     |
+| ------------------------- | --------- |
+| `text-content`            | `#1a1714` |
+| `text-content-secondary`  | `#6b6560` |
+| `text-content-tertiary`   | `#9c9189` |
+| `text-content-quaternary` | `#b8a898` |
+| `bg-base`                 | `#f9fafb` |
+| `bg-surface`              | `#ece9e4` |
+| `text-gold` / `bg-gold`   | `#c9a96e` |
 
-### Templates (Meta approved, language: `es`)
+### Dark Mode (zinc scale)
 
-1. **`appointment_confirmation_1`** — sent after payment approved
-2. **`appointment_reminder_2`** — sent by cron the morning of the appointment
-
-### IMPORTANT: Button URL Variables
-
-- Button URL variables use `{{1}}` independently of body variables
-- In API call: `{ type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: appointmentId }] }`
-
----
-
-## CRON JOB (Daily Reminders)
-
-Runs at `0 10 * * *` UTC = 7:00 AM Argentina. Finds all `PAID` appointments for today and sends WhatsApp reminders.
-
-- Endpoint: `/api/cron/reminder`
-- Auth: `Authorization: Bearer ${CRON_SECRET}`
-
----
-
-## TAILWIND v4 RULES
-
-- `!important` modifier: `clase!` (not `!clase`)
-- **Siempre usar clases canónicas en vez de valores arbitrarios** cuando exista equivalente. La escala base es 1 unidad = 4px. Ejemplos correctos: `h-17` en vez de `h-17`, `min-w-15` en vez de `min-w-[60px]`, `py-4.5` en vez de `py-[18px]`, `min-h-85` en vez de `min-h-[340px]`, `rotate-12` en vez de `rotate-[28deg]`. Solo usar `[valor]` si no existe equivalente canónico exacto.
-- Design tokens: `text-gold`, `bg-gold`, `border-border-subtle`, `text-content`, `text-content-secondary`, `text-content-tertiary`, `text-content-quaternary`
-- **`bg-gradient-to-br` se escribe `bg-linear-to-br` en Tailwind v4**
+| Elemento          | Clase                                           |
+| ----------------- | ----------------------------------------------- |
+| Outer background  | `dark:bg-zinc-950`                              |
+| Card / sidebar    | `dark:bg-zinc-900`                              |
+| Elevated / inputs | `dark:bg-zinc-800`                              |
+| Borders           | `dark:border-zinc-700` / `dark:border-zinc-800` |
+| Text primary      | `dark:text-zinc-100`                            |
+| Text secondary    | `dark:text-zinc-400`                            |
+| Text tertiary     | `dark:text-zinc-500`                            |
 
 ---
 
 ## FONTS
 
-Configuradas globalmente en `src/app/layout.tsx` con `next/font/google`:
+Configuradas en `src/app/layout.tsx` con `next/font/google`. Registradas en `globals.css` dentro de `@theme inline`.
 
 | Variable CSS            | Clase Tailwind       | Fuente         | Pesos           |
 | ----------------------- | -------------------- | -------------- | --------------- |
@@ -225,105 +452,101 @@ Configuradas globalmente en `src/app/layout.tsx` con `next/font/google`:
 | `--font-heebo`          | `font-heebo`         | Heebo          | 400–900         |
 | `--font-space-mono`     | `font-space-mono`    | Space Mono     | 400,700         |
 
-Todas registradas en `globals.css` dentro de `@theme inline` como `--font-*: var(--font-*)`.
+---
+
+## TAILWIND v4 RULES
+
+- `!important`: `clase!` (no `!clase`)
+- Clases canónicas: `h-17`, `min-w-15`, `py-4.5`, `rotate-12`. Solo `[valor]` si no existe equivalente.
+- Gradientes: `bg-linear-to-br` (no `bg-gradient-to-br`)
+- Tokens: `text-gold`, `bg-gold`, `border-border-subtle`, `text-content`, `text-content-secondary`, `text-content-tertiary`, `text-content-quaternary`
 
 ---
 
-## ADMIN PANEL — DESIGN SYSTEM (Dark Mode)
+## MERCADOPAGO INTEGRATION
 
-### Color palette dark mode
-
-| Elemento                 | Color             |
-| ------------------------ | ----------------- |
-| Outer background         | `bg-zinc-950`     |
-| Card container / sidebar | `bg-zinc-900`     |
-| Active cards / elevated  | `bg-zinc-800`     |
-| Borders                  | `border-zinc-800` |
-| Text primary             | `text-zinc-100`   |
-| Text secondary           | `text-zinc-400`   |
-| Text tertiary / muted    | `text-zinc-500`   |
-
-### Layout structure (`src/app/admin/(protected)/layout.tsx`)
+### Env vars
 
 ```
-main (outer) — bg-white / dark:bg-zinc-900 en mobile; gradiente en md+
-  └── div (container) — bg-white / dark:bg-zinc-900; border+shadow+rounded solo en md+
-        ├── AdminSidebar (w-55, max-lg:hidden)
-        └── main (content) — flex-1, overflow-y-auto, max-lg:pt-14
+MP_ACCESS_TOKEN=...   MP_PUBLIC_KEY=...   MP_WEBHOOK_SECRET=...
 ```
 
-- Desktop: `md:h-[85vh]`, `md:max-w-5xl`, `md:rounded-2xl`
-- Mobile/tablet: full screen, no outer padding, full-bleed cards
+### Preference config
 
-### Breakpoints admin
+```typescript
+{
+  items: [{ title: "Turno en Luckete Colorista", quantity: 1, unit_price: bookingCost }],
+  external_reference: appointmentId,
+  statement_descriptor: "LUCKETE COLORISTA",
+  back_urls: { success, failure, pending },
+  notification_url: `${APP_URL}/api/webhooks/mercadopago`,
+}
+```
 
-- **`lg`** = límite entre sidebar desktop y topbar mobile/tablet
-  - `< lg` → topbar fija (`h-14`) + contenido `pt-14`
-  - `>= lg` → sidebar izquierdo (`w-55`)
-- Antes este límite era `md`, fue cambiado a `lg` en esta sesión
+### Webhook (`/api/webhooks/mercadopago`)
 
-### Admin pages with sticky headers (desktop only, `max-lg:hidden`)
-
-Todas las páginas (config, metrics, appointments) tienen un header sticky `h-19` (76px) alineado con la altura del logo en el sidebar.
+- Verifica `x-signature` HMAC SHA256
+- On `approved`: update → `PAID` + crea `Payment` + envía WhatsApp
 
 ---
 
-## ADMIN PANEL — FILES DELIVERED THIS SESSION
+## WHATSAPP INTEGRATION
 
-Todos en `src/app/admin/_components/` salvo donde se indica:
+### Env vars
 
-| Archivo                            | Destino                      | Cambios clave                                                                                        |
-| ---------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `admin-sidebar.tsx`                | `src/app/admin/_components/` | Breakpoint `md→lg`, quitado toggle tema, `h-full`, Inicio movido al nav, solo Cerrar sesión abajo    |
-| `admin-config.tsx`                 | `src/app/admin/_components/` | Cards mobile descuentos (Space Mono, pill status), tabla lg+, footer responsive, breakpoints `md→lg` |
-| `admin-metrics.tsx`                | `src/app/admin/_components/` | Breakpoints mobile                                                                                   |
-| `(protected)/layout.tsx`           | `src/app/admin/(protected)/` | Breakpoints `md→lg`, bg mobile unificado                                                             |
-| `layout-root.tsx` (→ `layout.tsx`) | `src/app/layout.tsx`         | Agrega `Space_Mono` font                                                                             |
-| `globals.css` (diff manual)        | `src/app/globals.css`        | Agrega `--font-space-mono: var(--font-space-mono)` en `@theme inline`                                |
+```
+WHATSAPP_ACCESS_TOKEN=...   WHATSAPP_PHONE_ID=976682535533891
+```
+
+### Templates (Meta approved, language: `es`)
+
+1. `appointment_confirmation_1` — tras pago aprobado
+2. `appointment_reminder_2` — cron mañana del turno
+
+### Button URL Variable
+
+```json
+{
+  "type": "button",
+  "sub_type": "url",
+  "index": "0",
+  "parameters": [{ "type": "text", "text": "appointmentId" }]
+}
+```
+
+---
+
+## CRON JOB (Daily Reminders)
+
+- Schedule: `0 10 * * *` UTC = 7:00 AM Argentina
+- Endpoint: `/api/cron/reminder`
+- Auth: `Authorization: Bearer ${CRON_SECRET}`
+- Busca turnos `PAID` de hoy y envía WhatsApp reminder
+
+---
+
+## ALINEACIÓN SIDEBAR / FOOTER (desktop)
+
+Sidebar bottom section y config footer usan `h-17` fijo para que los bordes superiores coincidan:
+
+```tsx
+// admin-sidebar.tsx
+<div className="px-3 h-17 border-t border-border-subtle dark:border-zinc-800 flex items-center shrink-0">
+
+// config-view.tsx footer
+<div className="sticky bottom-0 h-17 flex items-center justify-between gap-3 ...">
+```
 
 ---
 
 ## SEEDER
 
 ```bash
-pnpm seed   # Creates 20 PENDING/PAID appointments for today
-pnpm drop   # Deletes all appointments
+pnpm seed   # Crea 20 appointments PENDING/PAID para hoy
+pnpm drop   # Borra todos los appointments
 ```
 
-File: `src/seeder.ts`. Uses `PrismaNeon` adapter directly with `dotenv/config`.
-
----
-
-## KEY FILE STRUCTURE
-
-```
-src/
-├── app/
-│   ├── admin/
-│   │   ├── _actions/
-│   │   │   ├── create-admin-appointment.ts
-│   │   │   ├── get-by-date.ts
-│   │   │   ├── update-status.ts
-│   │   │   └── verify-admin-password.ts
-│   │   ├── _components/
-│   │   │   ├── admin-appointments.tsx
-│   │   │   ├── admin-config.tsx          ← modificado esta sesión
-│   │   │   ├── admin-create-appointment.tsx
-│   │   │   ├── admin-dashboard.tsx
-│   │   │   ├── admin-metrics.tsx         ← modificado esta sesión
-│   │   │   ├── admin-mobile-sheet.tsx
-│   │   │   ├── admin-sidebar.tsx         ← modificado esta sesión
-│   │   │   ├── admin-theme-provider.tsx
-│   │   │   └── period-tabs.tsx
-│   │   ├── _hooks/
-│   │   │   ├── use-admin-appointments.ts
-│   │   │   ├── use-admin-create-form.ts
-│   │   │   └── use-period.ts
-│   │   └── (protected)/
-│   │       └── layout.tsx                ← modificado esta sesión
-│   ├── layout.tsx                        ← modificado esta sesión (Space Mono)
-│   └── globals.css                       ← modificado esta sesión (font var)
-```
+`src/seeder.ts` — usa `PrismaNeon` adapter con `dotenv/config`.
 
 ---
 
@@ -344,111 +567,51 @@ CRON_SECRET=...
 
 ## TIMEZONE
 
-- Argentina: **UTC-3**, no daylight saving
-- Timezone: `"America/Argentina/Buenos_Aires"`
-- DB stores dates as UTC midnight
-- Always use `formatInTimeZone(date, "America/Argentina/Buenos_Aires", "dd/MM/yyyy")` from `date-fns-tz`
+- Argentina: **UTC-3**, sin daylight saving — `"America/Argentina/Buenos_Aires"`
+- DB guarda fechas como UTC midnight
+- Siempre: `formatInTimeZone(date, "America/Argentina/Buenos_Aires", "dd/MM/yyyy")` de `date-fns-tz`
 - Cron: `0 10 * * *` UTC = 7:00 AM Argentina
 
 ---
 
 ## KNOWN ISSUES / DECISIONS
 
-1. **Phone normalization:** Old appointments may have `3794XXXXXX` instead of `549...`. `formatArgentinianPhone` handles both.
-2. **Webhook is primary:** `auto_return` doesn't work on iOS/Android native apps. Webhook is the reliable mechanism; `back_url` is fallback only.
-3. **Dead code:** `src/app/appointments/_actions/create.ts` (`createAppointmentAction`) is unused.
-4. **Hydration mismatch:** All Radix UI components with portals must be wrapped in `dynamic(..., { ssr: false })`.
-5. **Calendar state:** `isCalendarOpen` was removed from zustand store — lives in local `useState` inside `AppointmentControls`.
-6. **hasFetched flag:** Prevents re-fetching on every page navigation. Only `handleRefresh()` bypasses it.
-7. **Theme toggle removed from sidebar:** El botón de modo claro/oscuro fue quitado del sidebar — el toggle de tema vive únicamente en la sección "Apariencia" de `admin-config.tsx`.
+1. **Phone normalization:** Turnos viejos con `3794XXXXXX`. `formatArgentinianPhone` maneja ambos formatos.
+2. **Webhook is primary:** `auto_return` no funciona en iOS/Android nativo. Webhook es el mecanismo confiable.
+3. **Dead code:** `src/app/appointments/_actions/create.ts` (`createAppointmentAction`) sin uso.
+4. **Hydration mismatch:** Todos los componentes Radix con portales deben usar `dynamic(..., { ssr: false })`.
+5. **hasFetched flag:** Previene re-fetch en cada navegación. Solo `handleRefresh()` lo bypasea.
+6. **Theme toggle:** Solo en sección "Apariencia" de `config-view.tsx`. Removido del sidebar.
+7. **Config singleton:** `id = "singleton"` siempre, guardado via upsert.
+8. **Nombre de archivo:** `sidebar-metrics-mobile-controls.tsx.tsx` tiene doble extensión en disco — pendiente renombrar a `.tsx`.
 
 ---
 
----
+## ITEMS COMPLETADOS (todas las sesiones)
 
-# ✅ RESUELTO — Alineación de bordes sidebar / footer
+- [x] Dark mode en todos los componentes admin
+- [x] Zustand stores: `useConfigStore` + `useMetricsStore` con cache por período
+- [x] Schema Prisma: campo `price`, tabla `Payment`, enum `CANCELLED`
+- [x] Config persistida en BD (modelo `Config` singleton, actions `get-config` / `save-config`)
+- [x] Metrics service: delta calculations, `Promise.all`, filtro `createdAt→date`
+- [x] Double fetch resuelto con `hasFetched`
+- [x] `AppointmentsMobileControls` con dropdown
+- [x] `MetricsMobileControls` (`sidebar-metrics-mobile-controls.tsx`) con dropdown período + refresh
+- [x] `AppointmentCard` mobile: top bar + cajita hora + barra lateral amber PENDING + grid 2×2
+- [x] `AppointmentCard` desktop: barra lateral amber PENDING + layout horizontal
+- [x] Dropdown acciones: Estado → WhatsApp sub-menú (3 templates) → Modificar / Cancelar
+- [x] Teléfono truncado a últimos 10 dígitos en card
+- [x] Desktop appointments controls: `[ml-auto] [+] [↻] [📅]` + fix `open/onOpenChange`
+- [x] Metrics header desktop: `[ml-auto] [↻] [PeriodTabs h-9]`
+- [x] Breakpoints admin `md → lg`
+- [x] Space Mono font agregada al proyecto
+- [x] Sidebar: sección Público, Inicio en nav, solo Cerrar sesión abajo
+- [x] Admin config: cards mobile descuentos (Space Mono, pill status), tabla `lg+`
+- [x] Alineación `h-17` sidebar bottom / config footer
 
-## Descripción
+## ITEMS PENDIENTES
 
-En la vista desktop (`>= lg`), el sidebar bottom section ("Cerrar sesión") y el footer de `admin-config` tienen su borde superior alineado horizontalmente.
-
-## Solución aplicada
-
-Se le dio `h-17` fijo con `flex items-center` a **ambos** elementos:
-
-```tsx
-// admin-sidebar.tsx — sección inferior
-<div className="px-3 h-17 border-t border-border-subtle dark:border-zinc-800 flex items-center shrink-0">
-
-// admin-config.tsx — footer
-<div className="sticky bottom-0 ... h-17 flex items-center justify-between gap-3">
-```
-
-`68px` = `py-4` (16+16) + botón `size="sm"` (`h-9` = 36px). Ambos elementos tienen la misma altura fija, por lo que los bordes superiores coinciden exactamente independientemente del contenido interior.
-
----
-
----
-
-# 🔜 PRÓXIMAS TAREAS
-
-## 1. Tema oscuro/claro en `admin-metrics.tsx` y `admin-appointments.tsx`
-
-### Contexto
-
-El toggle de tema (claro / oscuro / sistema) ya existe y funciona en `admin-config.tsx`, dentro de la sección "Apariencia". Está implementado via `admin-theme-provider.tsx` que lee/escribe la cookie `admin-theme` y aplica la clase `.dark` en el `<html>`.
-
-Lo que falta es que `admin-metrics.tsx` y `admin-appointments.tsx` usen correctamente los tokens dark mode (`dark:bg-zinc-900`, `dark:text-zinc-100`, etc.) de forma consistente con `admin-config.tsx`.
-
-### Lo que hay que revisar
-
-- Que todos los colores hardcodeados en esos componentes usen tokens semánticos (`dark:` variants) igual que en `admin-config`
-- Que los cards, tablas, gráficos y badges respondan al tema
-- Referencia de paleta dark: ver sección **ADMIN PANEL — DESIGN SYSTEM (Dark Mode)** de este README
-
-### Archivos involucrados
-
-- `src/app/admin/_components/admin-metrics.tsx`
-- `src/app/admin/_components/admin-appointments.tsx`
-- Posiblemente: `src/components/appointment-card.tsx`
-
----
-
-## 2. Persistir configuración en base de datos (nueva tabla)
-
-### Contexto
-
-Actualmente `admin-config.tsx` maneja el estado de configuración (días disponibles, horarios, precio de reserva, códigos de descuento, tema) de forma local en React state. Los cambios **no se persisten** en ninguna tabla de la BD.
-
-### Lo que hay que hacer
-
-1. **Definir schema Prisma** — nueva(s) tabla(s) para guardar la configuración del salón. Propuesta inicial:
-
-```prisma
-model SalonConfig {
-  id           String   @id @default(cuid())
-  availableDays    Int[]    // días activos (0=Dom, 1=Lun, ..., 6=Sab)
-  availableHours   Json     // array de { time: string, enabled: bool, concurrent: number }
-  reservationPrice Int      // precio en ARS
-  updatedAt    DateTime @updatedAt
-}
-
-model DiscountCode {
-  id          String   @id @default(cuid())
-  code        String   @unique
-  discount    Int      // porcentaje
-  validFrom   DateTime
-  validUntil  DateTime
-  createdAt   DateTime @default(now())
-}
-```
-
-2. **Crear server actions** para leer y guardar config
-3. **Conectar `admin-config.tsx`** — cargar estado inicial desde BD, guardar al presionar "Guardar Cambios"
-4. **Migración Neon** — `npx prisma migrate dev`
-
-### Consideraciones
-
-- El modelo `SalonConfig` debería ser un singleton (un solo registro, siempre el mismo `id`, upsert en save)
-- Los `DiscountCode` ya tienen su propia tabla con CRUD independiente
-- La acción de guardado debe ser una Server Action con revalidación de cache si se usa en SSR
+- [ ] Renombrar `sidebar-metrics-mobile-controls.tsx.tsx` → `sidebar-metrics-mobile-controls.tsx`
+- [ ] `admin-mobile-sheet.tsx` — agregar `prefetch={false}` a todos los links de `NAV_ITEMS`
+- [ ] Verificar card en producción mobile y desktop
+- [ ] Verificar métricas en producción muestran datos correctos

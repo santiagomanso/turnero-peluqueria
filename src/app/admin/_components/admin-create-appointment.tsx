@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import DateStep from "@/app/appointments/new/_components/date-step";
 import HourStep from "@/app/appointments/new/_components/hour-step";
 import TelephoneStep from "@/app/appointments/new/_components/telephone-step";
 import useAdminCreateForm from "../_hooks/use-admin-create-form";
 import { cn } from "@/lib/utils";
+
+type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
 
 function AdminProgressBar({ currentStep }: { currentStep: number }) {
   return (
@@ -96,53 +100,46 @@ function AdminFormContent({ onClose }: { onClose: () => void }) {
       className="flex flex-col gap-4"
     >
       <AdminProgressBar currentStep={appointmentForm.currentStep} />
+
       <div className="min-h-85">
         {appointmentForm.currentStep === 1 && (
           <DateStep appointmentForm={appointmentForm} allowToday />
         )}
+
         {appointmentForm.currentStep === 2 && (
           <HourStep appointmentForm={appointmentForm} />
         )}
+
         {appointmentForm.currentStep === 3 && (
           <TelephoneStep appointmentForm={appointmentForm} />
         )}
       </div>
+
       <NavButtons appointmentForm={appointmentForm} />
     </form>
   );
 }
 
-export default function AdminCreateAppointment() {
-  const [open, setOpen] = useState(false);
-
+export default function AdminCreateAppointment({ open, onOpenChange }: Props) {
   return (
-    <>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setOpen(true)}
-        className="h-9 w-9 shadow-sm"
-      >
-        <Plus className="w-4 h-4" />
-      </Button>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-[min(calc(100vw-2rem),28rem)] bg-white dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 rounded-2xl p-6">
+        <DialogHeader className="mb-2">
+          <DialogTitle className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
+            Nuevo turno
+          </DialogTitle>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="w-[min(calc(100vw-2rem),28rem)] bg-white dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 rounded-2xl p-6">
-          <DialogHeader className="mb-2">
-            <DialogTitle className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-              Nuevo turno
-            </DialogTitle>
-            <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-              El turno se creará como{" "}
-              <strong className="text-content-secondary dark:text-zinc-300">
-                PENDIENTE
-              </strong>{" "}
-              sin pasar por Mercado Pago.
-            </p>
-          </DialogHeader>
-          <AdminFormContent onClose={() => setOpen(false)} />
-        </DialogContent>
-      </Dialog>
-    </>
+          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
+            El turno se creará como{" "}
+            <strong className="text-content-secondary dark:text-zinc-300">
+              PENDIENTE
+            </strong>{" "}
+            sin pasar por Mercado Pago.
+          </p>
+        </DialogHeader>
+
+        <AdminFormContent onClose={() => onOpenChange(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }

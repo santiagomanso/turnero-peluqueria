@@ -6,6 +6,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createAdminAppointmentAction } from "../_actions/create-admin-appointment";
+import { useAdminAppointments } from "../_hooks/use-admin-appointments";
+import { ALL_HOURS } from "@/types/config";
+import type { AvailableHour } from "@/app/appointments/_actions/get-availability";
 
 const formSchema = z.object({
   date: z.date({ error: "Por favor seleccione una fecha." }),
@@ -15,10 +18,11 @@ const formSchema = z.object({
 
 type FormType = z.infer<typeof formSchema>;
 
-import { useAdminAppointments } from "../_hooks/use-admin-appointments";
-
 export default function useAdminCreateForm(onSuccess?: () => void) {
   const [currentStep, setCurrentStep] = React.useState(1);
+  const [availableHours] = React.useState<AvailableHour[]>(
+    ALL_HOURS.map((time) => ({ time, available: true })),
+  );
   const totalSteps = 3;
 
   const today = new Date();
@@ -65,7 +69,6 @@ export default function useAdminCreateForm(onSuccess?: () => void) {
     }
   };
 
-  // Shape compatible con los steps existentes
   return {
     form,
     currentStep,
@@ -75,5 +78,8 @@ export default function useAdminCreateForm(onSuccess?: () => void) {
     handleNext,
     handleBack,
     onSubmit,
+    availableHours,
+    isLoadingHours: false,
+    daysConfig: null,
   };
 }

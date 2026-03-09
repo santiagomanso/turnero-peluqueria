@@ -32,7 +32,7 @@ export default function useGetAppointments() {
         setHasSearched(true);
 
         if (response.data.length === 0) {
-          toast.info("No se encontraron turnos para este número");
+          toast.error("No se encontraron turnos para este número");
           setIsSearchFormOpen(true);
         } else {
           setIsSearchFormOpen(false);

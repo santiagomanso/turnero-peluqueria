@@ -10,8 +10,13 @@ import ProgressBar from "./progress-bar";
 import BottomNavigationButtons from "./bottom-navigation-buttons";
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import type { Appointment } from "@/types/appointment";
+import type { DaysConfig } from "@/types/config";
 
-type Props = { appointment?: Appointment; bookingCost?: number };
+type Props = {
+  appointment?: Appointment;
+  bookingCost?: number;
+  daysConfig?: DaysConfig | null;
+};
 
 function FormSkeleton() {
   return (
@@ -24,8 +29,12 @@ function FormSkeleton() {
   );
 }
 
-function AppointmentFormInner({ appointment, bookingCost = 0 }: Props) {
-  const appointmentForm = useCreateAppointmentForm({ appointment });
+function AppointmentFormInner({
+  appointment,
+  bookingCost = 0,
+  daysConfig,
+}: Props) {
+  const appointmentForm = useCreateAppointmentForm({ appointment, daysConfig });
   return (
     <div className="w-full flex flex-col flex-1">
       <ProgressBar appointmentForm={appointmentForm} />
@@ -59,12 +68,14 @@ function AppointmentFormInner({ appointment, bookingCost = 0 }: Props) {
 export default function CreateAppointmentForm({
   appointment,
   bookingCost,
+  daysConfig,
 }: Props) {
   return (
     <Suspense fallback={<FormSkeleton />}>
       <AppointmentFormInner
         appointment={appointment}
         bookingCost={bookingCost}
+        daysConfig={daysConfig}
       />
     </Suspense>
   );

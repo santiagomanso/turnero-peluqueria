@@ -11,19 +11,30 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAdminAppointments } from "../_hooks/use-admin-appointments";
-import { formatDateShort, isToday } from "@/lib/format-date";
+import { formatDateFromISO, isTodayFromISO } from "@/lib/format-date";
 import AdminCreateAppointment from "./admin-create-appointment";
 
 export function AppointmentControls() {
   const vm = useAdminAppointments();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const dateLabel = isToday(vm.selectedDate)
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const dateLabel = isTodayFromISO(vm.selectedDate)
     ? "Hoy"
-    : formatDateShort(vm.selectedDate);
+    : formatDateFromISO(vm.selectedDate);
 
   return (
-    <div className="flex items-center gap-2">
-      <AdminCreateAppointment />
+    <div className="ml-auto flex items-center gap-2">
+      <AdminCreateAppointment open={createOpen} onOpenChange={setCreateOpen} />
+
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setCreateOpen(true)}
+        className="h-9 w-9 shadow-sm"
+      >
+        <span className="text-lg leading-none">+</span>
+      </Button>
 
       <Button
         variant="outline"

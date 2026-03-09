@@ -3,81 +3,40 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
 import useGetAppointments from "../../_hooks/use-get-appointment";
+import { formatPhoneAsYouType } from "@/lib/format-phone";
 
 export default function GetAppointments() {
   const viewModel = useGetAppointments();
 
-  const showToggleButton = viewModel.appointments.length > 0;
-
   return (
     <div className="flex flex-col gap-3 max-w-svh h-[75vh] overflow-hidden">
-      {/* Search Form */}
-      <div>
-        {/* Toggle Button */}
-        <AnimatePresence>
-          {showToggleButton && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              className="flex items-center justify-between mb-2"
-            >
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  viewModel.setIsSearchFormOpen(!viewModel.isSearchFormOpen)
-                }
-                className="text-content-secondary hover:text-content hover:bg-black/5 p-0 h-auto -ml-3"
-              >
-                {viewModel.isSearchFormOpen ? (
-                  <>
-                    <ChevronUp className="h-4 w-4" />
-                    <span className="text-sm ml-1">Ocultar</span>
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="h-4 w-4" />
-                    <span className="text-sm ml-1">Buscar otro turno</span>
-                  </>
-                )}
-              </Button>
-              <span className="text-xs text-content-quaternary">
-                Buscando: {viewModel.phone}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Animated Search Form */}
+      <div className={viewModel.isSearchFormOpen ? "" : "hidden"}>
         <AnimatePresence initial={false}>
           {viewModel.isSearchFormOpen && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <div className="bg-white rounded-xl p-5 border border-border-subtle shadow-sm mb-3">
-                {/* Two-column header */}
+              <div className="bg-white dark:bg-zinc-800 rounded-xl p-5 border border-border-subtle dark:border-zinc-700 shadow-sm mb-3">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h2 className="text-xl font-bold text-content leading-tight">
+                    <h2 className="text-xl font-bold text-content dark:text-zinc-100 leading-tight">
                       Mi turno
                     </h2>
-                    <p className="text-xs text-content-tertiary mt-0.5">
+                    <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
                       Ingresá tu teléfono
                     </p>
                     <div className="w-6 h-px mt-1.5 bg-gold-gradient" />
                   </div>
-                  <p className="text-[0.65rem] text-content-quaternary text-right max-w-28 leading-relaxed">
+                  <p className="text-[0.65rem] text-content-quaternary dark:text-zinc-500 text-right max-w-28 leading-relaxed">
                     Usá el mismo número con el que agendaste.
                   </p>
                 </div>
@@ -86,17 +45,20 @@ export default function GetAppointments() {
                   <div className="space-y-1.5">
                     <Label
                       htmlFor="phone"
-                      className="text-xs text-content-tertiary"
+                      className="text-xs text-content-tertiary dark:text-zinc-500"
                     >
                       Número de teléfono
                     </Label>
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="Ej: 3794123456"
-                      value={viewModel.phone}
-                      onChange={(e) => viewModel.setPhone(e.target.value)}
-                      className="bg-white border border-border-soft text-content placeholder:text-content-quaternary"
+                      placeholder="Ej: 3794 123-456"
+                      value={formatPhoneAsYouType(viewModel.phone)}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "");
+                        viewModel.setPhone(digits);
+                      }}
+                      className="font-mono tracking-widest"
                     />
                   </div>
 
@@ -129,7 +91,7 @@ export default function GetAppointments() {
       {/* Loading Skeleton */}
       {viewModel.isSearching && (
         <div className="space-y-3 overflow-y-auto">
-          <h2 className="text-content text-lg font-semibold mb-2">
+          <h2 className="text-content dark:text-zinc-100 text-lg font-semibold mb-2">
             Buscando turnos...
           </h2>
           <AppointmentSkeleton />
@@ -144,18 +106,21 @@ export default function GetAppointments() {
             <div className="flex flex-col h-full">
               <div className="flex justify-between items-start mb-3 shrink-0">
                 <div>
-                  <h2 className="text-sm font-semibold text-content leading-tight">
+                  <h2 className="text-sm font-semibold text-content dark:text-zinc-100 leading-tight">
                     Tus turnos
                   </h2>
                   <div className="w-6 h-px mt-1.5 bg-gold-gradient" />
                 </div>
-                <span className="text-xs uppercase tracking-[0.15em] text-gold font-semibold bg-white shadow-md border border-gold-border px-2 py-1 rounded-full">
-                  {viewModel.appointments.length}
-                </span>
+                <div className="flex items-center justify-center bg-white dark:bg-zinc-800 shadow-md border border-gold-border min-w-7 h-7 px-1.5 rounded-full">
+                  <span className="text-xs uppercase tracking-[0.15em] text-gold font-semibold">
+                    {viewModel.appointments.length}
+                  </span>
+                </div>
               </div>
               <div className="space-y-3 overflow-y-auto pb-4">
                 {viewModel.appointments.map((appointment) => (
                   <AppointmentCard
+                    publicView
                     key={appointment.id}
                     appointment={appointment}
                     onDelete={viewModel.handleDelete}
@@ -164,11 +129,11 @@ export default function GetAppointments() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-8 border border-border-subtle shadow-sm text-center">
-              <p className="text-content font-medium">
+            <div className="bg-white dark:bg-zinc-800 rounded-xl p-8 border border-border-subtle dark:border-zinc-700 shadow-sm text-center">
+              <p className="text-content dark:text-zinc-100 font-medium">
                 No se encontraron turnos
               </p>
-              <p className="text-xs text-content-quaternary mt-2 leading-relaxed">
+              <p className="text-xs text-content-quaternary dark:text-zinc-500 mt-2 leading-relaxed">
                 Verificá que el número sea correcto o agendá un nuevo turno.
               </p>
             </div>

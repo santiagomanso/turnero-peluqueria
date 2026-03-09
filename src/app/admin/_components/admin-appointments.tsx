@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
 import { useAdminAppointments } from "../_hooks/use-admin-appointments";
-import { formatDateLong } from "@/lib/format-date";
+import { formatDateLongFromISO } from "@/lib/format-date";
 
 const AppointmentControls = dynamic(
   () =>
@@ -42,7 +42,7 @@ export default function AdminAppointments() {
             )}
           </div>
           <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-            {formatDateLong(vm.selectedDate)}
+            {formatDateLongFromISO(vm.selectedDate)}
           </p>
         </div>
         <AppointmentControls />
