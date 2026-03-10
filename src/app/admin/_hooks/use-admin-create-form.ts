@@ -85,5 +85,6 @@ export default function useAdminCreateForm(onSuccess?: () => void) {
     isValidatingDiscount: false,
     applyDiscount: async (_code: string) => {},
     removeDiscount: () => {},
+    fullDates: [] as Date[],
   };
 }
