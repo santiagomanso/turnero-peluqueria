@@ -15,13 +15,16 @@ export default function DateStep({
   appointmentForm,
   allowToday = false,
 }: Props) {
-  const { daysConfig } = appointmentForm;
+  const { daysConfig, fullDates } = appointmentForm;
 
   const isDayDisabled = (date: Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     if (allowToday ? date < today : date <= today) return true;
+
+    if (fullDates.some((d) => d.toDateString() === date.toDateString()))
+      return true;
 
     if (daysConfig) {
       const jsDay = date.getUTCDay();

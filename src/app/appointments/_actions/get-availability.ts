@@ -2,11 +2,22 @@
 
 import { getAppointmentsByDate } from "@/services/get";
 import { getConfig } from "@/services/config";
-import type { Hour } from "@/types/config";
+import { DAYS } from "@/types/config";
+import type { Hour, DayKey } from "@/types/config";
 
 export type AvailableHour = {
   time: Hour;
   available: boolean;
+};
+
+const DAY_INDEX_TO_KEY: Record<number, DayKey> = {
+  0: "sunday",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
 };
 
 export async function getAvailabilityAction(date: Date): Promise<{
@@ -22,6 +33,9 @@ export async function getAvailabilityAction(date: Date): Promise<{
 
     if (!config) return { success: false, error: "Sin configuración." };
 
+    const dayKey = DAY_INDEX_TO_KEY[date.getDay()];
+    const dayHours = config.hours[dayKey] ?? {};
+
     const bookingsByHour = appointments
       .filter((a) => a.status !== "CANCELLED")
       .reduce<Record<string, number>>((acc, a) => {
@@ -30,7 +44,7 @@ export async function getAvailabilityAction(date: Date): Promise<{
       }, {});
 
     const hours: AvailableHour[] = (
-      Object.entries(config.hours) as [
+      Object.entries(dayHours) as [
         Hour,
         { enabled: boolean; maxBookings: number },
       ][]

@@ -1,8 +1,9 @@
 import { Archivo, Dancing_Script, Heebo, Space_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
-import { Toaster } from "sonner";
+
 import { PublicThemeProvider } from "@/components/public-theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -65,23 +66,7 @@ export default async function RootLayout({
         <PublicThemeProvider defaultDark={isDark} hasCookie={hasCookie}>
           {children}
         </PublicThemeProvider>
-        <Toaster
-          theme="system"
-          toastOptions={{
-            classNames: {
-              toast: "font-archivo border! shadow-lg!",
-              title: "text-sm font-semibold",
-              description: "text-xs",
-              success:
-                "bg-green-50! dark:bg-green-950/50! border-green-200! dark:border-green-800! text-green-800! dark:text-green-200!",
-              error:
-                "bg-red-50! dark:bg-red-950/50! border-red-200! dark:border-red-800! text-red-800! dark:text-red-200!",
-              warning:
-                "bg-amber-50! dark:bg-amber-950/50! border-amber-200! dark:border-amber-800! text-amber-800! dark:text-amber-200!",
-              info: "bg-blue-50! dark:bg-blue-950/50! border-blue-200! dark:border-blue-800! text-blue-800! dark:text-blue-200!",
-            },
-          }}
-        />
+        <Toaster />
       </body>
     </html>
   );

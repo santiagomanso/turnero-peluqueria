@@ -21,8 +21,11 @@ function Calendar({
   captionLayout = "label",
   formatters,
   components,
+  selectedStyle = "fill",
   ...props
-}: React.ComponentProps<typeof DayPicker> & {}) {
+}: React.ComponentProps<typeof DayPicker> & {
+  selectedStyle?: "fill" | "outline";
+}) {
   const defaultClassNames = getDefaultClassNames();
 
   return (
@@ -148,7 +151,12 @@ function Calendar({
             <ChevronDownIcon className={cn("size-4", className)} {...props} />
           );
         },
-        DayButton: CalendarDayButton,
+        DayButton: (dayButtonProps) => (
+          <CalendarDayButton
+            {...dayButtonProps}
+            selectedStyle={selectedStyle}
+          />
+        ),
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -169,8 +177,11 @@ function CalendarDayButton({
   className,
   day,
   modifiers,
+  selectedStyle = "fill",
   ...props
-}: React.ComponentProps<typeof DayButton>) {
+}: React.ComponentProps<typeof DayButton> & {
+  selectedStyle?: "fill" | "outline";
+}) {
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus();
@@ -180,10 +191,14 @@ function CalendarDayButton({
   const isRangeMiddle = modifiers.range_middle;
 
   const { style: propsStyle, ...restProps } =
-    props as React.ComponentProps<"button">;
+    props as React.ComponentProps<"button"> & {
+      selectedStyle?: "fill" | "outline";
+    };
 
   const accentStyle = isSelected
-    ? { background: "rgba(201,169,110,1)", color: "#0a0a0f" }
+    ? selectedStyle === "outline"
+      ? { outline: "2px solid rgba(201,169,110,1)", outlineOffset: "-2px" }
+      : { background: "rgba(201,169,110,1)", color: "#0a0a0f" }
     : isRangeMiddle
       ? { background: "rgba(201,169,110,0.2)", color: "white" }
       : undefined;

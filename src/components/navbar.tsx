@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, UserRound, Sliders, Sun, Moon, Settings2 } from "lucide-react";
+import { Home, Sun, Moon, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "./public-theme-provider";
 import {
@@ -10,12 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import dynamic from "next/dynamic";
 
 type Props = {
   title?: string;
 };
 
-export default function Navbar({ title }: Props) {
+function NavbarComponent({ title }: Props) {
   const { isDark, toggle } = useTheme();
 
   return (
@@ -59,7 +60,7 @@ export default function Navbar({ title }: Props) {
 
           <Link href="/admin">
             <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
-              <UserRound className="w-3.5 h-3.5" />
+              <Home className="w-3.5 h-3.5" />
               Administración
             </DropdownMenuItem>
           </Link>
@@ -68,3 +69,6 @@ export default function Navbar({ title }: Props) {
     </nav>
   );
 }
+
+const Navbar = dynamic(() => Promise.resolve(NavbarComponent), { ssr: false });
+export default Navbar;

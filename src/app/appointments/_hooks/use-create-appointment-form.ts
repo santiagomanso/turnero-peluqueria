@@ -45,16 +45,22 @@ const dayKeyMap: Record<number, keyof DaysConfig> = {
   6: "saturday",
 };
 
-function getNextAvailableDate(daysConfig: DaysConfig | null | undefined): Date {
+function getNextAvailableDate(
+  daysConfig: DaysConfig | null | undefined,
+  fullDates: Date[] = [],
+): Date {
   const date = new Date();
   date.setDate(date.getDate() + 1);
   date.setHours(0, 0, 0, 0);
 
   if (!daysConfig) return date;
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 60; i++) {
     const key = dayKeyMap[date.getUTCDay()];
-    if (daysConfig[key]) return date;
+    const isFull = fullDates.some(
+      (d) => d.toDateString() === date.toDateString(),
+    );
+    if (daysConfig[key] && !isFull) return date;
     date.setDate(date.getDate() + 1);
   }
 
@@ -75,6 +81,8 @@ export default function useCreateAppointmentForm(
     discount: number;
   } | null>(null);
   const [isValidatingDiscount, setIsValidatingDiscount] = React.useState(false);
+  const [fullDates, setFullDates] = React.useState<Date[]>([]);
+
   const totalSteps = 4;
 
   const router = useRouter();
@@ -194,6 +202,27 @@ export default function useCreateAppointmentForm(
 
     if (!response.success || !response.initPoint) {
       toast.error(response.error ?? "Error al iniciar el pago");
+      if ("hourFull" in response && response.hourFull) {
+        const availability = await getAvailabilityAction(data.date);
+        if (availability.success && availability.hours) {
+          setAvailableHours(availability.hours);
+          const anyAvailable = availability.hours.some((h) => h.available);
+          if (!anyAvailable) {
+            const newFullDates = [...fullDates, data.date];
+            setFullDates(newFullDates);
+            const nextDate = getNextAvailableDate(
+              options?.daysConfig,
+              newFullDates,
+            );
+            form.setValue("date", nextDate);
+            form.setValue("time", "");
+            setCurrentStep(1);
+          } else {
+            form.setValue("time", "");
+            setCurrentStep(2);
+          }
+        }
+      }
       setIsRedirecting(false);
       return;
     }
@@ -217,5 +246,6 @@ export default function useCreateAppointmentForm(
     isValidatingDiscount,
     applyDiscount,
     removeDiscount,
+    fullDates,
   };
 }

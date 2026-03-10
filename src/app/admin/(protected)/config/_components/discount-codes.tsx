@@ -58,15 +58,18 @@ function getCodeStatus(code: DiscountCode): "active" | "scheduled" | "expired" {
 const STATUS_MAP = {
   active: {
     label: "Activo",
-    className: "bg-green-50 text-green-700 border-green-200",
+    className:
+      "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
   },
   scheduled: {
-    label: "Programado",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
+    label: "proximamente",
+    className:
+      "bg-[#e0f2fe] dark:bg-[#0f172a] text-[#0369a1] dark:text-[#7dd3fc] border-[#7dd3fc] dark:border-[#0369a1]",
   },
   expired: {
-    label: "Expirado",
-    className: "bg-black/5 text-content-tertiary border-border-subtle",
+    label: "vencido",
+    className:
+      "bg-black/5 dark:bg-zinc-800 text-content-tertiary dark:text-zinc-500 border-border-subtle dark:border-zinc-700",
   },
 };
 
@@ -365,6 +368,7 @@ export function DiscountCodes({ codes, onAdd, onDelete }: DiscountCodesProps) {
       ) : (
         <>
           {/* Mobile: cards */}
+          {/* Mobile: cards */}
           <div className="flex flex-col gap-2 lg:hidden">
             {codes.map((code) => {
               const status = getCodeStatus(code);
@@ -373,13 +377,19 @@ export function DiscountCodes({ codes, onAdd, onDelete }: DiscountCodesProps) {
                   ? "bg-green-500"
                   : status === "scheduled"
                     ? "bg-amber-500"
-                    : "bg-zinc-500";
+                    : "bg-zinc-400 dark:bg-zinc-600";
               const statusLabel =
                 status === "active"
                   ? "Activo"
                   : status === "scheduled"
                     ? "Programado"
                     : "Expirado";
+              const statusPillColor =
+                status === "active"
+                  ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400"
+                  : status === "scheduled"
+                    ? "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
+                    : "bg-black/5 dark:bg-zinc-800 text-content-tertiary dark:text-zinc-500";
               return (
                 <div
                   key={code.id}
@@ -395,14 +405,19 @@ export function DiscountCodes({ codes, onAdd, onDelete }: DiscountCodesProps) {
                       <span className="font-mono text-sm font-bold text-content dark:text-zinc-100 truncate">
                         {code.code}
                       </span>
-                      <span className="flex items-center gap-1.5 bg-black/5 dark:bg-zinc-800 px-2 py-0.5 rounded-full shrink-0">
+                      <span
+                        className={cn(
+                          "flex items-center gap-1.5 px-2 py-0.5 rounded-full shrink-0",
+                          statusPillColor,
+                        )}
+                      >
                         <span
                           className={cn(
                             "w-1.5 h-1.5 rounded-full shrink-0",
                             dotColor,
                           )}
                         />
-                        <span className="text-[10px] font-semibold text-content-secondary dark:text-zinc-400">
+                        <span className="text-[10px] font-semibold">
                           {statusLabel}
                         </span>
                       </span>

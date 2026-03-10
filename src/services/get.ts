@@ -78,3 +78,27 @@ export async function getAppointmentsByDate(
     orderBy: { time: "asc" },
   });
 }
+
+export async function getMonthlyAppointmentCounts(
+  year: number,
+  month: number, // 0-indexed
+): Promise<Record<string, number>> {
+  const start = new Date(Date.UTC(year, month, 1));
+  const end = new Date(Date.UTC(year, month + 1, 1));
+
+  const appointments = await db.appointment.findMany({
+    where: {
+      date: { gte: start, lt: end },
+      status: { not: "CANCELLED" },
+    },
+    select: { date: true },
+  });
+
+  const counts: Record<string, number> = {};
+  for (const a of appointments) {
+    const key = a.date.toISOString().split("T")[0];
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+
+  return counts;
+}

@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { toZonedTime } from "date-fns-tz";
 import type { Appointment } from "@/types/appointment";
 import { getAppointmentsByDateAction } from "../_actions/get-by-date";
+import { getMonthlyAppointmentCountsAction } from "@/app/appointments/_actions/get-monthly-counts";
 
 const TZ = "America/Argentina/Buenos_Aires";
 
@@ -12,7 +13,10 @@ interface AdminAppointmentsStore {
   appointments: Appointment[];
   isLoading: boolean;
   hasFetched: boolean;
+  monthlyCounts: Record<string, number>;
+  isLoadingCounts: boolean;
   fetchAppointments: (date: Date) => Promise<void>;
+  fetchMonthlyCounts: (year: number, month: number) => Promise<void>;
   handleDateSelect: (date: Date | undefined) => void;
   handleRefresh: () => void;
   handleDelete: (id: string) => void;
@@ -24,6 +28,8 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
     appointments: [],
     isLoading: false,
     hasFetched: false,
+    monthlyCounts: {},
+    isLoadingCounts: false,
 
     fetchAppointments: async (date: Date) => {
       set({ isLoading: true, hasFetched: false });
@@ -37,6 +43,12 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
         isLoading: false,
         hasFetched: true,
       });
+    },
+
+    fetchMonthlyCounts: async (year: number, month: number) => {
+      set({ isLoadingCounts: true });
+      const counts = await getMonthlyAppointmentCountsAction(year, month);
+      set({ monthlyCounts: counts, isLoadingCounts: false });
     },
 
     handleDateSelect: (date) => {
