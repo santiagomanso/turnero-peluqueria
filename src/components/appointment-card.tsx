@@ -99,6 +99,9 @@ export default function AppointmentCard({
 
   const shortPhone = appointment.telephone.slice(-10);
   const shortId = appointment.id.slice(-6).toUpperCase();
+  const displayName = appointment.payerName ?? shortPhone;
+  const truncatedName =
+    displayName.length > 20 ? displayName.slice(0, 20) + "…" : displayName;
 
   const dateISO = toUTCDateOnly(appointment.date);
   const dateFormatted = formatDateFromISO(dateISO);
@@ -305,15 +308,20 @@ export default function AppointmentCard({
         )}
 
         <div className="flex-1 min-w-0 overflow-hidden">
+          {/* Top bar: Hora | Nombre | Menú */}
           <div className="flex items-center justify-between px-3.5 py-2.5 bg-gray-100 dark:bg-black/30 border-b border-border-subtle dark:border-zinc-700">
-            <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
               <span className="text-[0.65rem] font-bold text-gold font-heebo leading-none">
                 {appointment.time}
               </span>
             </div>
+            <p className="flex-1 mx-3 text-xs font-semibold text-content dark:text-zinc-100 truncate text-center">
+              {truncatedName}
+            </p>
             <ActionsMenu />
           </div>
 
+          {/* Body */}
           <div className="p-3.5">
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               <div>
@@ -388,8 +396,8 @@ export default function AppointmentCard({
         </div>
 
         <div className="flex-1 min-w-0 py-3">
-          <p className="text-sm font-semibold text-content dark:text-zinc-100 font-heebo mb-0.5">
-            {shortPhone}
+          <p className="text-sm font-semibold text-content dark:text-zinc-100 font-heebo mb-0.5 truncate">
+            {displayName}
           </p>
           <div className="flex items-center gap-1.5 text-xs text-content-tertiary dark:text-zinc-500">
             <Calendar className="w-3 h-3" />

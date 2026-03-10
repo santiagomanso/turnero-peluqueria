@@ -51,14 +51,26 @@ export async function POST(req: NextRequest) {
       );
 
       const payment = await paymentResponse.json();
+      console.log("MP Payment full object:", JSON.stringify(payment, null, 2));
       console.log("MP Payment status:", payment.status);
       console.log("MP external_reference:", payment.external_reference);
 
       if (payment.status === "approved" && payment.external_reference) {
+        const payerFirstName = payment.payer?.first_name ?? null;
+        const payerLastName = payment.payer?.last_name ?? null;
+        const payerEmail = payment.payer?.email ?? null;
+
+        const payerName =
+          payerFirstName || payerLastName
+            ? `${payerFirstName ?? ""} ${payerLastName ?? ""}`.trim()
+            : null;
+
         const updated = await db.appointment.update({
           where: { id: payment.external_reference },
           data: {
             status: "PAID",
+            payerName,
+            payerEmail,
             payment: {
               create: {
                 mercadopagoId: paymentId,
@@ -71,7 +83,6 @@ export async function POST(req: NextRequest) {
 
         console.log("Appointment marked as PAID:", payment.external_reference);
 
-        // Send WhatsApp confirmation
         await sendAppointmentConfirmation({
           telephone: updated.telephone,
           date: format(updated.date, "dd/MM/yyyy", { locale: es }),

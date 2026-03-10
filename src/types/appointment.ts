@@ -17,6 +17,8 @@ export type Appointment = {
   telephone: string;
   price: number;
   status: AppointmentStatus;
+  payerName: string | null;
+  payerEmail: string | null;
   payment?: Payment;
   createdAt: Date;
   updatedAt: Date;

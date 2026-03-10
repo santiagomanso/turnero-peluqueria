@@ -13,15 +13,17 @@ enum AppointmentStatus {
 }
 
 model Appointment {
-  id        String            @id @default(cuid())
-  date      DateTime
-  time      String
-  telephone String
-  price     Int               @default(0)
-  status    AppointmentStatus @default(PENDING)
-  payment   Payment?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id         String            @id @default(cuid())
+  date       DateTime
+  time       String
+  telephone  String
+  price      Int               @default(0)
+  status     AppointmentStatus @default(PENDING)
+  payerName  String?
+  payerEmail String?
+  payment    Payment?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
   @@map("appointments")
 }
