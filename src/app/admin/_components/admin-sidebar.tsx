@@ -28,7 +28,7 @@ const AppointmentsMobileControls = dynamic(
 );
 const MetricsMobileControls = dynamic(
   () =>
-    import("./sidebar-metrics-mobile-controls.tsx").then((m) => ({
+    import("./sidebar-metrics-mobile-controls").then((m) => ({
       default: m.SidebarMetricsMobileControls,
     })),
   { ssr: false },
