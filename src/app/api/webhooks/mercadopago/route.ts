@@ -5,6 +5,27 @@ import { sendAppointmentConfirmation } from "@/services/whatsapp";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
+async function getMPPayerName(payerId: string): Promise<string | null> {
+  try {
+    const response = await fetch(
+      `https://api.mercadopago.com/v1/customers/${payerId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        },
+      },
+    );
+    if (!response.ok) return null;
+    const customer = await response.json();
+    const first = customer.first_name ?? "";
+    const last = customer.last_name ?? "";
+    const name = `${first} ${last}`.trim();
+    return name.length > 0 ? name : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -40,7 +61,6 @@ export async function POST(req: NextRequest) {
     if (body.type === "payment" && body.data?.id) {
       const paymentId = String(body.data.id);
 
-      // Fetch payment details from MP
       const paymentResponse = await fetch(
         `https://api.mercadopago.com/v1/payments/${paymentId}`,
         {
@@ -51,25 +71,36 @@ export async function POST(req: NextRequest) {
       );
 
       const payment = await paymentResponse.json();
-      console.log("MP Payment full object:", JSON.stringify(payment, null, 2));
       console.log("MP Payment status:", payment.status);
       console.log("MP external_reference:", payment.external_reference);
 
       if (payment.status === "approved" && payment.external_reference) {
-        const payerFirstName = payment.payer?.first_name ?? null;
-        const payerLastName = payment.payer?.last_name ?? null;
         const payerEmail = payment.payer?.email ?? null;
+        const payerId = payment.payer?.id ?? null;
 
-        const payerName =
-          payerFirstName || payerLastName
-            ? `${payerFirstName ?? ""} ${payerLastName ?? ""}`.trim()
-            : null;
+        // Intentar obtener nombre desde payer directo
+        const directFirst = payment.payer?.first_name ?? "";
+        const directLast = payment.payer?.last_name ?? "";
+        const directName = `${directFirst} ${directLast}`.trim();
+
+        // Si no hay nombre directo, buscar en /customers
+        let payerName: string | null =
+          directName.length > 0 ? directName : null;
+        if (!payerName && payerId) {
+          console.log("Fetching customer name for payer id:", payerId);
+          payerName = await getMPPayerName(payerId);
+          console.log("Customer name fetched:", payerName);
+        }
+
+        // Fallback final: email
+        const displayName = payerName ?? payerEmail ?? null;
+        console.log("Final payerName to save:", displayName);
 
         const updated = await db.appointment.update({
           where: { id: payment.external_reference },
           data: {
             status: "PAID",
-            payerName,
+            payerName: displayName,
             payerEmail,
             payment: {
               create: {

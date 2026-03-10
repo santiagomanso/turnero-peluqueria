@@ -99,7 +99,8 @@ export default function AppointmentCard({
 
   const shortPhone = appointment.telephone.slice(-10);
   const shortId = appointment.id.slice(-6).toUpperCase();
-  const displayName = appointment.payerName ?? shortPhone;
+  const displayName =
+    appointment.payerName ?? appointment.payerEmail ?? "Sin nombre";
   const truncatedName =
     displayName.length > 20 ? displayName.slice(0, 20) + "…" : displayName;
 
