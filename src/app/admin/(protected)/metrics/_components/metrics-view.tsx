@@ -17,6 +17,7 @@ import { GrowthChart } from "./growth";
 import PeriodTabs from "@/app/admin/_components/period-tabs";
 import { usePeriod } from "@/app/admin/_hooks/use-period";
 import { useMetricsStore } from "../_hooks/use-metrics-store";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function MetricsView() {
   const { period } = usePeriod();
@@ -52,6 +53,7 @@ export function MetricsView() {
                 className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
               />
             </Button>
+            <ThemeToggle />
             <div className="h-9 flex items-center">
               <PeriodTabs />
             </div>

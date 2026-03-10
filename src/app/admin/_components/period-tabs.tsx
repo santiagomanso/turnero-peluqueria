@@ -14,7 +14,7 @@ export default function PeriodTabs() {
   const { period, setPeriod } = usePeriod();
 
   return (
-    <div className="relative flex gap-1 bg-surface dark:bg-zinc-800 rounded-lg p-0.5 border border-border-subtle dark:border-zinc-700 h-9 items-center">
+    <div className="relative flex gap-1 bg-surface dark:bg-zinc-800 rounded-md p-0.5 border border-border-subtle dark:border-zinc-700 h-9 items-center">
       {PERIODS.map(({ id, label }) => (
         <button
           key={id}
