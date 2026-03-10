@@ -81,5 +81,9 @@ export default function useAdminCreateForm(onSuccess?: () => void) {
     availableHours,
     isLoadingHours: false,
     daysConfig: null,
+    appliedDiscount: null,
+    isValidatingDiscount: false,
+    applyDiscount: async (_code: string) => {},
+    removeDiscount: () => {},
   };
 }

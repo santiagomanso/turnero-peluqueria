@@ -3,15 +3,7 @@
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 import { formatDateNumericFromISO } from "@/lib/format-date";
 import { useState } from "react";
-import {
-  Calendar,
-  Clock,
-  CreditCard,
-  DollarSign,
-  Phone,
-  Tag,
-  X,
-} from "lucide-react";
+import { Calendar, Clock, DollarSign, Phone, Tag, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 type Props = {
