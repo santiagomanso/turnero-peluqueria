@@ -5,27 +5,6 @@ import { sendAppointmentConfirmation } from "@/services/whatsapp";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-async function getMPPayerName(payerId: string): Promise<string | null> {
-  try {
-    const response = await fetch(
-      `https://api.mercadopago.com/v1/customers/${payerId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
-        },
-      },
-    );
-    if (!response.ok) return null;
-    const customer = await response.json();
-    const first = customer.first_name ?? "";
-    const last = customer.last_name ?? "";
-    const name = `${first} ${last}`.trim();
-    return name.length > 0 ? name : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -76,31 +55,16 @@ export async function POST(req: NextRequest) {
 
       if (payment.status === "approved" && payment.external_reference) {
         const payerEmail = payment.payer?.email ?? null;
-        const payerId = payment.payer?.id ?? null;
-
-        // Intentar obtener nombre desde payer directo
         const directFirst = payment.payer?.first_name ?? "";
         const directLast = payment.payer?.last_name ?? "";
         const directName = `${directFirst} ${directLast}`.trim();
-
-        // Si no hay nombre directo, buscar en /customers
-        let payerName: string | null =
-          directName.length > 0 ? directName : null;
-        if (!payerName && payerId) {
-          console.log("Fetching customer name for payer id:", payerId);
-          payerName = await getMPPayerName(payerId);
-          console.log("Customer name fetched:", payerName);
-        }
-
-        // Fallback final: email
-        const displayName = payerName ?? payerEmail ?? null;
-        console.log("Final payerName to save:", displayName);
+        const payerName = directName.length > 0 ? directName : payerEmail;
 
         const updated = await db.appointment.update({
           where: { id: payment.external_reference },
           data: {
             status: "PAID",
-            payerName: displayName,
+            payerName,
             payerEmail,
             payment: {
               create: {
