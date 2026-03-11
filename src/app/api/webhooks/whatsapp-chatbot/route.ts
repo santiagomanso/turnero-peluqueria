@@ -46,10 +46,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`📱 De: ${from} | Texto: "${text}"`);
 
-    // Procesar mensaje — no await para responder 200 rápido a Meta
-    handleIncomingMessage(from, text).catch((err) =>
-      console.error("❌ Error procesando mensaje:", err),
-    );
+    await handleIncomingMessage(from, text);
 
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
