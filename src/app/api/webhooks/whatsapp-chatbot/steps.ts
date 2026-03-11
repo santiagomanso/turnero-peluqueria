@@ -109,16 +109,17 @@ async function handleViewAppointment(telephone: string) {
 // ─── Opción 2: Modificar turno ───────────────────────────────────────────────
 
 async function handleStartModify(telephone: string) {
-  const appointment = await db.appointment.findFirst({
+  const appointments = await db.appointment.findMany({
     where: {
       telephone: { endsWith: telephone.slice(-10) },
       status: { in: ["PENDING", "PAID"] },
       date: { gte: startOfDay(new Date()) },
     },
     orderBy: { date: "asc" },
+    take: 5,
   });
 
-  if (!appointment) {
+  if (appointments.length === 0) {
     await deleteSession(telephone);
     return await sendTextMessage(
       telephone,
@@ -126,6 +127,30 @@ async function handleStartModify(telephone: string) {
     );
   }
 
+  // Si tiene solo 1 turno → directo a elegir fecha
+  if (appointments.length === 1) {
+    return await startDateSelection(telephone, appointments[0].id);
+  }
+
+  // Tiene varios → mostrar lista
+  const list = appointments
+    .map((a, i) => `${i + 1}. ${formatDateLong(a.date)} a las ${a.time} hs`)
+    .join("\n");
+
+  await updateSession(telephone, {
+    step: "AWAITING_APPOINTMENT_SELECTION",
+    appointmentId: appointments.map((a) => a.id).join(","),
+  });
+
+  await sendTextMessage(
+    telephone,
+    `Tenés ${appointments.length} turnos activos. ¿Cuál querés modificar?\n\n${list}`,
+  );
+}
+
+// ─── Helper: arrancar selección de fecha ────────────────────────────────────
+
+async function startDateSelection(telephone: string, appointmentId: string) {
   const config = await db.config.findUnique({ where: { id: "singleton" } });
   const daysConfig = config?.days as DaysConfig;
   const availableDays = getNextAvailableDays(daysConfig, 7);
@@ -136,13 +161,33 @@ async function handleStartModify(telephone: string) {
 
   await updateSession(telephone, {
     step: "AWAITING_DATE",
-    appointmentId: appointment.id,
+    appointmentId,
   });
 
   await sendTextMessage(
     telephone,
-    `Tu turno actual es el ${formatDateLong(appointment.date)} a las ${appointment.time} hs.\n\n¿Qué fecha preferís para el nuevo turno?\n\n📅 Días disponibles:\n\n${daysList}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
+    `¿Qué fecha preferís para el nuevo turno?\n\n📅 Días disponibles:\n\n${daysList}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
   );
+}
+
+// ─── Paso: esperando selección de turno ─────────────────────────────────────
+
+export async function handleAwaitingAppointmentSelection(
+  telephone: string,
+  text: string,
+  session: { appointmentId: string | null },
+) {
+  const ids = session.appointmentId?.split(",") ?? [];
+  const index = parseInt(text.trim()) - 1;
+
+  if (isNaN(index) || index < 0 || index >= ids.length) {
+    return await sendTextMessage(
+      telephone,
+      `No entendí 😕 Escribí un número entre 1 y ${ids.length}`,
+    );
+  }
+
+  return await startDateSelection(telephone, ids[index]);
 }
 
 // ─── Paso: esperando fecha ───────────────────────────────────────────────────
