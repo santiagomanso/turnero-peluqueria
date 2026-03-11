@@ -1,4 +1,3 @@
-import { db } from "@/lib/db";
 import {
   sendMainMenu,
   handleAwaitingOption,
@@ -6,9 +5,16 @@ import {
   handleAwaitingDate,
   handleAwaitingHour,
   handleConfirmingChange,
+  handleAwaitingLucketeContact,
+  handleAwaitingLucketeMessage,
 } from "./steps";
+import { db } from "@/lib/db";
 
-export async function handleIncomingMessage(from: string, text: string) {
+export async function handleIncomingMessage(
+  from: string,
+  text: string,
+  contactName: string,
+) {
   const session = await db.whatsappChatbotSession.findUnique({
     where: { telephone: from },
   });
@@ -43,6 +49,12 @@ export async function handleIncomingMessage(from: string, text: string) {
         newDate: session.newDate,
         newTime: session.newTime,
       });
+
+    case "AWAITING_LUCKETE_CONTACT":
+      return await handleAwaitingLucketeContact(from, text, contactName);
+
+    case "AWAITING_LUCKETE_MESSAGE":
+      return await handleAwaitingLucketeMessage(from, text, contactName);
 
     default:
       return await sendMainMenu(from);

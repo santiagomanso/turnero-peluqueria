@@ -85,14 +85,8 @@ function buildDaysList(days: Date[]): string {
 }
 
 function buildHoursList(hours: string[]): string {
-  const morning = hours.filter((h) => {
-    const hour = parseInt(h.split(":")[0]);
-    return hour < 13;
-  });
-  const afternoon = hours.filter((h) => {
-    const hour = parseInt(h.split(":")[0]);
-    return hour >= 13;
-  });
+  const morning = hours.filter((h) => parseInt(h.split(":")[0]) < 13);
+  const afternoon = hours.filter((h) => parseInt(h.split(":")[0]) >= 13);
 
   let list = "";
   let counter = 1;
@@ -504,9 +498,61 @@ async function handleCancelAppointment(telephone: string) {
 // ─── Opción 4: Hablar con Luckete ────────────────────────────────────────────
 
 async function handleTalkToLuckete(telephone: string) {
-  await deleteSession(telephone);
+  await updateSession(telephone, { step: "AWAITING_LUCKETE_CONTACT" });
   await sendTextMessage(
     telephone,
-    `¡Con gusto! En breve alguien de Luckete te va a responder 💬✂️`,
+    `¡Claro! La dueña de Luckete se va a comunicar con vos a la brevedad 💬✂️\n\n¿Querés dejarle un mensaje para que sepa sobre qué querés hablar?\n\nRespondé *SI* o *NO*`,
+  );
+}
+
+// ─── Paso: esperando contacto con Luckete ───────────────────────────────────
+
+export async function handleAwaitingLucketeContact(
+  telephone: string,
+  text: string,
+  contactName: string,
+) {
+  const input = text.trim().toLowerCase();
+
+  if (input === "no") {
+    await deleteSession(telephone);
+    await sendTextMessage(
+      telephone,
+      `✅ Listo. Luckete te va a escribir pronto ✂️`,
+    );
+    return await sendTextMessage(
+      process.env.OWNER_PHONE!,
+      `💬 Cliente quiere hablar\n\n👤 ${contactName}\n📞 +${telephone}`,
+    );
+  }
+
+  if (input === "si" || input === "sí") {
+    await updateSession(telephone, { step: "AWAITING_LUCKETE_MESSAGE" });
+    return await sendTextMessage(
+      telephone,
+      `Escribí tu mensaje y se lo hacemos llegar 👇`,
+    );
+  }
+
+  await sendTextMessage(telephone, `No entendí 😕 Respondé *SI* o *NO*`);
+}
+
+// ─── Paso: esperando mensaje para Luckete ───────────────────────────────────
+
+export async function handleAwaitingLucketeMessage(
+  telephone: string,
+  text: string,
+  contactName: string,
+) {
+  await deleteSession(telephone);
+
+  await sendTextMessage(
+    telephone,
+    `✅ Mensaje recibido. Luckete te va a escribir pronto ✂️`,
+  );
+
+  await sendTextMessage(
+    process.env.OWNER_PHONE!,
+    `💬 Nueva consulta de cliente\n\n👤 ${contactName}\n📞 +${telephone}\n\n✉️ Mensaje:\n"${text}"`,
   );
 }

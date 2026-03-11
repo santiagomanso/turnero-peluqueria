@@ -27,26 +27,26 @@ export async function POST(req: NextRequest) {
     const change = entry?.changes?.[0];
     const message = change?.value?.messages?.[0];
 
-    // Ignorar eventos que no son mensajes (delivery receipts, etc)
     if (!message) {
       return new NextResponse("OK", { status: 200 });
     }
 
-    // Solo procesar mensajes de texto
     if (message.type !== "text") {
       return new NextResponse("OK", { status: 200 });
     }
 
-    const from = message.from; // "5493794800756"
-    const text = message.text?.body; // "Hola"
+    const from = message.from as string;
+    const text = message.text?.body as string;
+    const contactName =
+      change?.value?.contacts?.[0]?.profile?.name ?? "Cliente";
 
     if (!from || !text) {
       return new NextResponse("OK", { status: 200 });
     }
 
-    console.log(`📱 De: ${from} | Texto: "${text}"`);
+    console.log(`📱 De: ${from} (${contactName}) | Texto: "${text}"`);
 
-    await handleIncomingMessage(from, text);
+    await handleIncomingMessage(from, text, contactName);
 
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
