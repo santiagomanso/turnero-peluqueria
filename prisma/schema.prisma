@@ -51,3 +51,15 @@ model Config {
 
   @@map("config")
 }
+
+model WhatsappChatbotSession {
+  telephone     String   @id
+  step          String
+  appointmentId String?
+  newDate       String?
+  newTime       String?
+  expiresAt     DateTime
+  updatedAt     DateTime @updatedAt
+
+  @@map("whatsapp_chatbot_sessions")
+}

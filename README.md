@@ -707,15 +707,201 @@ CRON_SECRET=...
 - [x] `ThemeToggle`: refactorizado a shadcn Button variant outline, alineado con botones admin
 - [x] Desktop appointments controls: orden `[+] [↻] [🌙] [📅]`, íconos `dark:text-zinc-400`
 - [x] Sombras dark mode: `dark:shadow-black/30` en botones gold y hora seleccionada
+- [x] **Config horarios:** fix interacción días/horas — click en cajita día = seleccionar, switch = toggle habilitado, sin conflicto entre ambos. Horarios deben reflejar el día seleccionado correctamente
+- [x] **Config horarios:** migración de datos — config.hours en DB tiene estructura plana vieja, al guardar desde nueva UI se sobreescribe con estructura por día
+- [x] **Config horarios:** `get-availability` action — actualizar para leer nueva `HoursConfig` por día
+- [x] **Descuentos:** códigos no se están guardando en DB — investigar `save-config` action
+- [x] **Admin calendario:** agregar color de BG en días según cantidad de turnos — verde (1–4), amarillo (5–10), rojo (11–15+)
+- [x] Renombrar `sidebar-metrics-mobile-controls.tsx.tsx` → `sidebar-metrics-mobile-controls.tsx`
+- [x] Verificar métricas en producción muestran datos correctos
+- [x] `admin-mobile-sheet.tsx` — agregar `prefetch={false}` a todos los links de `NAV_ITEMS`
+- [x] Verificar card en producción mobile y desktop
 
 ## ITEMS PENDIENTES
 
-- [ ] **Config horarios:** fix interacción días/horas — click en cajita día = seleccionar, switch = toggle habilitado, sin conflicto entre ambos. Horarios deben reflejar el día seleccionado correctamente
-- [ ] **Config horarios:** migración de datos — config.hours en DB tiene estructura plana vieja, al guardar desde nueva UI se sobreescribe con estructura por día
-- [ ] **Config horarios:** `get-availability` action — actualizar para leer nueva `HoursConfig` por día
-- [ ] **Descuentos:** códigos no se están guardando en DB — investigar `save-config` action
-- [ ] **Admin calendario:** agregar color de BG en días según cantidad de turnos — verde (1–4), amarillo (5–10), rojo (11–15+)
-- [ ] Renombrar `sidebar-metrics-mobile-controls.tsx.tsx` → `sidebar-metrics-mobile-controls.tsx`
-- [ ] `admin-mobile-sheet.tsx` — agregar `prefetch={false}` a todos los links de `NAV_ITEMS`
-- [ ] Verificar card en producción mobile y desktop
-- [ ] Verificar métricas en producción muestran datos correctos
+- [ ] Establecer como lograr que los usuarios modifiquen sus turnos (enviar OTP por meta whatsapp, sin poner template de OTP porque no nos permiten, envaluar si poner UTILITY y fijgir un OTP sin decir OTP para que no sea flagueado OTP y no nos permitan) o que se desate un chat con el chatbot de whatsapp business para que el chatbot le cambie el turno (ya es único al cliente ese número)
+- [ ] hacer funcional el shop online (en panel de control: 1. crear página para crear productos y stock) 2. crear página para listado de pedidos para que la dueña de la peluqueria vea pedidos y vaya empaquetando y marcando la orden de compra como "recogido" u otro
+- [ ] agregar seguridad al FRONT y BACK end respecto de la creación de turnos (para que no nos colmen la DB con bots) captcha y alguna otra forma de restringir
+
+# Race Condition — Verificación de disponibilidad en tiempo real
+
+## El problema
+
+En un sistema de turnos con múltiples usuarios simultáneos existe una **race condition**: dos personas pueden llegar al paso 4 (confirmación de pago) con el mismo día y hora seleccionados. Sin verificación, ambas crearían un appointment para el mismo slot, superando el `maxBookings` configurado.
+
+### Flujo original (sin fix)
+
+```
+Step 1 (fecha) → Step 2 (hora) → Step 3 (teléfono) → Step 4 (confirmación)
+  → "Pagar con MP" → crea appointment PENDING → redirige a MercadoPago
+```
+
+El problema: la disponibilidad solo se chequeaba al **cargar las horas en el paso 2**, pero ese dato podía estar desactualizado para cuando el usuario llegaba al paso 4 minutos después.
+
+---
+
+## Archivos involucrados
+
+| Archivo                                                      | Rol                                                |
+| ------------------------------------------------------------ | -------------------------------------------------- |
+| `src/app/appointments/_actions/mercadopago.ts`               | Verificación server-side + creación de appointment |
+| `src/app/appointments/_hooks/use-create-appointment-form.ts` | Manejo del error `hourFull` en el cliente          |
+| `src/app/appointments/new/_components/date-step.tsx`         | Deshabilita días llenos en el calendario           |
+| `src/app/appointments/_actions/get-availability.ts`          | Recarga disponibilidad del día en tiempo real      |
+
+---
+
+## La solución
+
+### 1. Verificación server-side — `mercadopago.ts`
+
+**Antes** de crear el appointment y la preferencia de MercadoPago, se verifica en tiempo real:
+
+```typescript
+// 1. Obtener maxBookings del slot desde config
+const hourConfig = config.hours[dayKey][data.hour];
+if (!hourConfig?.enabled)
+  return { success: false, error: "Horario no disponible" };
+
+// 2. Contar appointments activos (no CANCELLED) para esa fecha/hora
+const activeBookings = await countActiveBookingsForSlot(date, hour);
+
+// 3. Si está lleno → retornar error con flag hourFull
+if (activeBookings >= hourConfig.maxBookings) {
+  return {
+    success: false,
+    error: "Este horario se acaba de completar. Por favor elegí otro.",
+    hourFull: true,
+  };
+}
+
+// 4. Solo si hay lugar → crear appointment PENDING + preferencia MP
+```
+
+La clave es que esto ocurre **en el momento exacto del intento de pago**, garantizando datos frescos de la DB.
+
+---
+
+### 2. Manejo del error en el cliente — `use-create-appointment-form.ts`
+
+Cuando la action retorna `hourFull: true`, el hook ejecuta el siguiente flujo:
+
+```typescript
+if ("hourFull" in response && response.hourFull) {
+  // Recargar disponibilidad real del día
+  const availability = await getAvailabilityAction(data.date);
+
+  if (availability.success && availability.hours) {
+    setAvailableHours(availability.hours);
+    const anyAvailable = availability.hours.some((h) => h.available);
+
+    if (!anyAvailable) {
+      // El día entero está lleno → agregar a fullDates
+      const newFullDates = [...fullDates, data.date];
+      setFullDates(newFullDates);
+      // Calcular próxima fecha disponible saltando fullDates
+      const nextDate = getNextAvailableDate(options?.daysConfig, newFullDates);
+      form.setValue("date", nextDate);
+      form.setValue("time", "");
+      setCurrentStep(1); // → volver al calendario
+    } else {
+      // Quedan otros horarios en el mismo día
+      form.setValue("time", "");
+      setCurrentStep(2); // → volver a elegir hora
+    }
+  }
+}
+```
+
+#### Estado `fullDates: Date[]`
+
+Array de fechas que el usuario intentó reservar y que se detectaron como **completamente llenas** durante la sesión. Se acumula a medida que el usuario intenta y falla.
+
+#### Función `getNextAvailableDate`
+
+```typescript
+function getNextAvailableDate(
+  daysConfig: DaysConfig | null | undefined,
+  fullDates: Date[] = [],
+): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  date.setHours(0, 0, 0, 0);
+
+  for (let i = 0; i < 60; i++) {
+    const key = dayKeyMap[date.getUTCDay()];
+    const isFull = fullDates.some(
+      (d) => d.toDateString() === date.toDateString(),
+    );
+    if (daysConfig[key] && !isFull) return date;
+    date.setDate(date.getDate() + 1);
+  }
+
+  return date;
+}
+```
+
+Itera desde mañana buscando un día que:
+
+- Esté habilitado en `daysConfig`
+- No esté en `fullDates`
+
+---
+
+### 3. Deshabilitar días llenos en el calendario — `date-step.tsx`
+
+```typescript
+const isDayDisabled = (date: Date) => {
+  // ... otras validaciones
+
+  // Deshabilitar días detectados como llenos en esta sesión
+  if (fullDates.some((d) => d.toDateString() === date.toDateString()))
+    return true;
+
+  // ...
+};
+```
+
+`fullDates` viene del hook via `appointmentForm.fullDates` y se usa para pintar esos días como disabled en el calendario, evitando que el usuario vuelva a intentar reservar ahí.
+
+---
+
+## Flujo completo con fix
+
+```
+Step 4 → "Pagar con MP"
+  ↓
+mercadopago.ts verifica DB en tiempo real
+  ↓
+┌─ Hay lugar ──────────────────────────────────────────────┐
+│  → Crea appointment PENDING                               │
+│  → Crea preferencia MP                                    │
+│  → Redirige a MercadoPago                                 │
+└──────────────────────────────────────────────────────────┘
+  ↓
+┌─ hourFull: true ─────────────────────────────────────────┐
+│  → Recarga disponibilidad del día (getAvailabilityAction) │
+│                                                           │
+│  ┌─ anyAvailable === false (día entero lleno) ──────────┐ │
+│  │  → fullDates.push(fecha)                             │ │
+│  │  → getNextAvailableDate(daysConfig, fullDates)       │ │
+│  │  → form.setValue("date", nextDate)                   │ │
+│  │  → form.setValue("time", "")                         │ │
+│  │  → setCurrentStep(1) → calendario                    │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                           │
+│  ┌─ anyAvailable === true (quedan horarios) ────────────┐ │
+│  │  → form.setValue("time", "")                         │ │
+│  │  → setCurrentStep(2) → elegir hora                   │ │
+│  └──────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Por qué esta implementación y no otra
+
+- **No se bloquea el slot al agregar al paso 2**: un slot "reservado" sin pagar generaría slots fantasma si el usuario abandona.
+- **La verificación es server-side**: el cliente no puede falsificar disponibilidad.
+- **`fullDates` es client-side y temporal**: solo persiste durante la sesión del usuario, no necesita DB.
+- **Se reusan acciones existentes**: `getAvailabilityAction` ya existía, no se duplicó lógica.
