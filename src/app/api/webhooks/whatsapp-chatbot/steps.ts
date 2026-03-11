@@ -3,10 +3,11 @@ import { sendTextMessage } from "./send";
 import { parseUserDate, parseUserTime } from "./parse-input";
 import { formatDateLong, formatDateISO } from "@/lib/format-date";
 import { getAvailabilityAction } from "@/app/appointments/_actions/get-availability";
-import { addDays, startOfDay } from "date-fns";
+import { addDays, startOfDay, isWeekend } from "date-fns";
 import type { DaysConfig } from "@/types/config";
 
 const SESSION_TTL_MINUTES = 30;
+const SEP = "─────────────────────";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -56,13 +57,73 @@ function getNextAvailableDays(daysConfig: DaysConfig, count = 7): Date[] {
   return result;
 }
 
+function buildDaysList(days: Date[]): string {
+  const weekdays = days.filter((d) => !isWeekend(d));
+  const weekend = days.filter((d) => isWeekend(d));
+
+  let list = "";
+  let counter = 1;
+
+  if (weekdays.length > 0) {
+    list += `📋 Entre semana\n\n`;
+    for (const d of weekdays) {
+      list += `${String(counter).padEnd(2)} → 📆 ${formatDateLong(d)}\n`;
+      counter++;
+    }
+  }
+
+  if (weekend.length > 0) {
+    if (weekdays.length > 0) list += `\n${SEP}\n\n`;
+    list += `🌅 Fin de semana\n\n`;
+    for (const d of weekend) {
+      list += `${String(counter).padEnd(2)} → 📆 ${formatDateLong(d)}\n`;
+      counter++;
+    }
+  }
+
+  return list.trim();
+}
+
+function buildHoursList(hours: string[]): string {
+  const morning = hours.filter((h) => {
+    const hour = parseInt(h.split(":")[0]);
+    return hour < 13;
+  });
+  const afternoon = hours.filter((h) => {
+    const hour = parseInt(h.split(":")[0]);
+    return hour >= 13;
+  });
+
+  let list = "";
+  let counter = 1;
+
+  if (morning.length > 0) {
+    list += `🌅 Por la mañana\n\n`;
+    for (const h of morning) {
+      list += `${String(counter).padEnd(2)} → 🕐 ${h}\n`;
+      counter++;
+    }
+  }
+
+  if (afternoon.length > 0) {
+    if (morning.length > 0) list += `\n${SEP}\n\n`;
+    list += `🌇 Por la tarde\n\n`;
+    for (const h of afternoon) {
+      list += `${String(counter).padEnd(2)} → 🕐 ${h}\n`;
+      counter++;
+    }
+  }
+
+  return list.trim();
+}
+
 // ─── Menú principal ─────────────────────────────────────────────────────────
 
 export async function sendMainMenu(telephone: string) {
   await updateSession(telephone, { step: "AWAITING_OPTION" });
   await sendTextMessage(
     telephone,
-    `¡Hola! Bienvenido/a al asistente de Luckete Colorista ✂️\n\n¿En qué te puedo ayudar?\n\n1️⃣ Ver mi turno\n2️⃣ Modificar mi turno\n3️⃣ Cancelar mi turno\n4️⃣ Hablar con Luckete`,
+    `${SEP}\n🤖 ¿En qué te puedo ayudar?\n${SEP}\n\n1  → 👁️ Ver mi turno\n2  → ✏️ Modificar mi turno\n3  → ❌ Cancelar mi turno\n4  → 💬 Hablar con Luckete`,
   );
 }
 
@@ -127,14 +188,15 @@ async function handleStartModify(telephone: string) {
     );
   }
 
-  // Si tiene solo 1 turno → directo a elegir fecha
   if (appointments.length === 1) {
     return await startDateSelection(telephone, appointments[0].id);
   }
 
-  // Tiene varios → mostrar lista
   const list = appointments
-    .map((a, i) => `${i + 1}. ${formatDateLong(a.date)} a las ${a.time} hs`)
+    .map(
+      (a, i) =>
+        `${String(i + 1).padEnd(2)} → 📅 ${formatDateLong(a.date)} a las ${a.time} hs`,
+    )
     .join("\n");
 
   await updateSession(telephone, {
@@ -144,7 +206,7 @@ async function handleStartModify(telephone: string) {
 
   await sendTextMessage(
     telephone,
-    `Tenés ${appointments.length} turnos activos. ¿Cuál querés modificar?\n\n${list}`,
+    `${SEP}\n📋 Tus turnos activos\n${SEP}\n\n${list}`,
   );
 }
 
@@ -155,10 +217,6 @@ async function startDateSelection(telephone: string, appointmentId: string) {
   const daysConfig = config?.days as DaysConfig;
   const availableDays = getNextAvailableDays(daysConfig, 7);
 
-  const daysList = availableDays
-    .map((d, i) => `${i + 1}. ${formatDateLong(d)}`)
-    .join("\n");
-
   await updateSession(telephone, {
     step: "AWAITING_DATE",
     appointmentId,
@@ -166,7 +224,7 @@ async function startDateSelection(telephone: string, appointmentId: string) {
 
   await sendTextMessage(
     telephone,
-    `¿Qué fecha preferís para el nuevo turno?\n\n📅 Días disponibles:\n\n${daysList}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
+    `${SEP}\n📅 Días disponibles\n${SEP}\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
   );
 }
 
@@ -245,9 +303,7 @@ export async function handleAwaitingDate(
     );
   }
 
-  const hoursList = availableHours
-    .map((h, i) => `${i + 1}. ${h.time}`)
-    .join("\n");
+  const hoursList = buildHoursList(availableHours.map((h) => h.time as string));
 
   await updateSession(telephone, {
     step: "AWAITING_HOUR",
@@ -257,7 +313,7 @@ export async function handleAwaitingDate(
 
   await sendTextMessage(
     telephone,
-    `📅 ${formatDateLong(date)}\n\n¿A qué hora te queda mejor?\n\n🕐 Horarios disponibles:\n\n${hoursList}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+    `${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${hoursList}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
   );
 }
 
@@ -283,22 +339,21 @@ export async function handleAwaitingHour(
     availability.hours
       ?.filter((h) => h.available)
       .map((h) => h.time as string) ?? [];
+
   const time = parseUserTime(text, availableHours);
 
   if (!time) {
-    const hoursList = availableHours.map((h, i) => `${i + 1}. ${h}`).join("\n");
     return await sendTextMessage(
       telephone,
-      `No entendí ese horario 😕\n\nElegí uno de la lista o escribí la hora:\n\n${hoursList}`,
+      `No entendí ese horario 😕\n\n${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
   const isAvailable = availableHours.includes(time);
   if (!isAvailable) {
-    const hoursList = availableHours.map((h, i) => `${i + 1}. ${h}`).join("\n");
     return await sendTextMessage(
       telephone,
-      `Ese horario no está disponible 😕\n\nElegí uno de estos:\n\n${hoursList}`,
+      `Ese horario no está disponible 😕\n\n${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
@@ -313,7 +368,7 @@ export async function handleAwaitingHour(
 
   await sendTextMessage(
     telephone,
-    `Perfecto! Antes de confirmar, revisá los datos 👀\n\n✏️ Fecha nueva: ${formatDateLong(dateForDisplay)} a las ${time} hs\n\n¿Confirmamos el cambio?\n\n1️⃣ ✅ Sí, confirmar\n2️⃣ ❌ No, elegir otro horario\n3️⃣ 🔙 Volver al menú principal`,
+    `${SEP}\n✅ ¿Confirmamos el cambio?\n${SEP}\n\n📅 ${formatDateLong(dateForDisplay)} a las ${time} hs\n\n1  → ✅ Sí, confirmar\n2  → 🔄 Elegir otro horario\n3  → 🔙 Volver al menú`,
   );
 }
 
@@ -339,13 +394,13 @@ export async function handleConfirmingChange(
     const availability = await getAvailabilityAction(
       new Date(session.newDate + "T12:00:00"),
     );
-    const availableHours = availability.hours?.filter((h) => h.available) ?? [];
-    const hoursList = availableHours
-      .map((h, i) => `${i + 1}. ${h.time}`)
-      .join("\n");
+    const availableHours =
+      availability.hours
+        ?.filter((h) => h.available)
+        .map((h) => h.time as string) ?? [];
     return await sendTextMessage(
       telephone,
-      `¿A qué hora te queda mejor?\n\n🕐 Horarios disponibles:\n\n${hoursList}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+      `${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
@@ -410,13 +465,13 @@ export async function handleConfirmingChange(
       newDate: session.newDate,
     });
     const availability = await getAvailabilityAction(newDateObj);
-    const availableHours = availability.hours?.filter((h) => h.available) ?? [];
-    const hoursList = availableHours
-      .map((h, i) => `${i + 1}. ${h.time}`)
-      .join("\n");
+    const availableHours =
+      availability.hours
+        ?.filter((h) => h.available)
+        .map((h) => h.time as string) ?? [];
     return await sendTextMessage(
       telephone,
-      `😕 Ese horario se acaba de completar.\n\n¿Querés elegir otro?\n\n${hoursList}`,
+      `😕 Ese horario se acaba de completar.\n\n${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
