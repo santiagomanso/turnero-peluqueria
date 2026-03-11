@@ -128,11 +128,10 @@ async function handleStartModify(telephone: string) {
 
   const config = await db.config.findUnique({ where: { id: "singleton" } });
   const daysConfig = config?.days as DaysConfig;
-
   const availableDays = getNextAvailableDays(daysConfig, 7);
 
   const daysList = availableDays
-    .map((d, i) => `${i + 1}️⃣ ${formatDateLong(d)}`)
+    .map((d, i) => `${i + 1}. ${formatDateLong(d)}`)
     .join("\n");
 
   await updateSession(telephone, {
@@ -166,7 +165,6 @@ export async function handleAwaitingDate(
     );
   }
 
-  // Verificar que el día esté habilitado en config
   const dayKeyMap: Record<number, string> = {
     0: "sunday",
     1: "monday",
@@ -184,7 +182,6 @@ export async function handleAwaitingDate(
     );
   }
 
-  // Obtener horas disponibles
   const availability = await getAvailabilityAction(date);
 
   if (!availability.success || !availability.hours) {
@@ -204,7 +201,7 @@ export async function handleAwaitingDate(
   }
 
   const hoursList = availableHours
-    .map((h, i) => `${i + 1}️⃣ ${h.time}`)
+    .map((h, i) => `${i + 1}. ${h.time}`)
     .join("\n");
 
   await updateSession(telephone, {
@@ -244,17 +241,16 @@ export async function handleAwaitingHour(
   const time = parseUserTime(text, availableHours);
 
   if (!time) {
-    const hoursList = availableHours.map((h, i) => `${i + 1}️⃣ ${h}`).join("\n");
+    const hoursList = availableHours.map((h, i) => `${i + 1}. ${h}`).join("\n");
     return await sendTextMessage(
       telephone,
       `No entendí ese horario 😕\n\nElegí uno de la lista o escribí la hora:\n\n${hoursList}`,
     );
   }
 
-  // Verificar que el horario elegido esté disponible
   const isAvailable = availableHours.includes(time);
   if (!isAvailable) {
-    const hoursList = availableHours.map((h, i) => `${i + 1}️⃣ ${h}`).join("\n");
+    const hoursList = availableHours.map((h, i) => `${i + 1}. ${h}`).join("\n");
     return await sendTextMessage(
       telephone,
       `Ese horario no está disponible 😕\n\nElegí uno de estos:\n\n${hoursList}`,
@@ -290,7 +286,6 @@ export async function handleConfirmingChange(
   const input = text.trim();
 
   if (input === "2") {
-    // Volver a elegir hora
     await updateSession(telephone, {
       step: "AWAITING_HOUR",
       appointmentId: session.appointmentId,
@@ -301,7 +296,7 @@ export async function handleConfirmingChange(
     );
     const availableHours = availability.hours?.filter((h) => h.available) ?? [];
     const hoursList = availableHours
-      .map((h, i) => `${i + 1}️⃣ ${h.time}`)
+      .map((h, i) => `${i + 1}. ${h.time}`)
       .join("\n");
     return await sendTextMessage(
       telephone,
@@ -318,7 +313,6 @@ export async function handleConfirmingChange(
     return await sendTextMessage(telephone, `No entendí, escribí 1, 2 o 3 👆`);
   }
 
-  // Confirmar cambio — verificar disponibilidad en tiempo real
   if (!session.appointmentId || !session.newDate || !session.newTime) {
     await deleteSession(telephone);
     return await sendTextMessage(
@@ -355,13 +349,12 @@ export async function handleConfirmingChange(
     );
   }
 
-  // Contar reservas activas para ese slot
   const activeBookings = await db.appointment.count({
     where: {
       date: new Date(session.newDate + "T00:00:00.000Z"),
       time: session.newTime,
       status: { in: ["PENDING", "PAID"] },
-      id: { not: session.appointmentId }, // excluir el turno actual
+      id: { not: session.appointmentId },
     },
   });
 
@@ -374,7 +367,7 @@ export async function handleConfirmingChange(
     const availability = await getAvailabilityAction(newDateObj);
     const availableHours = availability.hours?.filter((h) => h.available) ?? [];
     const hoursList = availableHours
-      .map((h, i) => `${i + 1}️⃣ ${h.time}`)
+      .map((h, i) => `${i + 1}. ${h.time}`)
       .join("\n");
     return await sendTextMessage(
       telephone,
@@ -382,7 +375,6 @@ export async function handleConfirmingChange(
     );
   }
 
-  // Todo ok — actualizar el turno
   await db.appointment.update({
     where: { id: session.appointmentId },
     data: {
