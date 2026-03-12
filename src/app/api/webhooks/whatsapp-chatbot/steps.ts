@@ -7,6 +7,7 @@ import type { DayKey, DaysConfig } from "@/types/config";
 import { sendTextMessage } from "@/services/whatsapp";
 import { getConfig } from "@/services/config";
 import { updateAppointment } from "@/services/update";
+import { getAppointmentById } from "@/services/get";
 
 const SESSION_TTL_MINUTES = 30;
 
@@ -205,7 +206,11 @@ async function handleStartModify(telephone: string) {
 // ─── Helper: arrancar selección de fecha ────────────────────────────────────
 
 async function startDateSelection(telephone: string, appointmentId: string) {
-  const config = await getConfig();
+  const [config, appointment] = await Promise.all([
+    getConfig(),
+    getAppointmentById(appointmentId),
+  ]);
+
   const daysConfig = config?.days as DaysConfig;
   const availableDays = getNextAvailableDays(daysConfig, 7);
 
@@ -214,9 +219,13 @@ async function startDateSelection(telephone: string, appointmentId: string) {
     appointmentId,
   });
 
+  const originalInfo = appointment
+    ? `Turno original: ${formatDateLong(appointment.date)} a las ${appointment.time} hs\n\n`
+    : "";
+
   await sendTextMessage(
     telephone,
-    `📅 Días disponibles\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
+    `${originalInfo}📅 Días disponibles\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
   );
 }
 
@@ -413,7 +422,11 @@ export async function handleConfirmingChange(
     );
   }
 
-  const config = await getConfig();
+  const [config, originalAppointment] = await Promise.all([
+    getConfig(),
+    getAppointmentById(session.appointmentId),
+  ]);
+
   const hoursConfig = config?.hours;
 
   const dayKeyMap: Record<number, string> = {
@@ -472,9 +485,13 @@ export async function handleConfirmingChange(
 
   await deleteSession(telephone);
 
+  const originalInfo = originalAppointment
+    ? `Turno original: ${formatDateLong(originalAppointment.date)} a las ${originalAppointment.time} hs\nTurno nuevo:    ${formatDateLong(newDateObj)} a las ${session.newTime} hs\n\n`
+    : "";
+
   await sendTextMessage(
     telephone,
-    `✅ ¡Listo! Tu turno fue modificado exitosamente.\n\n📅 ${formatDateLong(newDateObj)}\n🕐 ${session.newTime} hs\n\n📍 Cómo llegar: https://maps.app.goo.gl/T56dNBbQZaFUNDJi6\n\nNos vemos pronto ✂️`,
+    `✅ ¡Listo! Tu turno fue modificado exitosamente.\n\n${originalInfo}📍 Cómo llegar: https://maps.app.goo.gl/T56dNBbQZaFUNDJi6\n\nNos vemos pronto ✂️`,
   );
 }
 
