@@ -94,18 +94,18 @@ function buildHoursList(hours: string[]): string {
   let counter = 1;
 
   if (morning.length > 0) {
-    list += `🌅 Por la mañana\n\n`;
+    list += `Por la mañana\n`;
     for (const h of morning) {
-      list += `${String(counter).padEnd(2)} → 🕐 ${h}\n`;
+      list += `${String(counter).padEnd(2)} → ${h}\n`;
       counter++;
     }
   }
 
   if (afternoon.length > 0) {
     if (morning.length > 0) list += `\n`;
-    list += `🌇 Por la tarde\n\n`;
+    list += `Por la tarde\n`;
     for (const h of afternoon) {
-      list += `${String(counter).padEnd(2)} → 🕐 ${h}\n`;
+      list += `${String(counter).padEnd(2)} → ${h}\n`;
       counter++;
     }
   }
