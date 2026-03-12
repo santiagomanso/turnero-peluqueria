@@ -99,3 +99,13 @@ export async function sendAppointmentReminder({
     },
   });
 }
+
+export async function sendTextMessage(to: string, text: string): Promise<void> {
+  await sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to,
+    type: "text",
+    text: { body: text },
+  });
+  console.log(`✅ Mensaje enviado a ${to}`);
+}

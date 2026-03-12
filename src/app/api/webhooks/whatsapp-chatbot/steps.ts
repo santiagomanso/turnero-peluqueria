@@ -1,13 +1,14 @@
 import { db } from "@/lib/db";
-import { sendTextMessage } from "./send";
 import { parseUserDate, parseUserTime } from "./parse-input";
 import { formatDateLong, formatDateISO } from "@/lib/format-date";
 import { getAvailabilityAction } from "@/app/appointments/_actions/get-availability";
 import { addDays, startOfDay, isWeekend } from "date-fns";
-import type { DaysConfig } from "@/types/config";
+import type { DayKey, DaysConfig } from "@/types/config";
+import { sendTextMessage } from "@/services/whatsapp";
+import { getConfig } from "@/services/config";
+import { updateAppointment } from "@/services/update";
 
 const SESSION_TTL_MINUTES = 30;
-const SEP = "─────────────────────";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ function buildDaysList(days: Date[]): string {
   }
 
   if (weekend.length > 0) {
-    if (weekdays.length > 0) list += `\n${SEP}\n\n`;
+    if (weekdays.length > 0) list += `\n`;
     list += `🌅 Fin de semana\n\n`;
     for (const d of weekend) {
       list += `${String(counter).padEnd(2)} → 📆 ${formatDateLong(d)}\n`;
@@ -100,7 +101,7 @@ function buildHoursList(hours: string[]): string {
   }
 
   if (afternoon.length > 0) {
-    if (morning.length > 0) list += `\n${SEP}\n\n`;
+    if (morning.length > 0) list += `\n`;
     list += `🌇 Por la tarde\n\n`;
     for (const h of afternoon) {
       list += `${String(counter).padEnd(2)} → 🕐 ${h}\n`;
@@ -117,7 +118,7 @@ export async function sendMainMenu(telephone: string) {
   await updateSession(telephone, { step: "AWAITING_OPTION" });
   await sendTextMessage(
     telephone,
-    `${SEP}\n🤖 ¿En qué te puedo ayudar?\n${SEP}\n\n1  → 👁️ Ver mi turno\n2  → ✏️ Modificar mi turno\n3  → ❌ Cancelar mi turno\n4  → 💬 Hablar con Luckete`,
+    `🤖 ¿En qué te puedo ayudar?\n\n1  → 👁️ Ver mi turno\n2  → ✏️ Modificar mi turno\n3  → ❌ Cancelar mi turno\n4  → 💬 Hablar con Luckete`,
   );
 }
 
@@ -198,16 +199,13 @@ async function handleStartModify(telephone: string) {
     appointmentId: appointments.map((a) => a.id).join(","),
   });
 
-  await sendTextMessage(
-    telephone,
-    `${SEP}\n📋 Tus turnos activos\n${SEP}\n\n${list}`,
-  );
+  await sendTextMessage(telephone, `📋 Tus turnos activos\n\n${list}`);
 }
 
 // ─── Helper: arrancar selección de fecha ────────────────────────────────────
 
 async function startDateSelection(telephone: string, appointmentId: string) {
-  const config = await db.config.findUnique({ where: { id: "singleton" } });
+  const config = await getConfig();
   const daysConfig = config?.days as DaysConfig;
   const availableDays = getNextAvailableDays(daysConfig, 7);
 
@@ -218,7 +216,7 @@ async function startDateSelection(telephone: string, appointmentId: string) {
 
   await sendTextMessage(
     telephone,
-    `${SEP}\n📅 Días disponibles\n${SEP}\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
+    `📅 Días disponibles\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
   );
 }
 
@@ -249,7 +247,7 @@ export async function handleAwaitingDate(
   text: string,
   session: { appointmentId: string | null },
 ) {
-  const config = await db.config.findUnique({ where: { id: "singleton" } });
+  const config = await getConfig();
   const daysConfig = config?.days as DaysConfig;
   const availableDays = getNextAvailableDays(daysConfig, 7);
 
@@ -307,7 +305,7 @@ export async function handleAwaitingDate(
 
   await sendTextMessage(
     telephone,
-    `${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${hoursList}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+    `🕐 Horarios disponibles\n\n${hoursList}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
   );
 }
 
@@ -339,7 +337,7 @@ export async function handleAwaitingHour(
   if (!time) {
     return await sendTextMessage(
       telephone,
-      `No entendí ese horario 😕\n\n${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+      `No entendí ese horario 😕\n\n🕐 Horarios disponibles\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
@@ -347,7 +345,7 @@ export async function handleAwaitingHour(
   if (!isAvailable) {
     return await sendTextMessage(
       telephone,
-      `Ese horario no está disponible 😕\n\n${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+      `Ese horario no está disponible 😕\n\n🕐 Horarios disponibles\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
@@ -362,7 +360,7 @@ export async function handleAwaitingHour(
 
   await sendTextMessage(
     telephone,
-    `${SEP}\n✅ ¿Confirmamos el cambio?\n${SEP}\n\n📅 ${formatDateLong(dateForDisplay)} a las ${time} hs\n\n1  → ✅ Sí, confirmar\n2  → 🔄 Elegir otro horario\n3  → 🔙 Volver al menú`,
+    `✅ ¿Confirmamos el cambio?\n\n📅 ${formatDateLong(dateForDisplay)} a las ${time} hs\n\n1  → ✅ Sí, confirmar\n2  → 🔄 Elegir otro horario\n3  → 🔙 Volver al menú`,
   );
 }
 
@@ -394,7 +392,7 @@ export async function handleConfirmingChange(
         .map((h) => h.time as string) ?? [];
     return await sendTextMessage(
       telephone,
-      `${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+      `🕐 Horarios disponibles\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
@@ -415,11 +413,8 @@ export async function handleConfirmingChange(
     );
   }
 
-  const config = await db.config.findUnique({ where: { id: "singleton" } });
-  const hoursConfig = config?.hours as Record<
-    string,
-    Record<string, { enabled: boolean; maxBookings: number }>
-  >;
+  const config = await getConfig();
+  const hoursConfig = config?.hours;
 
   const dayKeyMap: Record<number, string> = {
     0: "sunday",
@@ -433,7 +428,7 @@ export async function handleConfirmingChange(
 
   const newDateObj = new Date(session.newDate + "T12:00:00");
   const dayKey = dayKeyMap[newDateObj.getDay()];
-  const hourConfig = hoursConfig?.[dayKey]?.[session.newTime];
+  const hourConfig = hoursConfig?.[dayKey as DayKey]?.[session.newTime];
 
   if (!hourConfig?.enabled) {
     await deleteSession(telephone);
@@ -465,16 +460,14 @@ export async function handleConfirmingChange(
         .map((h) => h.time as string) ?? [];
     return await sendTextMessage(
       telephone,
-      `😕 Ese horario se acaba de completar.\n\n${SEP}\n🕐 Horarios disponibles\n${SEP}\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
+      `😕 Ese horario se acaba de completar.\n\n🕐 Horarios disponibles\n\n${buildHoursList(availableHours)}\n\nRespondé con el número o escribí la hora (ej: *10:30* o *a las 4*)`,
     );
   }
 
-  await db.appointment.update({
-    where: { id: session.appointmentId },
-    data: {
-      date: new Date(session.newDate + "T00:00:00.000Z"),
-      time: session.newTime,
-    },
+  await updateAppointment({
+    id: session.appointmentId,
+    date: new Date(session.newDate + "T00:00:00.000Z"),
+    time: session.newTime,
   });
 
   await deleteSession(telephone);
@@ -483,6 +476,33 @@ export async function handleConfirmingChange(
     telephone,
     `✅ ¡Listo! Tu turno fue modificado exitosamente.\n\n📅 ${formatDateLong(newDateObj)}\n🕐 ${session.newTime} hs\n\n📍 Cómo llegar: https://maps.app.goo.gl/T56dNBbQZaFUNDJi6\n\nNos vemos pronto ✂️`,
   );
+}
+
+// ─── Directo: modificar turno por ID ────────────────────────────────────────
+
+export async function handleDirectModify(
+  telephone: string,
+  appointmentId: string,
+) {
+  const appointment = await db.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      telephone: { endsWith: telephone.slice(-10) },
+      status: { in: ["PENDING", "PAID"] },
+      date: { gte: startOfDay(new Date()) },
+    },
+  });
+
+  if (!appointment) {
+    await deleteSession(telephone);
+    await sendTextMessage(
+      telephone,
+      `No encontré ese turno 😕\n\nVerificá que el link sea correcto o escribí al menú para buscar tu turno.`,
+    );
+    return await sendMainMenu(telephone);
+  }
+
+  return await startDateSelection(telephone, appointment.id);
 }
 
 // ─── Opción 3: Cancelar turno ────────────────────────────────────────────────

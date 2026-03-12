@@ -7,6 +7,7 @@ import {
   handleConfirmingChange,
   handleAwaitingLucketeContact,
   handleAwaitingLucketeMessage,
+  handleDirectModify,
 } from "./steps";
 import { db } from "@/lib/db";
 
@@ -15,6 +16,13 @@ export async function handleIncomingMessage(
   text: string,
   contactName: string,
 ) {
+  // Detectar patrón "Modificar turno #ID" antes de verificar sesión
+  const modifyMatch = text.match(/modificar mi turno #([a-z0-9]+)/i);
+  if (modifyMatch) {
+    const appointmentId = modifyMatch[1];
+    return await handleDirectModify(from, appointmentId);
+  }
+
   const session = await db.whatsappChatbotSession.findUnique({
     where: { telephone: from },
   });

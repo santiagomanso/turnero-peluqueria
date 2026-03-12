@@ -96,12 +96,14 @@ export default async function AppointmentDetailPage({ params }: Props) {
 
           {/* Actions */}
           <div className="flex flex-col gap-3 mt-2">
-            <Link
-              href={`/appointments/update/${appointment.id}`}
+            <a
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER}?text=${encodeURIComponent(`Hola! Quiero modificar mi turno #${appointment.id}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full text-center px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-black/30 hover:bg-gold/90 transition-all"
             >
               Modificar turno
-            </Link>
+            </a>
             <Link
               href="/"
               className="w-full text-center px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-white dark:bg-zinc-700 border border-border-subtle dark:border-zinc-600 text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-zinc-600 transition-all"

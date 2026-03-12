@@ -82,6 +82,8 @@ function toUTCDateOnly(date: Date | string): string {
   return `${y}-${m}-${d}`;
 }
 
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER;
+
 export default function AppointmentCard({
   appointment,
   onDelete,
@@ -99,6 +101,10 @@ export default function AppointmentCard({
 
   const shortPhone = appointment.telephone.slice(-10);
   const shortId = appointment.id.slice(-6).toUpperCase();
+  const WHATSAPP_TEXT = encodeURIComponent(
+    `Hola! Quiero modificar mi turno #${appointment.id}`,
+  );
+
   const displayName =
     appointment.payerName ?? appointment.payerEmail ?? "Sin nombre";
   const truncatedName =
@@ -216,7 +222,6 @@ export default function AppointmentCard({
                       Sobre el turno
                     </DropdownMenuItem>
                   </a>
-
                   <a
                     href={`https://wa.me/${appointment.telephone}?text=${encodeURIComponent("👋 ¡Hola! Te escribimos desde\n💇‍♀️ *Luckete Colorista*.")}%0A%0A`}
                     target="_blank"
@@ -243,12 +248,25 @@ export default function AppointmentCard({
             </>
           )}
 
-          <Link href={`/appointments/update/${appointment.id}`}>
-            <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
-              <Edit className="w-3.5 h-3.5" />
-              Modificar turno
-            </DropdownMenuItem>
-          </Link>
+          {publicView ? (
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_TEXT}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
+                <Edit className="w-3.5 h-3.5" />
+                Modificar turno
+              </DropdownMenuItem>
+            </a>
+          ) : (
+            <Link href={`/appointments/update/${appointment.id}`}>
+              <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
+                <Edit className="w-3.5 h-3.5" />
+                Modificar turno
+              </DropdownMenuItem>
+            </Link>
+          )}
 
           {!publicView && (
             <AlertDialogTrigger asChild>
