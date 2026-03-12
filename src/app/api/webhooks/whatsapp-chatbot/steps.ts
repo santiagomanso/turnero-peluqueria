@@ -67,18 +67,18 @@ function buildDaysList(days: Date[]): string {
   let counter = 1;
 
   if (weekdays.length > 0) {
-    list += `📋 Entre semana\n\n`;
+    list += `Entre semana\n`;
     for (const d of weekdays) {
-      list += `${String(counter).padEnd(2)} → 📆 ${formatDateLong(d)}\n`;
+      list += `${String(counter).padEnd(2)} → ${formatDateLong(d)}\n`;
       counter++;
     }
   }
 
   if (weekend.length > 0) {
     if (weekdays.length > 0) list += `\n`;
-    list += `🌅 Fin de semana\n\n`;
+    list += `Fin de semana\n`;
     for (const d of weekend) {
-      list += `${String(counter).padEnd(2)} → 📆 ${formatDateLong(d)}\n`;
+      list += `${String(counter).padEnd(2)} → ${formatDateLong(d)}\n`;
       counter++;
     }
   }
@@ -220,12 +220,12 @@ async function startDateSelection(telephone: string, appointmentId: string) {
   });
 
   const originalInfo = appointment
-    ? `Turno original: ${formatDateLong(appointment.date)} a las ${appointment.time} hs\n\n`
+    ? `Turno original\n📅 Fecha: ${formatDateLong(appointment.date)}\n🕐 Hora: ${appointment.time} hs\n\n`
     : "";
 
   await sendTextMessage(
     telephone,
-    `${originalInfo}📅 Días disponibles\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
+    `${originalInfo}Días disponibles para el cambio\n\n${buildDaysList(availableDays)}\n\nRespondé con el número del día o escribí una fecha (ej: *22/03*)`,
   );
 }
 
