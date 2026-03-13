@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { parseUserDate, parseUserTime } from "./parse-input";
-import { formatDateLong, formatDateISO } from "@/lib/format-date";
+import { formatDateLong, formatDateISO, formatDateLongFromISO } from "@/lib/format-date";
 import { getAvailabilityAction } from "@/app/appointments/_actions/get-availability";
 import { addDays, startOfDay, isWeekend } from "date-fns";
 import type { DayKey, DaysConfig } from "@/types/config";
@@ -184,7 +184,7 @@ async function handleViewAppointment(telephone: string) {
 
   await sendTextMessage(
     telephone,
-    `Tu próximo turno es:\n\n📅 ${formatDateLong(appointment.date)}\n🕐 ${appointment.time} hs\n\n¿Deseás modificarlo?\n\nEscribí el número de la opción o *Si* / *No* 👇\n\n1  → ✅ Sí, modificar\n2  → ❌ No\n3  → 🔙 Volver al menú`,
+    `Tu próximo turno es:\n\n📅 ${formatDateLongFromISO(appointment.date)}\n🕐 ${appointment.time} hs\n\n¿Deseás modificarlo?\n\nEscribí el número de la opción o *Si* / *No* 👇\n\n1  → ✅ Sí, modificar\n2  → ❌ No\n3  → 🔙 Volver al menú`,
   );
 }
 
@@ -252,7 +252,7 @@ async function handleStartModify(telephone: string) {
   const list = appointments
     .map(
       (a, i) =>
-        `${String(i + 1).padEnd(2)} → 📅 ${formatDateLong(a.date)} a las ${a.time} hs`,
+        `${String(i + 1).padEnd(2)} → 📅 ${formatDateLongFromISO(a.date)} a las ${a.time} hs`,
     )
     .join("\n");
 
@@ -281,7 +281,7 @@ async function startDateSelection(telephone: string, appointmentId: string) {
   });
 
   const originalInfo = appointment
-    ? `Turno original\n📅 Fecha: ${formatDateLong(appointment.date)}\n🕐 Hora: ${appointment.time} hs\n\n`
+    ? `Turno original\n📅 Fecha: ${formatDateLongFromISO(appointment.date)}\n🕐 Hora: ${appointment.time} hs\n\n`
     : "";
 
   await sendTextMessage(
@@ -549,7 +549,7 @@ export async function handleConfirmingChange(
   await deleteSession(telephone);
 
   const originalInfo = originalAppointment
-    ? `Turno original: ${formatDateLong(originalAppointment.date)} a las ${originalAppointment.time} hs\nTurno nuevo:    ${formatDateLong(newDateObj)} a las ${session.newTime} hs\n\n`
+    ? `Turno original: ${formatDateLongFromISO(originalAppointment.date)} a las ${originalAppointment.time} hs\nTurno nuevo:    ${formatDateLong(newDateObj)} a las ${session.newTime} hs\n\n`
     : "";
 
   await sendTextMessage(
