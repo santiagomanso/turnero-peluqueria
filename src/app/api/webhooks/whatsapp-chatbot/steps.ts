@@ -177,10 +177,50 @@ async function handleViewAppointment(telephone: string) {
     );
   }
 
-  await deleteSession(telephone);
+  await updateSession(telephone, {
+    step: "AWAITING_VIEW_ACTION",
+    appointmentId: appointment.id,
+  });
+
   await sendTextMessage(
     telephone,
-    `Tu próximo turno es:\n\n📅 ${formatDateLong(appointment.date)}\n🕐 ${appointment.time} hs\n\nNos vemos pronto ✂️`,
+    `Tu próximo turno es:\n\n📅 ${formatDateLong(appointment.date)}\n🕐 ${appointment.time} hs\n\n¿Deseás modificarlo?\n\nEscribí el número de la opción o *Si* / *No* 👇\n\n1  → ✅ Sí, modificar\n2  → ❌ No\n3  → 🔙 Volver al menú`,
+  );
+}
+
+// ─── Paso: esperando acción sobre turno visto ────────────────────────────────
+
+export async function handleAwaitingViewAction(
+  telephone: string,
+  text: string,
+  session: { appointmentId: string | null },
+) {
+  const input = text.trim().toLowerCase();
+
+  if (input === "1" || input === "si" || input === "sí") {
+    if (!session.appointmentId) {
+      await deleteSession(telephone);
+      return await sendMainMenu(telephone);
+    }
+    return await startDateSelection(telephone, session.appointmentId);
+  }
+
+  if (input === "2" || input === "no") {
+    await deleteSession(telephone);
+    return await sendTextMessage(
+      telephone,
+      `¡Perfecto! Si necesitás algo más, no dudes en escribirnos ✂️`,
+    );
+  }
+
+  if (input === "3") {
+    await deleteSession(telephone);
+    return await sendMainMenu(telephone);
+  }
+
+  await sendTextMessage(
+    telephone,
+    `No entendí 😕\n\nEscribí el número de la opción o *Si* / *No* 👇\n\n1  → ✅ Sí, modificar\n2  → ❌ No\n3  → 🔙 Volver al menú`,
   );
 }
 
@@ -246,7 +286,7 @@ async function startDateSelection(telephone: string, appointmentId: string) {
 
   await sendTextMessage(
     telephone,
-    `${originalInfo}Días disponibles para el cambio\n\nEscribí el número del día o la fecha (ej: *22/03*) 👇\n\n${buildDaysList(availableDays)}`,
+    `${originalInfo}Días disponibles para el cambio\n\nEscribí el número de la opción o la fecha (ej: *22/03*) 👇\n\n${buildDaysList(availableDays)}`,
   );
 }
 
@@ -337,7 +377,7 @@ export async function handleAwaitingDate(
 
   await sendTextMessage(
     telephone,
-    `🕐 Horarios disponibles\n\nEscribí el número del horario o la hora (ej: *10:30* o *a las 4*) 👇\n\n${hoursList}`,
+    `🕐 Horarios disponibles\n\nEscribí el número de la opción o la hora (ej: *10:30* o *a las 4*) 👇\n\n${hoursList}`,
   );
 }
 
@@ -369,7 +409,7 @@ export async function handleAwaitingHour(
   if (!time) {
     return await sendTextMessage(
       telephone,
-      `No entendí ese horario 😕\n\n🕐 Horarios disponibles\n\nEscribí el número del horario o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
+      `No entendí ese horario 😕\n\n🕐 Horarios disponibles\n\nEscribí el número de la opción o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
     );
   }
 
@@ -377,7 +417,7 @@ export async function handleAwaitingHour(
   if (!isAvailable) {
     return await sendTextMessage(
       telephone,
-      `Ese horario no está disponible 😕\n\n🕐 Horarios disponibles\n\nEscribí el número del horario o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
+      `Ese horario no está disponible 😕\n\n🕐 Horarios disponibles\n\nEscribí el número de la opción o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
     );
   }
 
@@ -424,7 +464,7 @@ export async function handleConfirmingChange(
         .map((h) => h.time as string) ?? [];
     return await sendTextMessage(
       telephone,
-      `🕐 Horarios disponibles\n\nEscribí el número del horario o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
+      `🕐 Horarios disponibles\n\nEscribí el número de la opción o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
     );
   }
 
@@ -496,7 +536,7 @@ export async function handleConfirmingChange(
         .map((h) => h.time as string) ?? [];
     return await sendTextMessage(
       telephone,
-      `😕 Ese horario se acaba de completar.\n\n🕐 Horarios disponibles\n\nEscribí el número del horario o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
+      `😕 Ese horario se acaba de completar.\n\n🕐 Horarios disponibles\n\nEscribí el número de la opción o la hora (ej: *10:30* o *a las 4*) 👇\n\n${buildHoursList(availableHours)}`,
     );
   }
 
@@ -561,7 +601,7 @@ async function handleTalkToLuckete(telephone: string) {
   await updateSession(telephone, { step: "AWAITING_LUCKETE_CONTACT" });
   await sendTextMessage(
     telephone,
-    `¡Claro! La dueña de Luckete se va a comunicar con vos a la brevedad 💬✂️\n\n¿Querés dejarle un mensaje para que sepa sobre qué querés hablar?\n\nEscribí el número o *SI* / *NO* 👇\n\n1  → ✅ Sí\n2  → ❌ No`,
+    `¡Claro! La dueña de Luckete se va a comunicar con vos a la brevedad 💬✂️\n\n¿Querés dejarle un mensaje para que sepa sobre qué querés hablar?\n\nEscribí el número o *Si* / *No* 👇\n\n1  → ✅ Sí\n2  → ❌ No`,
   );
 }
 
@@ -594,7 +634,7 @@ export async function handleAwaitingLucketeContact(
     );
   }
 
-  await sendTextMessage(telephone, `No entendí 😕\n\nEscribí el número o *SI* / *NO* 👇\n\n1  → ✅ Sí\n2  → ❌ No`);
+  await sendTextMessage(telephone, `No entendí 😕\n\nEscribí el número o *Si* / *No* 👇\n\n1  → ✅ Sí\n2  → ❌ No`);
 }
 
 // ─── Paso: esperando mensaje para Luckete ───────────────────────────────────
