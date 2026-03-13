@@ -7,11 +7,20 @@ import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
 import { useAdminAppointments } from "../_hooks/use-admin-appointments";
 import { formatDateLongFromISO } from "@/lib/format-date";
+import { AdminPageHeader } from "./admin-page-header";
 
-const AppointmentControls = dynamic(
+const AppointmentsDesktopControls = dynamic(
   () =>
-    import("./admin-appointments-controls").then((m) => ({
-      default: m.AppointmentControls,
+    import("./appointments-desktop-controls").then((m) => ({
+      default: m.AppointmentsDesktopControls,
+    })),
+  { ssr: false },
+);
+
+const AppointmentsMobileDropdown = dynamic(
+  () =>
+    import("./appointments-mobile-dropdown").then((m) => ({
+      default: m.AppointmentsMobileDropdown,
     })),
   { ssr: false },
 );
@@ -26,27 +35,20 @@ export default function AdminAppointments() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const badge =
+    vm.hasFetched && !vm.isLoading && vm.appointments.length > 0
+      ? vm.appointments.length
+      : undefined;
+
   return (
     <div className="flex flex-col h-full max-md:pt-0">
-      {/* Page header — desktop only */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 px-7 h-19 flex items-center gap-4 max-md:hidden">
-        <div className="relative pr-5">
-          <div className="relative inline-block">
-            <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-              Turnos
-            </h1>
-            {vm.hasFetched && !vm.isLoading && vm.appointments.length > 0 && (
-              <span className="absolute -top-1 -right-4.5 min-w-4 h-4 flex items-center justify-center text-[0.6rem] font-bold text-white bg-gold rounded-full px-1 leading-none">
-                {vm.appointments.length}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-            {formatDateLongFromISO(vm.selectedDate)}
-          </p>
-        </div>
-        <AppointmentControls />
-      </div>
+      <AdminPageHeader
+        title="Turnos"
+        subtitle={formatDateLongFromISO(vm.selectedDate)}
+        badge={badge}
+        desktopControls={<AppointmentsDesktopControls />}
+        mobileControls={<AppointmentsMobileDropdown />}
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-7 py-5 max-md:px-4">

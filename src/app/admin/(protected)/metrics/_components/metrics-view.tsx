@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
   CalendarDays,
   CheckCircle,
@@ -17,7 +18,16 @@ import { GrowthChart } from "./growth";
 import PeriodTabs from "@/app/admin/_components/period-tabs";
 import { usePeriod } from "@/app/admin/_hooks/use-period";
 import { useMetricsStore } from "../_hooks/use-metrics-store";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
+import { ThemeToggleButton } from "@/app/admin/_components/theme-toggle-button";
+
+const MetricsMobileDropdown = dynamic(
+  () =>
+    import("./metrics-mobile-dropdown").then((m) => ({
+      default: m.MetricsMobileDropdown,
+    })),
+  { ssr: false },
+);
 
 export function MetricsView() {
   const { period } = usePeriod();
@@ -30,18 +40,12 @@ export function MetricsView() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header desktop */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 px-7 h-19 flex items-center max-md:hidden">
-        <div className="flex items-center gap-4 flex-1">
-          <div>
-            <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-              Métricas
-            </h1>
-            <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-              Estadísticas generales del negocio
-            </p>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
+      <AdminPageHeader
+        title="Métricas"
+        subtitle="Estadísticas generales del negocio"
+        mobileControls={<MetricsMobileDropdown />}
+        desktopControls={
+          <>
             <Button
               variant="outline"
               size="icon"
@@ -53,13 +57,13 @@ export function MetricsView() {
                 className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
               />
             </Button>
-            <ThemeToggle />
+            <ThemeToggleButton />
             <div className="h-9 flex items-center">
               <PeriodTabs />
             </div>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
