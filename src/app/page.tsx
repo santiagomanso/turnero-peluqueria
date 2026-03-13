@@ -2,7 +2,12 @@ import Header from "@/components/header";
 import HomeLink from "@/components/home-link";
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
-import { Plus, SquarePen, ShoppingCart, Phone } from "lucide-react";
+import {
+  Plus,
+  SquarePen,
+  // ShoppingCart,
+  Phone,
+} from "lucide-react";
 
 export default function Home() {
   return (
@@ -23,11 +28,11 @@ export default function Home() {
               label="Consultar mi turno"
               icon={SquarePen}
             />
-            <HomeLink
+            {/* <HomeLink
               path="/shop"
               label="Tienda online insumos"
               icon={ShoppingCart}
-            />
+            /> */}
             <HomeLink
               path="/whatsapp"
               label="WhatsApp consultas"

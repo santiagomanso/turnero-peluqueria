@@ -53,7 +53,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
       <div
         className={cn(
           "relative w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col overflow-hidden",
-          "bg-[#f9fafb] dark:bg-zinc-900",
+          "bg-surface dark:bg-zinc-900",
           "border border-[#e8e4df] dark:border-zinc-800",
           "max-h-[92svh]",
         )}
@@ -91,7 +91,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
               onChange={handleFileChange}
             />
             {preview ? (
-              <div className="relative rounded-xl overflow-hidden border border-[#e8e4df] dark:border-zinc-700 bg-[#ece9e4] dark:bg-zinc-800 h-48">
+              <div className="relative rounded-xl overflow-hidden border border-[#e8e4df] dark:border-zinc-700 bg-surface dark:bg-zinc-800 h-48">
                 <NextImage
                   src={preview}
                   alt="Preview"
@@ -245,7 +245,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
           </div>
 
           {/* Activo toggle */}
-          <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-[#ece9e4] dark:bg-zinc-800 border border-[#e8e4df] dark:border-zinc-700">
+          <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-surface dark:bg-zinc-800 border border-[#e8e4df] dark:border-zinc-700">
             <div>
               <p className="text-sm font-medium text-content dark:text-zinc-100">
                 Producto activo
