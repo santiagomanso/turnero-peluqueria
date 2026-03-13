@@ -33,6 +33,13 @@ const MetricsMobileControls = dynamic(
     })),
   { ssr: false },
 );
+const ShopMobileControls = dynamic(
+  () =>
+    import("./shop-mobile-controls").then((m) => ({
+      default: m.ShopMobileControls,
+    })),
+  { ssr: false },
+);
 const MobileSheet = dynamic(() => import("./admin-mobile-sheet"), {
   ssr: false,
 });
@@ -41,6 +48,7 @@ const NAV_ITEMS = [
   { href: "/admin/appointments", label: "Turnos", icon: CalendarDays },
   { href: "/admin/metrics", label: "Métricas", icon: BarChart2 },
   { href: "/admin/config", label: "Configuración", icon: Settings },
+  { href: "/admin/shop", label: "Tienda online", icon: ShoppingBag },
 ];
 
 const PUBLIC_ITEMS = [
@@ -148,6 +156,7 @@ export default function AdminSidebar() {
         {pathname === "/admin/appointments" && <AppointmentsMobileControls />}
         {pathname === "/admin/metrics" && <MetricsMobileControls />}
         {pathname === "/admin/config" && <div className="w-9" />}
+        {pathname === "/admin/shop" && <ShopMobileControls />}
       </div>
     </>
   );

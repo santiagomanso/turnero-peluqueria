@@ -63,3 +63,68 @@ model WhatsappChatbotSession {
 
   @@map("whatsapp_chatbot_sessions")
 }
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  price       Int
+  stock       Int         @default(0)
+  category    String
+  imageUrl    String?
+  active      Boolean     @default(true)
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("products")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  READY
+  PICKED_UP
+  CANCELLED
+}
+
+model Order {
+  id        String       @id @default(cuid())
+  telephone String
+  email     String?
+  name      String?
+  note      String?
+  status    OrderStatus  @default(PENDING)
+  total     Int
+  items     OrderItem[]
+  payment   ShopPayment?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Int
+
+  @@map("order_items")
+}
+
+model ShopPayment {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  order         Order    @relation(fields: [orderId], references: [id])
+  mercadopagoId String
+  amount        Int
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("shop_payments")
+}

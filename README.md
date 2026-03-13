@@ -92,7 +92,7 @@ The admin panel allows the salon owner to manage, create, and update appointment
 │   │   │   │   ├── admin-theme-provider.tsx
 │   │   │   │   ├── appointments-mobile-controls.tsx
 │   │   │   │   ├── period-tabs.tsx
-│   │   │   │   └── sidebar-metrics-mobile-controls.tsx.tsx
+│   │   │   │   └── sidebar-metrics-mobile-controls.tsx
 │   │   │   ├── _hooks
 │   │   │   │   ├── use-admin-appointments.ts
 │   │   │   │   ├── use-admin-create-form.ts
@@ -136,14 +136,21 @@ The admin panel allows the salon owner to manage, create, and update appointment
 │   │   │   │   └── reminder
 │   │   │   │       └── route.ts
 │   │   │   └── webhooks
-│   │   │       └── mercadopago
-│   │   │           └── route.ts
+│   │   │       ├── mercadopago
+│   │   │       │   └── route.ts
+│   │   │       └── whatsapp-chatbot
+│   │   │           ├── handler.ts
+│   │   │           ├── parse-input.ts
+│   │   │           ├── route.ts
+│   │   │           ├── send.ts
+│   │   │           └── steps.ts
 │   │   ├── appointments
 │   │   │   ├── _actions
 │   │   │   │   ├── delete.ts
 │   │   │   │   ├── get-availability.ts
 │   │   │   │   ├── get-by-id.ts
 │   │   │   │   ├── get-by-phone.ts
+│   │   │   │   ├── get-monthly-counts.ts
 │   │   │   │   ├── mercadopago.ts
 │   │   │   │   ├── update.ts
 │   │   │   │   └── validate-discount.ts
@@ -184,7 +191,10 @@ The admin panel allows the salon owner to manage, create, and update appointment
 │   │   ├── page.tsx
 │   │   └── shop
 │   │       ├── _components
+│   │       │   ├── cart-button.tsx
 │   │       │   └── shop-content.tsx
+│   │       ├── _store
+│   │       │   └── use-cart.ts
 │   │       └── page.tsx
 │   ├── components
 │   │   ├── appointment-card.tsx
@@ -646,6 +656,9 @@ MP_WEBHOOK_SECRET=...
 NEXT_PUBLIC_APP_URL=https://turnero-peluqueria.vercel.app
 WHATSAPP_ACCESS_TOKEN=...
 WHATSAPP_PHONE_ID=976682535533891
+WHATSAPP_CHATBOT_VERIFY_TOKEN=...
+OWNER_PHONE=...
+NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER=...
 CRON_SECRET=...
 ```
 
@@ -716,12 +729,14 @@ CRON_SECRET=...
 - [x] Verificar métricas en producción muestran datos correctos
 - [x] `admin-mobile-sheet.tsx` — agregar `prefetch={false}` a todos los links de `NAV_ITEMS`
 - [x] Verificar card en producción mobile y desktop
+- [x] Establecer como lograr que los usuarios modifiquen sus turnos (enviar OTP por meta whatsapp, sin poner template de OTP porque no nos permiten, envaluar si poner UTILITY y fijgir un OTP sin decir OTP para que no sea flagueado OTP y no nos permitan) o que se desate un chat con el chatbot de whatsapp business para que el chatbot le cambie el turno (ya es único al cliente ese número)
+- [x] Chatbot WhatsApp para modificación de turnos ✅
 
 ## ITEMS PENDIENTES
 
-- [ ] Establecer como lograr que los usuarios modifiquen sus turnos (enviar OTP por meta whatsapp, sin poner template de OTP porque no nos permiten, envaluar si poner UTILITY y fijgir un OTP sin decir OTP para que no sea flagueado OTP y no nos permitan) o que se desate un chat con el chatbot de whatsapp business para que el chatbot le cambie el turno (ya es único al cliente ese número)
 - [ ] hacer funcional el shop online (en panel de control: 1. crear página para crear productos y stock) 2. crear página para listado de pedidos para que la dueña de la peluqueria vea pedidos y vaya empaquetando y marcando la orden de compra como "recogido" u otro
 - [ ] agregar seguridad al FRONT y BACK end respecto de la creación de turnos (para que no nos colmen la DB con bots) captcha y alguna otra forma de restringir
+- [ ] nichos personalizados (agrupar personas de la misma edad y mismo tratamiento, marketing dirigido)
 
 # Race Condition — Verificación de disponibilidad en tiempo real
 
@@ -905,3 +920,367 @@ mercadopago.ts verifica DB en tiempo real
 - **La verificación es server-side**: el cliente no puede falsificar disponibilidad.
 - **`fullDates` es client-side y temporal**: solo persiste durante la sesión del usuario, no necesita DB.
 - **Se reusan acciones existentes**: `getAvailabilityAction` ya existía, no se duplicó lógica.
+
+# Chatbot WhatsApp — Turnero Peluquería Luckete Colorista
+
+## Contexto general
+
+Proyecto Next.js 16 + TypeScript + Prisma 7 + PostgreSQL (Neon) + TailwindCSS v4 desplegado en Vercel.
+URL producción: https://turnero-peluqueria.vercel.app
+
+El sistema permite a clientes reservar, ver, modificar y cancelar turnos en una peluquería.
+Este README documenta específicamente el módulo del chatbot de WhatsApp y los cambios relacionados realizados en esta sesión.
+
+---
+
+## Problema original que motivó el chatbot
+
+El formulario web de modificación de turnos (`/appointments/update/[id]`) era accesible por cualquier persona que tuviera el número de teléfono de otro cliente. No había verificación de identidad.
+
+**Solución adoptada:** redirigir la modificación al chatbot de WhatsApp, donde Meta verifica la identidad del usuario a través del campo `from` del mensaje entrante. Solo el dueño del número puede modificar su turno.
+
+---
+
+## Stack del chatbot
+
+- **Webhook:** `POST /api/webhooks/whatsapp-chatbot` (Next.js API route)
+- **Sesiones:** tabla `whatsapp_chatbot_sessions` en PostgreSQL (Neon)
+- **Mensajería:** API de Meta WhatsApp Business (v22.0)
+- **Verificación webhook:** variable de entorno `WHATSAPP_CHATBOT_VERIFY_TOKEN`
+
+---
+
+## Variables de entorno necesarias
+
+```env
+WHATSAPP_CHATBOT_VERIFY_TOKEN=<openssl rand -hex 32>
+OWNER_PHONE=5493794XXXXXX           # teléfono de la dueña (sin +)
+NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER=5493794085932
+NEXT_PUBLIC_APP_URL=https://turnero-peluqueria.vercel.app
+```
+
+---
+
+## Schema Prisma
+
+```prisma
+model WhatsappChatbotSession {
+  telephone     String   @id
+  step          String
+  appointmentId String?
+  newDate       String?
+  newTime       String?
+  expiresAt     DateTime
+  updatedAt     DateTime @updatedAt
+  @@map("whatsapp_chatbot_sessions")
+}
+```
+
+**TTL de sesión:** 30 minutos de inactividad. Para resetear una sesión manualmente, borrar la fila en Neon por `telephone`.
+
+---
+
+## Archivos del chatbot
+
+```
+src/app/api/webhooks/whatsapp-chatbot/
+├── route.ts       — GET (verify token) + POST (recibe mensajes)
+├── handler.ts     — orquesta el flujo, detecta patrón de ID directo
+└── steps.ts       — toda la lógica de conversación
+```
+
+### `route.ts`
+
+- `GET`: responde el challenge de Meta con `WHATSAPP_CHATBOT_VERIFY_TOKEN`
+- `POST`: extrae `from`, `text`, `contactName` del payload de Meta, llama `handleIncomingMessage()`, siempre responde 200 OK
+
+### `handler.ts`
+
+Orden de procesamiento:
+
+1. Detecta patrón `/hola! quiero modificar mi turno #([a-z0-9]+)/i` **ANTES** de verificar sesión → llama `handleDirectModify`
+2. Busca sesión en DB. Si no existe o expiró → `sendMainMenu`
+3. Switch por `session.step` → delega a la función correspondiente en `steps.ts`
+
+### `steps.ts`
+
+Contiene toda la lógica de conversación. Imports clave:
+
+```typescript
+import { sendTextMessage } from "@/services/whatsapp";
+import { getConfig } from "@/services/config";
+import { updateAppointment } from "@/services/update";
+import { getAppointmentById } from "@/services/get";
+```
+
+---
+
+## Flujos implementados
+
+### 1. Ver mi turno
+
+Busca el próximo turno activo (PENDING o PAID, fecha futura) y lo muestra. Borra la sesión al terminar.
+
+### 2. Modificar mi turno
+
+**Desde el menú (opción 2):**
+
+- Si tiene 1 turno → salta directo a selección de fecha
+- Si tiene varios → muestra lista para elegir cuál
+
+**Desde la web (botón "Modificar turno"):**
+
+- El botón abre WhatsApp con mensaje pre-cargado: `Hola! Quiero modificar mi turno #[ID_COMPLETO]`
+- El bot detecta el ID, busca el turno filtrando por `id + telephone + status activo + fecha futura`, salta directo a selección de fecha
+
+**Flujo de selección:**
+
+1. Muestra turno original (fecha y hora)
+2. Muestra días disponibles (próximos 7 días habilitados en config)
+3. Muestra horarios disponibles del día elegido
+4. Pide confirmación mostrando turno original vs turno nuevo
+5. Verifica race condition antes de actualizar (cuenta bookings activos excluyendo el turno actual)
+6. Actualiza y notifica a la dueña vía WhatsApp
+
+### 3. Cancelar mi turno
+
+Deriva al link web o a escribir directamente a la dueña.
+
+### 4. Hablar con Luckete
+
+Pregunta SI/NO si quiere dejar mensaje. Notifica a la dueña con nombre y teléfono del cliente (y mensaje si lo dejó).
+
+---
+
+## Estados de sesión (`step`)
+
+| Step                             | Descripción                              |
+| -------------------------------- | ---------------------------------------- |
+| `AWAITING_OPTION`                | Menú principal                           |
+| `AWAITING_APPOINTMENT_SELECTION` | Elegir cuál turno (cuando hay múltiples) |
+| `AWAITING_DATE`                  | Elegir fecha para el cambio              |
+| `AWAITING_HOUR`                  | Elegir hora para el cambio               |
+| `CONFIRMING_CHANGE`              | Confirmar el cambio (1/2/3)              |
+| `AWAITING_LUCKETE_CONTACT`       | SI/NO dejar mensaje para la dueña        |
+| `AWAITING_LUCKETE_MESSAGE`       | Escribir el mensaje para la dueña        |
+
+---
+
+## Formato de los mensajes (decisiones de diseño)
+
+Se decidió un estilo limpio, sin separadores (`─────`), sin exceso de emojis en las listas.
+
+### Menú principal
+
+```
+🤖 ¿En qué te puedo ayudar?
+
+1  → 👁️ Ver mi turno
+2  → ✏️ Modificar mi turno
+3  → ❌ Cancelar mi turno
+4  → 💬 Hablar con Luckete
+```
+
+### Selección de fecha
+
+```
+Turno original
+📅 Fecha: miércoles 11 de marzo
+🕐 Hora: 16:00 hs
+
+Días disponibles para el cambio
+
+Entre semana
+1  → jueves 12 de marzo
+2  → martes 17 de marzo
+
+Fin de semana
+3  → sábado 14 de marzo
+
+Respondé con el número del día o escribí una fecha (ej: 22/03)
+```
+
+### Selección de hora
+
+```
+🕐 Horarios disponibles
+
+Por la mañana
+1  → 09:00
+2  → 10:00
+
+Por la tarde
+3  → 14:00
+
+Respondé con el número o escribí la hora (ej: 10:30 o a las 4)
+```
+
+### Confirmación de cambio
+
+```
+✅ ¿Confirmamos el cambio?
+
+📅 lunes 16 de marzo a las 10:00 hs
+
+1  → ✅ Sí, confirmar
+2  → 🔄 Elegir otro horario
+3  → 🔙 Volver al menú
+```
+
+### Confirmación final
+
+```
+✅ ¡Listo! Tu turno fue modificado exitosamente.
+
+Turno original: miércoles 11 de marzo a las 16:00 hs
+Turno nuevo:    lunes 16 de marzo a las 10:00 hs
+
+📍 Cómo llegar: https://maps.app.goo.gl/T56dNBbQZaFUNDJi6
+
+Nos vemos pronto ✂️
+```
+
+---
+
+## Diferencia admin vs cliente (appointment-card)
+
+```typescript
+// publicView={true} → cliente → abre WhatsApp con ID del turno
+const WHATSAPP_TEXT = encodeURIComponent(`Hola! Quiero modificar mi turno #${appointment.id}`)
+<a href={`wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_TEXT}`}>Modificar turno</a>
+
+// publicView={false} → admin (god mode) → navega al formulario
+<Link href={`/appointments/update/${appointment.id}`}>Modificar turno</Link>
+```
+
+---
+
+## Problema de fechas (CRÍTICO)
+
+### El problema
+
+Vercel corre en UTC. Argentina es UTC-3. Si se usa `new Date()` o `startOfDay(new Date())` sin considerar UTC, a partir de las 21:00 hora argentina el servidor ya está en el día siguiente.
+
+### El patrón correcto (usado en todo el proyecto)
+
+```typescript
+const now = new Date();
+const todayUTC = new Date(
+  Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    0,
+    0,
+    0,
+    0,
+  ),
+);
+```
+
+Este patrón está implementado en `getAppointmentsByDate` y debe usarse en cualquier comparación de fechas.
+
+### Ejemplo de MAL uso (evitar)
+
+```typescript
+date: {
+  gte: startOfDay(new Date());
+} // ❌ usa hora local del servidor
+date: {
+  gte: new Date();
+} // ❌ idem
+```
+
+---
+
+## Bug que se encontró y resolvió: turnos pasados en la web
+
+**Síntoma:** `/appointments/get` mostraba turnos viejos (ej: del 10 de marzo cuando ya era 11 de marzo).
+
+**Causa:** `getAppointmentsByPhone` en `services/get.ts` usaba `startOfDay(new Date())` que en el servidor UTC ya era el día siguiente.
+
+**Fix aplicado en `src/services/get.ts`:**
+
+```typescript
+export async function getAppointmentsByPhone(
+  telephone: string,
+): Promise<Appointment[]> {
+  const now = new Date();
+  const todayUTC = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      0,
+      0,
+      0,
+      0,
+    ),
+  );
+
+  return db.appointment.findMany({
+    where: {
+      telephone,
+      status: { not: "CANCELLED" },
+      date: { gte: todayUTC },
+    },
+    orderBy: { date: "asc" },
+  });
+}
+```
+
+---
+
+## `sendTextMessage` — ubicación
+
+Función unificada en `src/services/whatsapp.ts`. Fue migrada desde un archivo `send.ts` que fue eliminado.
+
+```typescript
+export async function sendTextMessage(to: string, text: string): Promise<void> {
+  await sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to,
+    type: "text",
+    text: { body: text },
+  });
+}
+```
+
+Usa API v22.0.
+
+---
+
+## Templates de WhatsApp para notificar a la dueña
+
+Creados en Meta Business Suite, categoría `UTILITY`, idioma `Spanish (ARG)`.
+Pie de página: `Luckete Colorista • Asistente automático`
+
+| Nombre                         | Uso                                     |
+| ------------------------------ | --------------------------------------- |
+| `owner_client_contact_1`       | Cliente quiere hablar sin dejar mensaje |
+| `owner_client_message_1`       | Cliente dejó un mensaje                 |
+| `owner_appointment_modified_1` | Turno modificado exitosamente           |
+
+> ⚠️ Actualmente el bot usa `sendTextMessage` (texto libre) para notificar a la dueña, lo que solo funciona dentro de la ventana de 24hs de Meta. Para producción real se deberían usar estos templates aprobados.
+
+---
+
+## Búsqueda de teléfono en la DB
+
+Los teléfonos se guardan con prefijo internacional (ej: `5493794800756`). El `from` de Meta también llega con prefijo. Para evitar problemas de coincidencia exacta, se usa:
+
+```typescript
+telephone: {
+  endsWith: telephone.slice(-10);
+}
+```
+
+Esto toma los últimos 10 dígitos y busca coincidencia por el final, tolerando diferencias en el prefijo.
+
+---
+
+## Items pendientes
+
+- [ ] Implementar notificaciones a la dueña usando templates aprobados (en lugar de texto libre)
+- [ ] Hacer funcional el shop online
+- [ ] Agregar seguridad al FRONT y BACK end (captcha, rate limiting)
