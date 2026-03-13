@@ -48,15 +48,36 @@ function getNextAvailableDays(daysConfig: DaysConfig, count = 7): Date[] {
   };
 
   const result: Date[] = [];
-  const cursor = startOfDay(addDays(new Date(), 1));
+
+  // Use noon UTC so that formatDateISO (Argentina TZ, UTC-3) returns the same
+  // calendar date as the UTC date — midnight UTC would become 21:00 the previous
+  // day in ART, causing a one-day shift in all downstream formatting and storage.
+  const tomorrow = addDays(new Date(), 1);
+  const cursor = new Date(
+    Date.UTC(
+      tomorrow.getUTCFullYear(),
+      tomorrow.getUTCMonth(),
+      tomorrow.getUTCDate(),
+      12, 0, 0, 0,
+    ),
+  );
 
   while (result.length < count) {
-    const key = dayKeyMap[cursor.getDay()];
+    const key = dayKeyMap[cursor.getUTCDay()];
     if (daysConfig[key]) result.push(new Date(cursor));
-    cursor.setDate(cursor.getDate() + 1);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
 
   return result;
+}
+
+// Returns days in the same display order as buildDaysList: weekdays first, weekend last.
+// Both functions must agree on ordering so the user's numeric choice maps correctly.
+function getOrderedDays(days: Date[]): Date[] {
+  return [
+    ...days.filter((d) => !isWeekend(d)),
+    ...days.filter((d) => isWeekend(d)),
+  ];
 }
 
 function buildDaysList(days: Date[]): string {
@@ -260,7 +281,9 @@ export async function handleAwaitingDate(
   const daysConfig = config?.days as DaysConfig;
   const availableDays = getNextAvailableDays(daysConfig, 7);
 
-  const date = parseUserDate(text, availableDays);
+  // Use the same display order as buildDaysList (weekdays first, then weekend)
+  // so that the number the user sees maps to the correct date.
+  const date = parseUserDate(text, getOrderedDays(availableDays));
 
   if (!date) {
     return await sendTextMessage(
@@ -326,7 +349,7 @@ export async function handleAwaitingHour(
   session: { appointmentId: string | null; newDate: string | null },
 ) {
   const availability = await getAvailabilityAction(
-    new Date(session.newDate + "T12:00:00"),
+    new Date(session.newDate + "T12:00:00.000Z"),
   );
 
   if (!availability.success || !availability.hours) {
@@ -358,7 +381,7 @@ export async function handleAwaitingHour(
     );
   }
 
-  const dateForDisplay = new Date(session.newDate + "T12:00:00");
+  const dateForDisplay = new Date(session.newDate + "T12:00:00.000Z");
 
   await updateSession(telephone, {
     step: "CONFIRMING_CHANGE",
@@ -393,7 +416,7 @@ export async function handleConfirmingChange(
       newDate: session.newDate,
     });
     const availability = await getAvailabilityAction(
-      new Date(session.newDate + "T12:00:00"),
+      new Date(session.newDate + "T12:00:00.000Z"),
     );
     const availableHours =
       availability.hours
@@ -439,8 +462,8 @@ export async function handleConfirmingChange(
     6: "saturday",
   };
 
-  const newDateObj = new Date(session.newDate + "T12:00:00");
-  const dayKey = dayKeyMap[newDateObj.getDay()];
+  const newDateObj = new Date(session.newDate + "T12:00:00.000Z");
+  const dayKey = dayKeyMap[newDateObj.getUTCDay()];
   const hourConfig = hoursConfig?.[dayKey as DayKey]?.[session.newTime];
 
   if (!hourConfig?.enabled) {

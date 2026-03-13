@@ -24,7 +24,17 @@ export function parseUserDate(input: string, options: Date[]): Date | null {
     if (isValid(parsed)) {
       const today = startOfDay(new Date());
       if (parsed < today) parsed.setFullYear(currentYear + 1);
-      return parsed;
+      // Normalize to noon UTC so that formatDateISO (Argentina TZ) returns the
+      // same calendar date as the intended date — midnight local can drift to
+      // the previous day when viewed in Argentina (UTC-3).
+      return new Date(
+        Date.UTC(
+          parsed.getUTCFullYear(),
+          parsed.getUTCMonth(),
+          parsed.getUTCDate(),
+          12, 0, 0, 0,
+        ),
+      );
     }
   }
 
