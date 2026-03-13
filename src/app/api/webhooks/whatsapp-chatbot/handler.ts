@@ -1,6 +1,7 @@
 import {
   sendMainMenu,
   handleAwaitingOption,
+  handleAwaitingViewAction,
   handleAwaitingAppointmentSelection,
   handleAwaitingDate,
   handleAwaitingHour,
@@ -34,6 +35,11 @@ export async function handleIncomingMessage(
   switch (session.step) {
     case "AWAITING_OPTION":
       return await handleAwaitingOption(from, text);
+
+    case "AWAITING_VIEW_ACTION":
+      return await handleAwaitingViewAction(from, text, {
+        appointmentId: session.appointmentId,
+      });
 
     case "AWAITING_APPOINTMENT_SELECTION":
       return await handleAwaitingAppointmentSelection(from, text, {

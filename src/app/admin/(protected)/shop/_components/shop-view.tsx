@@ -7,6 +7,16 @@ import { Button } from "@/components/ui/button";
 import { OrderesTab } from "./orders-tabs";
 import { ProductosTab } from "./products-tab";
 import { SHOP_CREATE_EVENT } from "@/app/admin/_components/shop-mobile-controls";
+import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
+import dynamic from "next/dynamic";
+
+const ShopMobileDropdown = dynamic(
+  () =>
+    import("@/app/admin/_components/shop-mobile-controls").then((m) => ({
+      default: m.ShopMobileControls,
+    })),
+  { ssr: false },
+);
 
 type Tab = "ordenes" | "productos";
 
@@ -39,17 +49,11 @@ export function ShopView() {
 
   return (
     <div className="flex flex-col h-full max-md:pt-0">
-      {/* Header desktop */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 px-7 h-19 flex items-center max-lg:hidden">
-        <div>
-          <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-            Tienda online
-          </h1>
-          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-            Administrá tus productos y las órdenes de tus clientes.
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Tienda online"
+        subtitle="Administrá tus productos y las órdenes de tus clientes."
+        mobileControls={<ShopMobileDropdown />}
+      />
 
       <div className="flex-1 overflow-y-auto">
         <div className="px-7 py-5 max-md:px-4 max-md:py-4 flex flex-col gap-5">

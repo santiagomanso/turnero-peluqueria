@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings2, RefreshCw, Check, Sun, Moon } from "lucide-react";
+import { Settings2, RefreshCw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,8 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePeriod } from "@/app/admin/_hooks/use-period";
-import { useMetricsStore } from "@/app/admin/(protected)/metrics/_hooks/use-metrics-store";
-import { useAdminTheme } from "./admin-theme-provider";
+import { useMetricsStore } from "../_hooks/use-metrics-store";
+import { ThemeMenuItem } from "@/app/admin/_components/theme-menu-item";
 
 const PERIODS = [
   { id: "week" as const, label: "Semana" },
@@ -19,10 +19,13 @@ const PERIODS = [
   { id: "year" as const, label: "Año" },
 ];
 
-export function SidebarMetricsMobileControls() {
+/**
+ * Dropdown menu shown in the mobile topbar for the Metrics page.
+ * Contains: period selector, refresh, theme toggle.
+ */
+export function MetricsMobileDropdown() {
   const { period, setPeriod } = usePeriod();
   const { isLoading, refresh } = useMetricsStore();
-  const { isDark, toggle } = useAdminTheme();
 
   return (
     <DropdownMenu>
@@ -57,17 +60,7 @@ export function SidebarMetricsMobileControls() {
           Actualizar
         </DropdownMenuItem>
         <DropdownMenuSeparator className="dark:bg-zinc-800" />
-        <DropdownMenuItem
-          onClick={toggle}
-          className="flex items-center gap-2 cursor-pointer"
-        >
-          {isDark ? (
-            <Sun className="w-3.5 h-3.5" />
-          ) : (
-            <Moon className="w-3.5 h-3.5" />
-          )}
-          {isDark ? "Modo claro" : "Modo oscuro"}
-        </DropdownMenuItem>
+        <ThemeMenuItem />
       </DropdownMenuContent>
     </DropdownMenu>
   );

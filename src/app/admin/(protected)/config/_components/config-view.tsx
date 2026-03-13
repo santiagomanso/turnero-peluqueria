@@ -19,6 +19,7 @@ import { BookingPrice } from "./booking-price";
 import { ThemeSwitcher } from "./theme-switcher";
 import { useAdminTheme } from "@/app/admin/_components/admin-theme-provider";
 import { useConfigStore } from "../_hooks/use-config-store";
+import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
 
 import dynamic from "next/dynamic";
 const DiscountCodes = dynamic(
@@ -211,16 +212,10 @@ export function ConfigView({
 
   return (
     <div className="flex flex-col h-full max-md:pt-0">
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 px-7 h-19 flex items-center max-lg:hidden">
-        <div>
-          <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-            Configuración
-          </h1>
-          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-            Administra los ajustes y preferencias del sistema de turnos.
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Configuración"
+        subtitle="Administrá los ajustes y preferencias del sistema de turnos."
+      />
 
       <div className="flex-1 overflow-y-auto">
         {isLoading && !hasFetched ? (
