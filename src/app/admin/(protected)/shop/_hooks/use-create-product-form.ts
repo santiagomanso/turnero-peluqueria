@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,12 +27,14 @@ export const productSchema = z.object({
 export type ProductFormValues = z.infer<typeof productSchema>;
 
 interface UseProductFormProps {
+  open: boolean;
   product?: Product;
   onSave: (product: Product) => void;
   onClose: () => void;
 }
 
 export function useCreateProductForm({
+  open,
   product,
   onSave,
   onClose,
@@ -40,26 +42,39 @@ export function useCreateProductForm({
   const isEditing = !!product;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [imageUrl, setImageUrl] = useState<string | null>(
-    product?.imageUrl ?? null,
-  );
-  const [preview, setPreview] = useState<string | null>(
-    product?.imageUrl ?? null,
-  );
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: product?.name ?? "",
-      description: product?.description ?? "",
-      price: product?.price ?? 0,
-      stock: product?.stock ?? 0,
-      category: (product?.category ??
-        SHOP_CATEGORIES[0]) as (typeof SHOP_CATEGORIES)[number],
-      active: product?.active ?? true,
+      name: "",
+      description: "",
+      price: 0,
+      stock: 0,
+      category: SHOP_CATEGORIES[0] as (typeof SHOP_CATEGORIES)[number],
+      active: true,
     },
   });
+
+  // Reset form and image state every time the dialog opens
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: product?.name ?? "",
+        description: product?.description ?? "",
+        price: product?.price ?? 0,
+        stock: product?.stock ?? 0,
+        category: (product?.category ??
+          SHOP_CATEGORIES[0]) as (typeof SHOP_CATEGORIES)[number],
+        active: product?.active ?? true,
+      });
+      setImageUrl(product?.imageUrl ?? null);
+      setPreview(product?.imageUrl ?? null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, product]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

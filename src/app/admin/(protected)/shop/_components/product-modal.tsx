@@ -17,6 +17,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useWatch } from "react-hook-form";
 import { SHOP_CATEGORIES, type Product } from "@/types/shop";
 import { useCreateProductForm } from "../_hooks/use-create-product-form";
 import NextImage from "next/image";
@@ -47,14 +48,17 @@ export function ProductModal({
     handleRemoveImage,
     triggerFileInput,
     onSubmit,
-  } = useCreateProductForm({ product, onSave, onClose });
+  } = useCreateProductForm({ open, product, onSave, onClose });
 
   const {
     register,
+    control,
     formState: { errors },
     watch,
     setValue,
   } = form;
+
+  const isActive = useWatch({ control, name: "active" });
 
   const inputClass =
     "w-full rounded-lg border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-all";
@@ -68,7 +72,7 @@ export function ProductModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-lg max-h-[92svh] p-0 gap-0 overflow-hidden"
+        className="sm:max-w-lg max-h-[92svh] p-0 gap-0 overflow-hidden flex flex-col"
       >
         <DialogHeader className="px-5 py-4 border-b border-[#e8e4df] dark:border-zinc-800">
           <DialogTitle>
@@ -77,7 +81,7 @@ export function ProductModal({
         </DialogHeader>
 
         {/* Body */}
-        <div className="overflow-y-auto flex-1 px-5 py-5 space-y-4 scrollbar-none">
+        <div className="overflow-y-auto flex-1 min-h-0 px-5 py-5 space-y-4 scrollbar-none">
           {/* Image */}
           <div>
             <label className={labelClass}>Imagen del producto</label>
@@ -262,16 +266,16 @@ export function ProductModal({
             </div>
             <button
               type="button"
-              onClick={() => setValue("active", !watch("active"))}
+              onClick={() => setValue("active", !isActive, { shouldDirty: true })}
               className={cn(
                 "relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0",
-                watch("active") ? "bg-gold" : "bg-zinc-300 dark:bg-zinc-600",
+                isActive ? "bg-gold" : "bg-zinc-300 dark:bg-zinc-600",
               )}
             >
               <span
                 className={cn(
                   "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200",
-                  watch("active") ? "translate-x-5" : "translate-x-0",
+                  isActive ? "translate-x-5" : "translate-x-0",
                 )}
               />
             </button>

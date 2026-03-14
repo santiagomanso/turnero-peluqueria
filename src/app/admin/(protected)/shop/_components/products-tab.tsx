@@ -214,30 +214,30 @@ function ProductRow({
         <div className="flex items-center gap-1 justify-end">
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon-sm"
             className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100"
             onClick={() => onToggleActive(product)}
             title={product.active ? "Desactivar" : "Activar"}
           >
-            <Power size={13} />
+            <Power size={15} />
           </Button>
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon-sm"
             className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100"
             onClick={() => onEdit(product)}
             title="Editar"
           >
-            <Pencil size={13} />
+            <Pencil size={15} />
           </Button>
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon-sm"
             className="text-content-tertiary dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400"
             onClick={() => onDelete(product)}
             title="Eliminar"
           >
-            <Trash2 size={13} />
+            <Trash2 size={15} />
           </Button>
         </div>
       </td>
@@ -259,7 +259,7 @@ function CategoryFilter({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="justify-between gap-2 font-normal min-w-[180px] sm:min-w-[200px]"
+          className="justify-between gap-2 font-normal min-w-45 sm:min-w-50"
         >
           <span className="truncate">
             {value === "todas" ? "Todas las categorías" : value}
@@ -267,7 +267,7 @@ function CategoryFilter({
           <ChevronDown size={14} className="shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[220px]">
+      <DropdownMenuContent align="start" className="w-55">
         <DropdownMenuRadioGroup value={value} onValueChange={onChange}>
           <DropdownMenuRadioItem value="todas">
             Todas las categorías
@@ -387,10 +387,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
             />
           </div>
 
-          <CategoryFilter
-            value={filterCategory}
-            onChange={setFilterCategory}
-          />
+          <CategoryFilter value={filterCategory} onChange={setFilterCategory} />
 
           <Button
             className="bg-gold text-white hover:bg-gold/90 shrink-0 max-lg:hidden"
@@ -427,12 +424,9 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
         ) : (
           <>
             {/* ── Mobile: horizontal scroll ──────────────────────── */}
-            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 mt-20 lg:hidden scrollbar-none -mx-1 px-1">
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 pt-20 lg:hidden scrollbar-none -mx-1 px-1">
               {filtered.map((product) => (
-                <div
-                  key={product.id}
-                  className="snap-start shrink-0 w-[82%]"
-                >
+                <div key={product.id} className="snap-start shrink-0 w-[66%]">
                   <ProductCard
                     product={product}
                     onToggleActive={handleToggleActive}
