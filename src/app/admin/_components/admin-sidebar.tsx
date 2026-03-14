@@ -28,7 +28,7 @@ const PUBLIC_ITEMS = [
   { href: "/", label: "Inicio", icon: Home },
   { href: "/appointments/new", label: "Agendar turno", icon: CalendarPlus },
   { href: "/appointments/get", label: "Consultar turno", icon: Search },
-  { href: "/shop", label: "Tienda online", icon: ShoppingBag },
+  // { href: "/shop", label: "Tienda online", icon: ShoppingBag }, // TODO: re-enable when public shop is ready
 ];
 
 export default function AdminSidebar() {

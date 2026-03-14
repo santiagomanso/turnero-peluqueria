@@ -1,19 +1,41 @@
 "use client";
 
-import { X, ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SHOP_CATEGORIES, type Product } from "@/types/shop";
 import { useCreateProductForm } from "../_hooks/use-create-product-form";
 import NextImage from "next/image";
 
 interface ProductModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   product?: Product;
-  onClose: () => void;
   onSave: (product: Product) => void;
 }
 
-export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
+export function ProductModal({
+  open,
+  onOpenChange,
+  product,
+  onSave,
+}: ProductModalProps) {
+  const onClose = () => onOpenChange(false);
+
   const {
     form,
     isEditing,
@@ -43,44 +65,20 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
   const errorClass = "text-xs text-red-500 mt-1";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
-        onClick={onClose}
-      />
-
-      <div
-        className={cn(
-          "relative w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col overflow-hidden",
-          "bg-surface dark:bg-zinc-900",
-          "border border-[#e8e4df] dark:border-zinc-800",
-          "max-h-[92svh]",
-        )}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="sm:max-w-lg max-h-[92svh] p-0 gap-0 overflow-hidden"
       >
-        {/* Drag handle mobile */}
-        <div className="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 rounded-full bg-[#e8e4df] dark:bg-zinc-700" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#e8e4df] dark:border-zinc-800 shrink-0">
-          <h2 className="font-semibold text-content dark:text-zinc-100">
+        <DialogHeader className="px-5 py-4 border-b border-[#e8e4df] dark:border-zinc-800">
+          <DialogTitle>
             {isEditing ? "Editar producto" : "Nuevo producto"}
-          </h2>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onClose}
-            aria-label="Cerrar"
-          >
-            <X size={18} />
-          </Button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-5 py-5 space-y-4 scrollbar-none">
-          {/* Imagen */}
+          {/* Image */}
           <div>
             <label className={labelClass}>Imagen del producto</label>
             <input
@@ -146,7 +144,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
             )}
           </div>
 
-          {/* Nombre */}
+          {/* Name */}
           <div>
             <label className={labelClass}>Nombre *</label>
             <input
@@ -161,7 +159,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
             {errors.name && <p className={errorClass}>{errors.name.message}</p>}
           </div>
 
-          {/* Descripción */}
+          {/* Description */}
           <div>
             <label className={labelClass}>Descripción</label>
             <textarea
@@ -180,7 +178,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
             )}
           </div>
 
-          {/* Precio y stock */}
+          {/* Price & Stock */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Precio (ARS) *</label>
@@ -218,33 +216,41 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
             </div>
           </div>
 
-          {/* Categoría */}
+          {/* Category */}
           <div>
             <label className={labelClass}>Categoría</label>
-            <div className="relative">
-              <select
-                {...register("category")}
-                className={cn(
-                  inputClass,
-                  "appearance-none pr-8 cursor-pointer",
-                )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between gap-2 font-normal"
+                >
+                  <span className="truncate">{watch("category")}</span>
+                  <ChevronDown size={14} className="shrink-0 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-[--radix-dropdown-menu-trigger-width]"
               >
-                {SHOP_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary dark:text-zinc-500">
-                ▾
-              </div>
-            </div>
+                <DropdownMenuRadioGroup
+                  value={watch("category")}
+                  onValueChange={(v) => setValue("category", v as typeof SHOP_CATEGORIES[number])}
+                >
+                  {SHOP_CATEGORIES.map((cat) => (
+                    <DropdownMenuRadioItem key={cat} value={cat}>
+                      {cat}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {errors.category && (
               <p className={errorClass}>{errors.category.message}</p>
             )}
           </div>
 
-          {/* Activo toggle */}
+          {/* Active toggle */}
           <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-surface dark:bg-zinc-800 border border-[#e8e4df] dark:border-zinc-700">
             <div>
               <p className="text-sm font-medium text-content dark:text-zinc-100">
@@ -273,7 +279,7 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-[#e8e4df] dark:border-zinc-800 shrink-0 flex gap-3">
+        <DialogFooter className="px-5 py-4 border-t border-[#e8e4df] dark:border-zinc-800 sm:flex-row">
           <Button
             variant="outline"
             className="flex-1"
@@ -295,8 +301,8 @@ export function ProductModal({ product, onClose, onSave }: ProductModalProps) {
                 ? "Guardar cambios"
                 : "Crear producto"}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
