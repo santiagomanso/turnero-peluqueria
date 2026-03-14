@@ -7,19 +7,15 @@ import {
   CheckCircle,
   XCircle,
   TrendingUp,
-  RefreshCw,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { StatCard } from "./stat-card";
 import { TopHours } from "./top-hours";
 import { DayChart } from "./day-chart";
 import { ConversionCard } from "./conversion";
 import { GrowthChart } from "./growth";
-import PeriodTabs from "@/app/admin/_components/period-tabs";
 import { usePeriod } from "@/app/admin/_hooks/use-period";
 import { useMetricsStore } from "../_hooks/use-metrics-store";
 import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
-import { ThemeToggleButton } from "@/app/admin/_components/theme-toggle-button";
 
 const MetricsMobileDropdown = dynamic(
   () =>
@@ -44,25 +40,7 @@ export function MetricsView() {
         title="Métricas"
         subtitle="Estadísticas generales del negocio"
         mobileControls={<MetricsMobileDropdown />}
-        desktopControls={
-          <>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9 shadow-sm"
-              disabled={isLoading}
-              onClick={() => refresh(period)}
-            >
-              <RefreshCw
-                className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
-              />
-            </Button>
-            <ThemeToggleButton />
-            <div className="h-9 flex items-center">
-              <PeriodTabs />
-            </div>
-          </>
-        }
+        desktopControls={<MetricsMobileDropdown />}
       />
 
       {/* Content */}

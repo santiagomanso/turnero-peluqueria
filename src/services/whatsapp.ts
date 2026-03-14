@@ -100,6 +100,67 @@ export async function sendAppointmentReminder({
   });
 }
 
+export async function sendOwnerClientContact({
+  ownerPhone,
+  clientName,
+  clientPhone,
+}: {
+  ownerPhone: string;
+  clientName: string;
+  clientPhone: string;
+}) {
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: ownerPhone,
+    type: "template",
+    template: {
+      name: "owner_client_contact_2",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: clientName },  // {{1}} Nombre
+            { type: "text", text: clientPhone },  // {{2}} Teléfono
+          ],
+        },
+      ],
+    },
+  });
+}
+
+export async function sendOwnerClientMessage({
+  ownerPhone,
+  clientName,
+  clientPhone,
+  message,
+}: {
+  ownerPhone: string;
+  clientName: string;
+  clientPhone: string;
+  message: string;
+}) {
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: ownerPhone,
+    type: "template",
+    template: {
+      name: "owner_client_message_1",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: clientName },  // {{1}} Nombre
+            { type: "text", text: clientPhone },  // {{2}} Teléfono
+            { type: "text", text: message },      // {{3}} Mensaje
+          ],
+        },
+      ],
+    },
+  });
+}
+
 export async function sendTextMessage(to: string, text: string): Promise<void> {
   await sendWhatsAppMessage({
     messaging_product: "whatsapp",

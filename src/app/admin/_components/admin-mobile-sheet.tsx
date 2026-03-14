@@ -5,9 +5,8 @@ import {
   Menu,
   Home,
   Settings,
-  CalendarPlus,
-  Search,
   ShoppingBag,
+  CreditCard,
 } from "lucide-react";
 import {
   Sheet,
@@ -25,15 +24,13 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   { href: "/admin/appointments", label: "Turnos", icon: CalendarDays },
   { href: "/admin/metrics", label: "Métricas", icon: BarChart2 },
-  { href: "/admin/config", label: "Configuración", icon: Settings },
+  { href: "/admin/payments", label: "Pagos", icon: CreditCard },
   { href: "/admin/shop", label: "Tienda online", icon: ShoppingBag },
+  { href: "/admin/config", label: "Configuración", icon: Settings },
 ];
 
 const PUBLIC_ITEMS = [
   { href: "/", label: "Inicio", icon: Home },
-  { href: "/appointments/new", label: "Agendar turno", icon: CalendarPlus },
-  { href: "/appointments/get", label: "Consultar turno", icon: Search },
-  // { href: "/shop", label: "Tienda online", icon: ShoppingBag }, // TODO: re-enable when public shop is ready
 ];
 
 export default function AdminMobileSheet({

@@ -4,7 +4,11 @@ import { formatDateLong, formatDateISO, formatDateLongFromISO } from "@/lib/form
 import { getAvailabilityAction } from "@/app/appointments/_actions/get-availability";
 import { addDays, startOfDay, isWeekend } from "date-fns";
 import type { DayKey, DaysConfig } from "@/types/config";
-import { sendTextMessage } from "@/services/whatsapp";
+import {
+  sendTextMessage,
+  sendOwnerClientContact,
+  sendOwnerClientMessage,
+} from "@/services/whatsapp";
 import { getConfig } from "@/services/config";
 import { updateAppointment } from "@/services/update";
 import { getAppointmentById } from "@/services/get";
@@ -616,14 +620,12 @@ export async function handleAwaitingLucketeContact(
 
   if (input === "no" || input === "2") {
     await deleteSession(telephone);
-    await sendTextMessage(
-      telephone,
-      `✅ Listo. Luckete te va a escribir pronto ✂️`,
-    );
-    return await sendTextMessage(
-      process.env.OWNER_PHONE!,
-      `💬 Cliente quiere hablar\n\n👤 ${contactName}\n📞 +${telephone}`,
-    );
+    await sendTextMessage(telephone, `✅ Listo. Luckete te va a escribir pronto ✂️`);
+    return await sendOwnerClientContact({
+      ownerPhone: process.env.OWNER_PHONE!,
+      clientName: contactName,
+      clientPhone: `+${telephone}`,
+    });
   }
 
   if (input === "si" || input === "sí" || input === "1") {
@@ -646,13 +648,12 @@ export async function handleAwaitingLucketeMessage(
 ) {
   await deleteSession(telephone);
 
-  await sendTextMessage(
-    telephone,
-    `✅ Mensaje recibido. Luckete te va a escribir pronto ✂️`,
-  );
+  await sendTextMessage(telephone, `✅ Mensaje recibido. Luckete te va a escribir pronto ✂️`);
 
-  await sendTextMessage(
-    process.env.OWNER_PHONE!,
-    `💬 Nueva consulta de cliente\n\n👤 ${contactName}\n📞 +${telephone}\n\n✉️ Mensaje:\n"${text}"`,
-  );
+  await sendOwnerClientMessage({
+    ownerPhone: process.env.OWNER_PHONE!,
+    clientName: contactName,
+    clientPhone: `+${telephone}`,
+    message: text,
+  });
 }

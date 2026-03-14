@@ -9,14 +9,6 @@ import { useAdminAppointments } from "../_hooks/use-admin-appointments";
 import { formatDateLongFromISO } from "@/lib/format-date";
 import { AdminPageHeader } from "./admin-page-header";
 
-const AppointmentsDesktopControls = dynamic(
-  () =>
-    import("./appointments-desktop-controls").then((m) => ({
-      default: m.AppointmentsDesktopControls,
-    })),
-  { ssr: false },
-);
-
 const AppointmentsMobileDropdown = dynamic(
   () =>
     import("./appointments-mobile-dropdown").then((m) => ({
@@ -46,7 +38,7 @@ export default function AdminAppointments() {
         title="Turnos"
         subtitle={formatDateLongFromISO(vm.selectedDate)}
         badge={badge}
-        desktopControls={<AppointmentsDesktopControls />}
+        desktopControls={<AppointmentsMobileDropdown />}
         mobileControls={<AppointmentsMobileDropdown />}
       />
 

@@ -54,6 +54,17 @@ export async function POST(req: NextRequest) {
       console.log("MP external_reference:", payment.external_reference);
 
       if (payment.status === "approved" && payment.external_reference) {
+        const existing = await db.appointment.findUnique({
+          where: { id: payment.external_reference },
+        });
+
+        if (!existing) {
+          console.warn(
+            `[MP Webhook] Appointment not found for external_reference: ${payment.external_reference} — skipping`,
+          );
+          return NextResponse.json({ ok: true }, { status: 200 });
+        }
+
         const payerEmail = payment.payer?.email ?? null;
         const directFirst = payment.payer?.first_name ?? "";
         const directLast = payment.payer?.last_name ?? "";
@@ -67,10 +78,15 @@ export async function POST(req: NextRequest) {
             payerName,
             payerEmail,
             payment: {
-              create: {
-                mercadopagoId: paymentId,
-                amount: payment.transaction_amount,
-                status: payment.status,
+              upsert: {
+                create: {
+                  mercadopagoId: paymentId,
+                  amount: payment.transaction_amount,
+                  status: payment.status,
+                },
+                update: {
+                  status: payment.status,
+                },
               },
             },
           },
