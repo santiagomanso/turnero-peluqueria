@@ -55,41 +55,43 @@ export function ShopView() {
         mobileControls={<ShopMobileDropdown />}
       />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-7 py-5 max-md:px-4 max-md:py-4 flex flex-col gap-5">
-          {/* Tabs */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-surface dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700">
-            {tabs.map((tab) => (
-              <Button
-                key={tab.id}
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveTab(tab.id)}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-7 py-5 max-md:px-4 max-md:py-4 gap-5">
+        {/* Tabs — never scrolls */}
+        <div className="shrink-0 flex items-center gap-1 p-1 rounded-xl bg-surface dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700">
+          {tabs.map((tab) => (
+            <Button
+              key={tab.id}
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex-1 gap-1.5 text-xs sm:text-sm",
+                activeTab === tab.id
+                  ? "bg-white dark:bg-zinc-700 shadow-sm text-content dark:text-zinc-100 hover:bg-white dark:hover:bg-zinc-700"
+                  : "text-content-secondary dark:text-zinc-400",
+              )}
+            >
+              <span
                 className={cn(
-                  "flex-1 gap-1.5 text-xs sm:text-sm",
+                  "shrink-0",
                   activeTab === tab.id
-                    ? "bg-white dark:bg-zinc-700 shadow-sm text-content dark:text-zinc-100 hover:bg-white dark:hover:bg-zinc-700"
-                    : "text-content-secondary dark:text-zinc-400",
+                    ? "text-gold"
+                    : "text-content-tertiary dark:text-zinc-500",
                 )}
               >
-                <span
-                  className={cn(
-                    "shrink-0",
-                    activeTab === tab.id
-                      ? "text-gold"
-                      : "text-content-tertiary dark:text-zinc-500",
-                  )}
-                >
-                  {tab.icon}
-                </span>
-                <span className="truncate">{tab.label}</span>
-              </Button>
-            ))}
-          </div>
+                {tab.icon}
+              </span>
+              <span className="truncate">{tab.label}</span>
+            </Button>
+          ))}
+        </div>
 
-          {/* Tab content */}
+        {/* Tab content — flex-1, each tab handles its own scroll */}
+        <div className="flex-1 min-h-0">
           {activeTab === "ordenes" ? (
-            <OrderesTab />
+            <div className="overflow-y-auto h-full">
+              <OrderesTab />
+            </div>
           ) : (
             <ProductosTab
               registerOpenCreate={(fn) => {

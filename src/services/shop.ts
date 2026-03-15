@@ -10,6 +10,7 @@ function mapProduct(p: {
   category: string;
   imageUrl: string | null;
   active: boolean;
+  featured?: boolean; // optional until `prisma generate` is run after migration
   createdAt: Date;
 }): Product {
   return {
@@ -21,6 +22,7 @@ function mapProduct(p: {
     category: p.category,
     imageUrl: p.imageUrl,
     active: p.active,
+    featured: p.featured ?? false,
     createdAt: p.createdAt,
   };
 }
@@ -40,6 +42,14 @@ export async function getActiveProducts(): Promise<Product[]> {
   return products.map(mapProduct);
 }
 
+export async function getActiveProductsByCategory(category: string): Promise<Product[]> {
+  const products = await db.product.findMany({
+    where: { active: true, stock: { gt: 0 }, category },
+    orderBy: { createdAt: "desc" },
+  });
+  return products.map(mapProduct);
+}
+
 export async function getProductById(id: string): Promise<Product | null> {
   const p = await db.product.findUnique({ where: { id } });
   if (!p) return null;
@@ -54,8 +64,10 @@ export async function createProduct(input: {
   category: string;
   imageUrl?: string;
   active: boolean;
+  featured?: boolean;
 }): Promise<Product> {
-  const p = await db.product.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p = await (db.product.create as any)({
     data: {
       name: input.name,
       description: input.description ?? null,
@@ -64,8 +76,9 @@ export async function createProduct(input: {
       category: input.category,
       imageUrl: input.imageUrl ?? null,
       active: input.active,
+      featured: input.featured ?? false,
     },
-  });
+  }) as Awaited<ReturnType<typeof db.product.findFirstOrThrow>>;
   return mapProduct(p);
 }
 
@@ -79,6 +92,7 @@ export async function updateProduct(
     category: string;
     imageUrl: string | null;
     active: boolean;
+    featured: boolean;
   }>,
 ): Promise<Product> {
   const p = await db.product.update({
@@ -96,6 +110,23 @@ export async function deleteProduct(id: string): Promise<void> {
     );
   }
   await db.product.delete({ where: { id } });
+}
+
+/**
+ * Returns the count of active products per category.
+ * Keys match SHOP_CATEGORIES values.
+ */
+export async function getProductCategoryCounts(): Promise<Record<string, number>> {
+  const products = await db.product.findMany({
+    where: { active: true },
+    select: { category: true },
+  });
+
+  const counts: Record<string, number> = {};
+  for (const p of products) {
+    counts[p.category] = (counts[p.category] ?? 0) + 1;
+  }
+  return counts;
 }
 
 export async function toggleProductActive(id: string): Promise<Product> {

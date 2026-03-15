@@ -22,6 +22,7 @@ export const productSchema = z.object({
     message: "Seleccioná una categoría válida",
   }),
   active: z.boolean(),
+  featured: z.boolean(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -55,6 +56,7 @@ export function useCreateProductForm({
       stock: 0,
       category: SHOP_CATEGORIES[0] as (typeof SHOP_CATEGORIES)[number],
       active: true,
+      featured: false,
     },
   });
 
@@ -69,6 +71,7 @@ export function useCreateProductForm({
         category: (product?.category ??
           SHOP_CATEGORIES[0]) as (typeof SHOP_CATEGORIES)[number],
         active: product?.active ?? true,
+        featured: product?.featured ?? false,
       });
       setImageUrl(product?.imageUrl ?? null);
       setPreview(product?.imageUrl ?? null);
@@ -138,6 +141,7 @@ export function useCreateProductForm({
           stock: values.stock,
           category: values.category,
           active: values.active,
+          featured: values.featured,
           imageUrl,
         })
       : await createProductAction({
@@ -147,6 +151,7 @@ export function useCreateProductForm({
           stock: values.stock,
           category: values.category,
           active: values.active,
+          featured: values.featured,
           imageUrl: imageUrl ?? undefined,
         });
 

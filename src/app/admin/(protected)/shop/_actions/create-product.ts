@@ -11,6 +11,7 @@ export async function createProductAction(input: {
   category: string;
   imageUrl?: string;
   active: boolean;
+  featured?: boolean;
 }): Promise<{ success: boolean; product?: Product; error?: string }> {
   try {
     const product = await createProduct(input);

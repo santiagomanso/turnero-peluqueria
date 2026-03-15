@@ -1,21 +1,44 @@
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay } from "date-fns";
-import type { PaymentRow } from "@/app/admin/_actions/get-payments";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type UnifiedPaymentRow = {
+  id: string;
+  type: "appointment" | "shop_order";
+  source: "mercadopago" | "cash" | "transfer";
+  amount: number;
+  status: string;
+  mercadopagoId: string | null;
+  paidAt: string; // ISO string
+  customerName: string | null;
+  customerPhone: string;
+  // appointment-specific
+  appointmentDate?: string; // ISO string
+  appointmentTime?: string;
+  // order-specific
+  orderId?: string;
+};
+
+// ─── Queries ──────────────────────────────────────────────────────────────────
 
 /**
- * Fetches all payments for a given day.
+ * Fetches all payments (appointments + shop orders) for a given day.
  * specificDate must be a YYYY-MM-DD string.
  */
-export async function getPayments(specificDate: string): Promise<PaymentRow[]> {
-  const day = new Date(specificDate + "T12:00:00.000Z"); // noon UTC avoids day-boundary issues
+export async function getUnifiedPayments(
+  specificDate: string,
+): Promise<UnifiedPaymentRow[]> {
+  const day = new Date(specificDate + "T12:00:00.000Z");
 
   const payments = await db.payment.findMany({
-    where: { createdAt: { gte: startOfDay(day), lt: endOfDay(day) } },
-    orderBy: { createdAt: "desc" },
+    where: {
+      paidAt: { gte: startOfDay(day), lt: endOfDay(day) },
+    },
+    orderBy: { paidAt: "desc" },
     include: {
       appointment: {
         select: {
-          id: true,
           payerName: true,
           payerEmail: true,
           telephone: true,
@@ -23,24 +46,46 @@ export async function getPayments(specificDate: string): Promise<PaymentRow[]> {
           time: true,
         },
       },
+      order: {
+        select: {
+          id: true,
+          name: true,
+          telephone: true,
+        },
+      },
     },
   });
 
-  return payments.map((p) => ({
-    id: p.id,
-    mercadopagoId: p.mercadopagoId,
-    amount: p.amount,
-    status: p.status,
-    createdAt: p.createdAt.toISOString(),
-    appointment: {
-      id: p.appointment.id,
-      payerName: p.appointment.payerName,
-      payerEmail: p.appointment.payerEmail,
-      telephone: p.appointment.telephone,
-      date: p.appointment.date.toISOString(),
-      time: p.appointment.time,
-    },
-  }));
+  return payments.map((p) => {
+    if (p.type === "appointment" && p.appointment) {
+      return {
+        id: p.id,
+        type: "appointment" as const,
+        source: p.source as UnifiedPaymentRow["source"],
+        amount: p.amount,
+        status: p.status,
+        mercadopagoId: p.mercadopagoId,
+        paidAt: p.paidAt.toISOString(),
+        customerName: p.appointment.payerName ?? p.appointment.payerEmail,
+        customerPhone: p.appointment.telephone,
+        appointmentDate: p.appointment.date.toISOString(),
+        appointmentTime: p.appointment.time,
+      };
+    }
+
+    return {
+      id: p.id,
+      type: "shop_order" as const,
+      source: p.source as UnifiedPaymentRow["source"],
+      amount: p.amount,
+      status: p.status,
+      mercadopagoId: p.mercadopagoId,
+      paidAt: p.paidAt.toISOString(),
+      customerName: p.order?.name ?? null,
+      customerPhone: p.order?.telephone ?? "",
+      orderId: p.order?.id,
+    };
+  });
 }
 
 /**
@@ -55,13 +100,13 @@ export async function getPaymentMonthlyCounts(
   const endDate = new Date(year, month + 1, 1);
 
   const payments = await db.payment.findMany({
-    where: { createdAt: { gte: startDate, lt: endDate } },
-    select: { createdAt: true },
+    where: { paidAt: { gte: startDate, lt: endDate } },
+    select: { paidAt: true },
   });
 
   const counts: Record<string, number> = {};
   for (const p of payments) {
-    const key = p.createdAt.toISOString().split("T")[0];
+    const key = p.paidAt.toISOString().split("T")[0];
     counts[key] = (counts[key] ?? 0) + 1;
   }
 

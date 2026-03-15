@@ -59,6 +59,7 @@ export function ProductModal({
   } = form;
 
   const isActive = useWatch({ control, name: "active" });
+  const isFeatured = useWatch({ control, name: "featured" });
 
   const inputClass =
     "w-full rounded-lg border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-all";
@@ -239,7 +240,9 @@ export function ProductModal({
               >
                 <DropdownMenuRadioGroup
                   value={watch("category")}
-                  onValueChange={(v) => setValue("category", v as typeof SHOP_CATEGORIES[number])}
+                  onValueChange={(v) =>
+                    setValue("category", v as (typeof SHOP_CATEGORIES)[number])
+                  }
                 >
                   {SHOP_CATEGORIES.map((cat) => (
                     <DropdownMenuRadioItem key={cat} value={cat}>
@@ -266,7 +269,9 @@ export function ProductModal({
             </div>
             <button
               type="button"
-              onClick={() => setValue("active", !isActive, { shouldDirty: true })}
+              onClick={() =>
+                setValue("active", !isActive, { shouldDirty: true })
+              }
               className={cn(
                 "relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0",
                 isActive ? "bg-gold" : "bg-zinc-300 dark:bg-zinc-600",
@@ -276,6 +281,35 @@ export function ProductModal({
                 className={cn(
                   "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200",
                   isActive ? "translate-x-5" : "translate-x-0",
+                )}
+              />
+            </button>
+          </div>
+
+          {/* Featured toggle */}
+          <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-surface dark:bg-zinc-800 border border-[#e8e4df] dark:border-zinc-700">
+            <div>
+              <p className="text-sm font-medium text-content dark:text-zinc-100">
+                Destacado ✨
+              </p>
+              <p className="text-xs mt-0.5 text-content-tertiary dark:text-zinc-500">
+                Ocupa más espacio en la grilla de categorías
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setValue("featured", !isFeatured, { shouldDirty: true })
+              }
+              className={cn(
+                "relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0",
+                isFeatured ? "bg-gold" : "bg-zinc-300 dark:bg-zinc-600",
+              )}
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200",
+                  isFeatured ? "translate-x-5" : "translate-x-0",
                 )}
               />
             </button>

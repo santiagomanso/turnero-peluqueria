@@ -22,6 +22,9 @@ The admin panel allows the salon owner to manage, create, and update appointment
 - Configurar precio base del turno
 - Cambiar tema visual (light/dark)
 - Ver métricas: ingresos, conversión, crecimiento, top horas, distribución por día
+- **Gestionar productos de tienda** (crear, editar, activar/desactivar, stock, imagen vía Cloudinary con prompt AI)
+- **Ver pedidos de tienda** (órdenes con estado, detalles de productos, marcar como recogido/enviado)
+- **Ver historial de pagos** (filtrado por día, con calendario coloreado por volumen)
 
 A Next.js appointment booking web app for a hair salon called **Luckete Colorista**.
 Users book appointments, pay via MercadoPago, and receive WhatsApp notifications.
@@ -381,17 +384,20 @@ export function formatArgentinianPhone(telephone: string): string {
 
 ### Admin Components
 
-| File                                  | Purpose                                                                    |
-| ------------------------------------- | -------------------------------------------------------------------------- |
-| `admin-sidebar.tsx`                   | Desktop sidebar + mobile topbar (breakpoint `lg`)                          |
-| `admin-mobile-sheet.tsx`              | Mobile nav drawer (`dynamic ssr:false`)                                    |
-| `appointments-mobile-controls.tsx`    | Controls del topbar mobile en página Turnos                                |
-| `sidebar-metrics-mobile-controls.tsx` | Controls del topbar mobile en página Métricas (dropdown período + refresh) |
-| `admin-appointments.tsx`              | Grid de turnos                                                             |
-| `admin-appointments-controls.tsx`     | Controls desktop: `[+] [↻] [🌙] [📅]`                                      |
-| `admin-create-appointment.tsx`        | Dialog 3 pasos (date → time → telephone)                                   |
-| `period-tabs.tsx`                     | Selector período métricas desktop (`h-9` fijo)                             |
-| `admin-theme-provider.tsx`            | Lee/escribe cookie `admin-theme`, aplica `.dark` en `<html>`               |
+| File                                                    | Purpose                                                                             |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `admin-sidebar.tsx`                                     | Desktop sidebar (nav order: Turnos→Métricas→Pagos→Tienda→Configuración)             |
+| `admin-mobile-sheet.tsx`                                | Mobile nav drawer (`dynamic ssr:false`)                                             |
+| `admin-appointments.tsx`                                | Grid de turnos; usa `AppointmentsMobileDropdown` para ambos desktop y mobile        |
+| `appointments-mobile-dropdown.tsx`                      | Dropdown unificado Turnos: `[+] [↻] [🌙] [📅 Hoy/fecha]`                            |
+| `metrics-mobile-dropdown.tsx`                           | Dropdown unificado Métricas: período (Semana/Mes/Año) + refresh + theme             |
+| `payments-mobile-dropdown.tsx`                          | Dropdown unificado Pagos: `[↻] [🌙] [📅]` + calendario con días coloreados          |
+| `admin-create-appointment.tsx`                          | Dialog 3 pasos (date → time → telephone)                                            |
+| `admin-theme-provider.tsx`                              | Lee/escribe cookie `admin-theme`, aplica `.dark` en `<html>`                        |
+| `(protected)/payments/_components/payments-view.tsx`    | Vista pagos: `specificDate` siempre seteado (default hoy), sin period pills         |
+| `(protected)/shop/products/_components/products-tab.tsx`| Tabla/cards de productos con crear/editar/toggle activo                             |
+| `(protected)/shop/products/_components/product-modal.tsx`| Dialog shadcn para crear/editar producto; upload imagen vía Cloudinary              |
+| `(protected)/shop/orders/_components/orders-view.tsx`   | Lista de órdenes con detalles y cambio de estado                                    |
 
 ### Layout Structure (`src/app/admin/(protected)/layout.tsx`)
 
@@ -417,13 +423,13 @@ Todas las páginas tienen header sticky `h-19` (76px) alineado con el logo del s
 
 ### Desktop Controls Layout
 
-**Appointments:** `[título+subtítulo] [ml-auto] [+] [↻] [🌙] [📅 Hoy/fecha]`
+**Patrón unificado:** todas las páginas admin usan el mismo componente dropdown mobile para desktop también. No hay botones de ícono separados en desktop. Los controles se pasan vía props `desktopControls` y `mobileControls` al componente `Navbar`.
 
-- Botón `+` usa `createOpen` state local + `open/onOpenChange` props en `AdminCreateAppointment`
+**Appointments:** `[título+subtítulo] [ml-auto] [AppointmentsMobileDropdown]`
+**Metrics:** `[Métricas/subtítulo] [ml-auto] [MetricsMobileDropdown]`
+**Pagos:** `[Pagos/subtítulo] [ml-auto] [PaymentsMobileDropdown]`
 
-**Metrics:** `[Métricas/subtítulo] [ml-auto] [↻] [Semana Mes Año]`
-
-- `PeriodTabs` con `h-9` fijo + `py-1` interno para igualar altura con botón refresh
+El dropdown contiene: refresh, theme toggle, y calendario. En Pagos el orden es `refresh | theme | calendar`.
 
 ### Hydration Mismatch Prevention
 
@@ -731,12 +737,173 @@ CRON_SECRET=...
 - [x] Verificar card en producción mobile y desktop
 - [x] Establecer como lograr que los usuarios modifiquen sus turnos (enviar OTP por meta whatsapp, sin poner template de OTP porque no nos permiten, envaluar si poner UTILITY y fijgir un OTP sin decir OTP para que no sea flagueado OTP y no nos permitan) o que se desate un chat con el chatbot de whatsapp business para que el chatbot le cambie el turno (ya es único al cliente ese número)
 - [x] Chatbot WhatsApp para modificación de turnos ✅
+- [x] **Chatbot fix:** `sendOwnerClientContact` / `sendOwnerClientMessage` usan templates aprobados en lugar de `sendTextMessage` (texto libre que solo funciona en ventana 24hs)
+- [x] **Admin: Gestión de productos** — `ProductsTab` + `ProductModal` con shadcn Dialog; upload imagen vía Cloudinary con prompt AI generativo; activar/desactivar, stock, precio, categoría
+- [x] **Admin: Listado de pedidos** — `OrdersView` con detalle de productos, datos del comprador, estado (PENDING → PAID → SHIPPED → DELIVERED → CANCELLED); tabla desktop + cards mobile
+- [x] **Admin: Página Pagos** — historial de pagos filtrado por día; `PaymentsMobileDropdown` con calendario coloreado (verde 1–4, amber 5–10, rojo 11+); `specificDate` siempre seteado (default hoy); `isTodayFromISO` para label
+- [x] **Shop público** — `/shop` con bento grid de 7 categorías animado (framer-motion), conteo real de productos desde DB, mock names por card; `/shop/[category]` con grid de productos + category switcher horizontal; carrito vía Zustand
+- [x] **Desktop controls unificados** — Turnos, Métricas y Pagos usan el mismo dropdown component en desktop y mobile; no más botones de ícono separados en desktop
+- [x] **Sidebar: Configuración último** — reordenado a Turnos → Métricas → Pagos → Tienda online → Configuración
+- [x] **MercadoPago webhook P2025 fix** — manejo de error Prisma `P2025` (appointment no encontrado) sin romper el webhook; responde 200 para evitar reintentos de MP
+- [x] **`services/` pattern** — todas las actions son wrappers delgados; lógica de BD en `src/services/*.ts`; `src/services/payments.ts` y `src/services/shop.ts` creados
 
 ## ITEMS PENDIENTES
 
-- [ ] hacer funcional el shop online (en panel de control: 1. crear página para crear productos y stock) 2. crear página para listado de pedidos para que la dueña de la peluqueria vea pedidos y vaya empaquetando y marcando la orden de compra como "recogido" u otro
 - [ ] agregar seguridad al FRONT y BACK end respecto de la creación de turnos (para que no nos colmen la DB con bots) captcha y alguna otra forma de restringir
 - [ ] nichos personalizados (agrupar personas de la misma edad y mismo tratamiento, marketing dirigido)
+- [ ] hacer funcional el checkout del shop online (MercadoPago para compras de productos)
+- [ ] implementar notificaciones a la dueña para nuevos pedidos de tienda
+
+---
+
+# ADMIN — PAGOS (`/admin/payments`)
+
+## Propósito
+
+Vista del historial de pagos filtrada por día. Permite ver todos los pagos recibidos en una fecha específica.
+
+## Archivos
+
+```
+src/app/admin/(protected)/payments/
+├── page.tsx                          — Non-async, Suspense wrapper
+└── _components/
+    ├── payments-view.tsx             — Estado: specificDate (default hoy), usa PaymentsMobileDropdown
+    └── payments-mobile-dropdown.tsx  — Dropdown unificado desktop+mobile
+```
+
+`src/services/payments.ts` — lógica de BD:
+- `getPayments(specificDate: string)` — pagos del día filtrando por `createdAt`
+- `getPaymentMonthlyCounts(year, month)` — conteo por día para el calendario
+
+`src/app/admin/_actions/get-payments.ts` — action wrapper delgado.
+
+## Detalles clave
+
+- `specificDate` siempre tiene valor (default: `format(new Date(), "yyyy-MM-dd")`). No hay "sin fecha seleccionada".
+- `isTodayFromISO(specificDate)` → si es hoy muestra "Pagos de hoy", si no "Mostrando: DD/MM/YYYY"
+- Calendario en dropdown con días coloreados por volumen: verde (1–4 pagos), amber (5–10), rojo (11+)
+- Dropdown usa `Popover` anidado dentro de `DropdownMenu`; el `DropdownMenuItem` del calendario usa `onSelect={(e) => e.preventDefault()}` para no cerrar el menú al abrir el popover
+
+---
+
+# ADMIN — TIENDA ONLINE (`/admin/shop`)
+
+## Propósito
+
+Panel de gestión de productos y órdenes de la tienda online.
+
+## Archivos
+
+```
+src/app/admin/(protected)/shop/
+├── page.tsx                         — Tabs: Productos / Pedidos
+├── products/
+│   └── _components/
+│       ├── products-tab.tsx         — Lista de productos (tabla desktop, cards mobile)
+│       └── product-modal.tsx        — Dialog crear/editar producto
+└── orders/
+    └── _components/
+        └── orders-view.tsx          — Lista de pedidos con estado
+```
+
+`src/services/shop.ts` — lógica de BD:
+- `getProducts()` — todos los productos
+- `getActiveProductsByCategory(category)` — productos activos por categoría (para shop público)
+- `getProductCategoryCounts()` — conteo por categoría (para bento grid)
+- `createProduct(data)`, `updateProduct(id, data)`, `deleteProduct(id)`
+- `getOrders()`, `updateOrderStatus(id, status)`
+
+## Product Modal — Cloudinary + AI
+
+El campo de imagen permite URL directa o subir imagen. Al subir, se envía a Cloudinary con un prompt AI generativo que automáticamente mejora/describe la imagen del producto. La URL resultante se guarda en `imageUrl`.
+
+## Categorías disponibles (`SHOP_CATEGORIES`)
+
+Definidas en `src/types/shop.ts`:
+```typescript
+export const SHOP_CATEGORIES = [
+  "Shampoo y Acondicionador",
+  "Mascarillas y Baños de Crema",
+  "Tratamientos Capilares",
+  "Aceites y Serums",
+  "Protectores y Sprays",
+  "Cremas para Peinar",
+  "Accesorios",
+] as const;
+```
+
+---
+
+# SHOP PÚBLICO (`/shop`)
+
+## Propósito
+
+Página pública de tienda online accesible por clientes. Muestra categorías como bento grid y permite navegar a sub-páginas por categoría.
+
+## Archivos
+
+```
+src/app/shop/
+├── page.tsx                         — Non-async, Suspense + ShopCategoriesData
+├── _actions/
+│   └── get-category-counts.ts       — Action: llama getProductCategoryCounts()
+├── _components/
+│   ├── shop-categories-data.tsx     — Async server component: fetcha y pasa a bento
+│   ├── shop-categories-bento.tsx    — Bento grid animado (framer-motion)
+│   └── bento-skeleton.tsx           — Skeleton de carga
+├── _store/
+│   └── use-cart.ts                  — Zustand store del carrito
+└── [category]/
+    ├── page.tsx                     — Non-async, slugToCategory + notFound()
+    └── _components/
+        ├── category-data.tsx        — Async server component
+        ├── category-view.tsx        — Client: grid de productos + category switcher
+        └── category-skeleton.tsx    — Skeleton de carga
+```
+
+## Bento Grid
+
+- CSS Grid: `grid-cols-2 lg:grid-cols-4`, `gridAutoRows: "160px"`
+- Tres variantes de card: `XLCard` (2×2, col-span-2+row-span-2), `WideCard` (2×1, col-span-2), `SmCard` (1×1)
+- Layout fijo de 7 categorías: XL(Shampoo), Wide(Mascarillas), Sm(Aceites), Sm(Protectores), Sm(Cremas), Sm(Tratamientos), Wide(Accesorios)
+- Animaciones con `MotionLink = motion(Link)` de framer-motion + `cardVariants` con `type: "spring" as const`
+- Muestra conteo real de productos desde DB + mock names por categoría
+
+## Utilidades de slug (`src/lib/shop-utils.ts`)
+
+```typescript
+export function categoryToSlug(category: string): string {
+  return category.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+}
+export function slugToCategory(slug: string): ShopCategory | undefined {
+  return SHOP_CATEGORIES.find((c) => categoryToSlug(c) === slug);
+}
+```
+
+## Patrón Non-async page + Suspense
+
+**NUNCA** hacer `page.tsx` async. Siempre usar:
+```tsx
+// page.tsx
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <DataComponent />   {/* este sí es async */}
+    </Suspense>
+  );
+}
+
+// data-component.tsx
+export default async function DataComponent() {
+  const data = await fetchData();
+  return <ViewComponent data={data} />;
+}
+```
+
+---
 
 # Race Condition — Verificación de disponibilidad en tiempo real
 
@@ -1255,13 +1422,13 @@ Usa API v22.0.
 Creados en Meta Business Suite, categoría `UTILITY`, idioma `Spanish (ARG)`.
 Pie de página: `Luckete Colorista • Asistente automático`
 
-| Nombre                         | Uso                                     |
-| ------------------------------ | --------------------------------------- |
-| `owner_client_contact_1`       | Cliente quiere hablar sin dejar mensaje |
-| `owner_client_message_1`       | Cliente dejó un mensaje                 |
-| `owner_appointment_modified_1` | Turno modificado exitosamente           |
+| Nombre                         | Uso                                              | Función en código                |
+| ------------------------------ | ------------------------------------------------ | -------------------------------- |
+| `owner_client_contact_1`       | Cliente quiere hablar sin dejar mensaje          | `sendOwnerClientContact(phone)`  |
+| `owner_client_message_1`       | Cliente dejó un mensaje                          | `sendOwnerClientMessage(phone, msg)` |
+| `owner_appointment_modified_1` | Turno modificado exitosamente                    | `sendOwnerAppointmentModified(phone)` |
 
-> ⚠️ Actualmente el bot usa `sendTextMessage` (texto libre) para notificar a la dueña, lo que solo funciona dentro de la ventana de 24hs de Meta. Para producción real se deberían usar estos templates aprobados.
+✅ El bot ahora usa estos templates aprobados para notificar a la dueña (en lugar de `sendTextMessage` que solo funciona dentro de la ventana de 24hs de Meta). Las funciones están en `src/services/whatsapp.ts`.
 
 ---
 
@@ -1279,8 +1446,8 @@ Esto toma los últimos 10 dígitos y busca coincidencia por el final, tolerando 
 
 ---
 
-## Items pendientes
+## Items pendientes (chatbot)
 
-- [ ] Implementar notificaciones a la dueña usando templates aprobados (en lugar de texto libre)
-- [ ] Hacer funcional el shop online
+- [x] ~~Implementar notificaciones a la dueña usando templates aprobados~~ ✅ `sendOwnerClientContact` / `sendOwnerClientMessage` implementados
+- [ ] Hacer funcional el checkout del shop online (MercadoPago para productos)
 - [ ] Agregar seguridad al FRONT y BACK end (captcha, rate limiting)

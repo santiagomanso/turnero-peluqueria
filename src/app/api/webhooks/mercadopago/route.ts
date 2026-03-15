@@ -54,54 +54,13 @@ export async function POST(req: NextRequest) {
       console.log("MP external_reference:", payment.external_reference);
 
       if (payment.status === "approved" && payment.external_reference) {
-        const existing = await db.appointment.findUnique({
-          where: { id: payment.external_reference },
-        });
+        const ref = payment.external_reference as string;
 
-        if (!existing) {
-          console.warn(
-            `[MP Webhook] Appointment not found for external_reference: ${payment.external_reference} — skipping`,
-          );
-          return NextResponse.json({ ok: true }, { status: 200 });
+        if (ref.startsWith("order:")) {
+          await handleShopOrderPayment(ref.slice(6), paymentId, payment);
+        } else {
+          await handleAppointmentPayment(ref, paymentId, payment);
         }
-
-        const payerEmail = payment.payer?.email ?? null;
-        const directFirst = payment.payer?.first_name ?? "";
-        const directLast = payment.payer?.last_name ?? "";
-        const directName = `${directFirst} ${directLast}`.trim();
-        const payerName = directName.length > 0 ? directName : payerEmail;
-
-        const updated = await db.appointment.update({
-          where: { id: payment.external_reference },
-          data: {
-            status: "PAID",
-            payerName,
-            payerEmail,
-            payment: {
-              upsert: {
-                create: {
-                  mercadopagoId: paymentId,
-                  amount: payment.transaction_amount,
-                  status: payment.status,
-                },
-                update: {
-                  status: payment.status,
-                },
-              },
-            },
-          },
-        });
-
-        console.log("Appointment marked as PAID:", payment.external_reference);
-
-        await sendAppointmentConfirmation({
-          telephone: updated.telephone,
-          date: format(updated.date, "dd/MM/yyyy", { locale: es }),
-          hour: updated.time,
-          appointmentId: updated.id,
-        });
-
-        console.log("WhatsApp confirmation sent to:", updated.telephone);
       }
     }
 
@@ -110,4 +69,97 @@ export async function POST(req: NextRequest) {
     console.error("Webhook error:", error);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
+}
+
+// ─── Appointment payment ───────────────────────────────────────────────────────
+
+async function handleAppointmentPayment(
+  appointmentId: string,
+  paymentId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payment: any,
+) {
+  const existing = await db.appointment.findUnique({
+    where: { id: appointmentId },
+  });
+
+  if (!existing) {
+    console.warn(
+      `[MP Webhook] Appointment not found: ${appointmentId} — skipping`,
+    );
+    return;
+  }
+
+  const payerEmail = payment.payer?.email ?? null;
+  const directFirst = payment.payer?.first_name ?? "";
+  const directLast = payment.payer?.last_name ?? "";
+  const directName = `${directFirst} ${directLast}`.trim();
+  const payerName = directName.length > 0 ? directName : payerEmail;
+
+  await db.appointment.update({
+    where: { id: appointmentId },
+    data: { status: "PAID", payerName, payerEmail },
+  });
+
+  await db.payment.upsert({
+    where: { appointmentId },
+    create: {
+      type: "appointment",
+      source: "mercadopago",
+      mercadopagoId: paymentId,
+      amount: payment.transaction_amount,
+      status: payment.status,
+      appointmentId,
+    },
+    update: { status: payment.status },
+  });
+
+  console.log("Appointment marked as PAID:", appointmentId);
+
+  await sendAppointmentConfirmation({
+    telephone: existing.telephone,
+    date: format(existing.date, "dd/MM/yyyy", { locale: es }),
+    hour: existing.time,
+    appointmentId: existing.id,
+  });
+
+  console.log("WhatsApp confirmation sent to:", existing.telephone);
+}
+
+// ─── Shop order payment ────────────────────────────────────────────────────────
+
+async function handleShopOrderPayment(
+  orderId: string,
+  paymentId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payment: any,
+) {
+  const existing = await db.order.findUnique({ where: { id: orderId } });
+
+  if (!existing) {
+    console.warn(`[MP Webhook] Order not found: ${orderId} — skipping`);
+    return;
+  }
+
+  await db.order.update({
+    where: { id: orderId },
+    data: { status: "PROCESSING" },
+  });
+
+  await db.payment.upsert({
+    where: { orderId },
+    create: {
+      type: "shop_order",
+      source: "mercadopago",
+      mercadopagoId: paymentId,
+      amount: payment.transaction_amount,
+      status: payment.status,
+      orderId,
+    },
+    update: { status: payment.status },
+  });
+
+  console.log("Order marked as PROCESSING:", orderId);
+
+  // TODO: Send WhatsApp notification to owner about new paid order
 }

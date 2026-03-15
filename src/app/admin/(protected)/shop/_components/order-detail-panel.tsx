@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   MapPin,
   CheckCircle2,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -88,6 +89,7 @@ export function OrderDetailPanel({
   const availableActions = NEXT_ACTIONS.filter(
     (a) => STATUS_ORDER.indexOf(a.status) > currentIdx,
   );
+  const previousStatus = currentIdx > 0 ? STATUS_ORDER[currentIdx - 1] : null;
 
   async function handleUpdateStatus(status: OrderStatus) {
     const result = await updateOrderStatusAction(order.id, status);
@@ -289,8 +291,7 @@ export function OrderDetailPanel({
 
         {/* Footer actions */}
         {order.status !== "CANCELLED" &&
-          order.status !== "PICKED_UP" &&
-          availableActions.length > 0 && (
+          (availableActions.length > 0 || previousStatus !== null) && (
             <div className="px-5 py-4 border-t border-border-subtle dark:border-zinc-800 shrink-0 bg-surface dark:bg-zinc-800">
               <p className="text-xs font-semibold tracking-wide uppercase text-content-quaternary dark:text-zinc-500 mb-3">
                 Actualizar estado
@@ -309,6 +310,15 @@ export function OrderDetailPanel({
                     {action.label}
                   </button>
                 ))}
+                {previousStatus !== null && (
+                  <button
+                    onClick={() => handleUpdateStatus(previousStatus)}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-content-tertiary dark:text-zinc-500 border border-border-subtle dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-500 hover:text-content-secondary dark:hover:text-zinc-400 transition-all"
+                  >
+                    <RotateCcw size={12} />
+                    Revertir a &quot;{ORDER_STATUS_CONFIG[previousStatus].label}&quot;
+                  </button>
+                )}
               </div>
             </div>
           )}

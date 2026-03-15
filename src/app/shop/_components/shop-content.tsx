@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ShoppingCart, Star, ChevronRight } from "lucide-react";
+import { ShoppingCart, Star, ChevronRight, Check } from "lucide-react";
+
 import { useCart } from "../_store/use-cart";
+import type { Product as ShopProduct } from "@/types/shop";
 
 const shampoos = [
   {
@@ -85,17 +86,33 @@ const sprays = [
 type Product = (typeof shampoos)[0];
 
 function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
+  const added = useCart((state) =>
+    state.items.some((i) => i.id === String(product.id)),
+  );
+  const toggle = useCart((state) => state.toggle);
 
-  const handleAdd = () => {
-    setAdded(true);
-    addToCart(product.id);
-    setTimeout(() => setAdded(false), 1200);
+  // Adapt mock product to the shape toggle expects
+  const asShopProduct: ShopProduct = {
+    id: String(product.id),
+    name: product.name,
+    price: product.price,
+    description: product.desc,
+    imageUrl: null,
+    category: "Shampoo y Acondicionador",
+    stock: 10,
+    active: true,
+    featured: false,
+    createdAt: new Date(),
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 rounded-2xl p-3 w-36 shrink-0 flex flex-col gap-2 shadow-sm">
+    <div
+      className={`border-2 rounded-2xl p-3 w-36 shrink-0 flex flex-col gap-2 shadow-sm transition-all duration-200 ${
+        added
+          ? "ring-2 ring-gold border-transparent bg-white dark:bg-zinc-900"
+          : "border-transparent border border-border-subtle dark:border-zinc-800 bg-white dark:bg-zinc-900"
+      }`}
+    >
       <div className="bg-surface dark:bg-zinc-800 rounded-xl h-28 flex items-center justify-center relative">
         <span className="text-4xl">{product.emoji}</span>
         <div className="absolute top-1.5 right-1.5 bg-gold-soft dark:bg-zinc-700 border border-gold-border dark:border-zinc-600 rounded-md px-1.5 py-0.5">
@@ -103,6 +120,11 @@ function ProductCard({ product }: { product: Product }) {
             {product.brand}
           </span>
         </div>
+        {added && (
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 bg-gold text-white text-[0.5rem] font-bold px-1.5 py-0.5 rounded-full">
+            <Check className="w-2.5 h-2.5" strokeWidth={3} />
+          </div>
+        )}
       </div>
 
       <div className="flex-1">
@@ -125,15 +147,15 @@ function ProductCard({ product }: { product: Product }) {
           ${product.price.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
         </span>
         <button
-          onClick={handleAdd}
+          onClick={() => toggle(asShopProduct)}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-all text-[0.6rem] font-bold ${
             added
-              ? "bg-gold-soft dark:bg-zinc-700 text-gold border border-gold-border dark:border-zinc-600"
+              ? "border border-gold text-gold bg-transparent"
               : "bg-gold text-white"
           }`}
         >
-          <ShoppingCart className="w-3 h-3" />
-          {added ? "✓" : "Agregar"}
+          {added ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
+          {added ? "Quitar" : "Agregar"}
         </button>
       </div>
     </div>

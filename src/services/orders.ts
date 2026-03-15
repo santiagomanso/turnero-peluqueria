@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import type { Order, OrderStatus } from "@/types/shop";
+import type { Order, OrderStatus, PaymentMethod } from "@/types/shop";
+import { sendOrderReadyNotification } from "@/services/whatsapp";
 
 function mapOrder(o: {
   id: string;
@@ -8,6 +9,7 @@ function mapOrder(o: {
   telephone: string;
   note: string | null;
   status: string;
+  paymentMethod: string;
   total: number;
   createdAt: Date;
   items: {
@@ -25,6 +27,7 @@ function mapOrder(o: {
     telephone: o.telephone,
     note: o.note,
     status: o.status as OrderStatus,
+    paymentMethod: o.paymentMethod as PaymentMethod,
     total: o.total,
     createdAt: o.createdAt,
     items: o.items.map((item) => ({
@@ -76,5 +79,115 @@ export async function updateOrderStatus(
   id: string,
   status: OrderStatus,
 ): Promise<void> {
+  const order = await db.order.findUnique({
+    where: { id },
+    select: { telephone: true, paymentMethod: true, total: true },
+  });
+  if (!order) throw new Error("Orden no encontrada");
+
   await db.order.update({ where: { id }, data: { status } });
+
+  // READY → notify customer (fire-and-forget; never blocks the response)
+  if (status === "READY") {
+    sendOrderReadyNotification({ telephone: order.telephone, orderId: id }).catch(
+      (err) => console.error("[updateOrderStatus] WhatsApp notification failed:", err),
+    );
+  }
+
+  // PICKED_UP + cash payment → record the payment
+  if (status === "PICKED_UP" && order.paymentMethod === "local") {
+    await db.payment.upsert({
+      where: { orderId: id },
+      create: {
+        type: "shop_order",
+        source: "cash",
+        amount: order.total,
+        status: "approved",
+        orderId: id,
+      },
+      update: {},
+    });
+  }
+
+  // Reverting away from PICKED_UP → remove the cash payment record (if any)
+  if (status !== "PICKED_UP") {
+    await db.payment.deleteMany({ where: { orderId: id, source: "cash" } });
+  }
+}
+
+// ─── Create order ──────────────────────────────────────────────────────────────
+
+export interface CreateOrderInput {
+  telephone: string;
+  name: string;
+  email?: string;
+  note?: string;
+  paymentMethod: PaymentMethod;
+  items: { productId: string; quantity: number }[];
+}
+
+export async function createOrder(input: CreateOrderInput): Promise<Order> {
+  // Fetch products to validate & get current prices
+  const productIds = input.items.map((i) => i.productId);
+  const products = await db.product.findMany({
+    where: { id: { in: productIds }, active: true },
+  });
+
+  if (products.length !== productIds.length) {
+    const foundIds = new Set(products.map((p) => p.id));
+    const missing = productIds.filter((id) => !foundIds.has(id));
+    throw new Error(
+      `Productos no encontrados o inactivos: ${missing.join(", ")}`,
+    );
+  }
+
+  // Validate stock
+  const productMap = new Map(products.map((p) => [p.id, p]));
+  for (const item of input.items) {
+    const product = productMap.get(item.productId)!;
+    if (product.stock < item.quantity) {
+      throw new Error(
+        `Stock insuficiente para "${product.name}". Disponible: ${product.stock}, solicitado: ${item.quantity}`,
+      );
+    }
+  }
+
+  // Calculate total from real DB prices (never trust the client)
+  const total = input.items.reduce((sum, item) => {
+    const product = productMap.get(item.productId)!;
+    return sum + product.price * item.quantity;
+  }, 0);
+
+  // Create order + items + decrement stock in a single transaction
+  const order = await db.$transaction(async (tx) => {
+    // Decrement stock for each product
+    for (const item of input.items) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock: { decrement: item.quantity } },
+      });
+    }
+
+    // Create order with items
+    return tx.order.create({
+      data: {
+        telephone: input.telephone,
+        name: input.name,
+        email: input.email ?? null,
+        note: input.note ?? null,
+        paymentMethod: input.paymentMethod,
+        total,
+        items: {
+          create: input.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: productMap.get(item.productId)!.price,
+          })),
+        },
+      },
+      include: includeItems,
+    });
+  });
+
+  return mapOrder(order);
 }

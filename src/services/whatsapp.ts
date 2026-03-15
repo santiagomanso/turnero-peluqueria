@@ -161,6 +161,41 @@ export async function sendOwnerClientMessage({
   });
 }
 
+/**
+ * Notifies the customer that their shop order is ready for pickup.
+ * TODO: Create template "order_ready_1" in Meta Business Suite.
+ * Suggested body: "Hola! Tu pedido #{{1}} en Luckete Colorista ya está listo para retirar. ¡Te esperamos!"
+ */
+export async function sendOrderReadyNotification({
+  telephone,
+  orderId,
+}: {
+  telephone: string;
+  orderId: string;
+}): Promise<void> {
+  // Placeholder — uncomment and complete once the template is approved in Meta.
+  console.log(
+    `[WhatsApp stub] Order ready → ${telephone} (ref: #${orderId.slice(-6).toUpperCase()})`,
+  );
+  // return sendWhatsAppMessage({
+  //   messaging_product: "whatsapp",
+  //   to: formatArgentinianPhone(telephone),
+  //   type: "template",
+  //   template: {
+  //     name: "order_ready_1",
+  //     language: { code: "es" },
+  //     components: [
+  //       {
+  //         type: "body",
+  //         parameters: [
+  //           { type: "text", text: orderId.slice(-6).toUpperCase() }, // {{1}} referencia
+  //         ],
+  //       },
+  //     ],
+  //   },
+  // });
+}
+
 export async function sendTextMessage(to: string, text: string): Promise<void> {
   await sendWhatsAppMessage({
     messaging_product: "whatsapp",

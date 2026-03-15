@@ -13,6 +13,7 @@ export async function updateProductAction(
     category: string;
     imageUrl: string | null;
     active: boolean;
+    featured: boolean;
   }>,
 ): Promise<{ success: boolean; product?: Product; error?: string }> {
   try {

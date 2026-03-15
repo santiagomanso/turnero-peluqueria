@@ -28,15 +28,25 @@ model Appointment {
   @@map("appointments")
 }
 
+// ─── Unified payments ──────────────────────────────────────────────────────────
+// type:   "appointment" | "shop_order"
+// source: "mercadopago" | "cash" | "transfer"
+// Exactly one of appointmentId / orderId is set per record.
+
 model Payment {
-  id            String      @id @default(cuid())
-  appointmentId String      @unique
-  appointment   Appointment @relation(fields: [appointmentId], references: [id])
-  mercadopagoId String
+  id            String       @id @default(cuid())
+  type          String       // "appointment" | "shop_order"
+  source        String       // "mercadopago" | "cash" | "transfer"
   amount        Int
   status        String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  mercadopagoId String?      // null for cash / transfer
+  paidAt        DateTime     @default(now())
+
+  appointmentId String?      @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+
+  orderId       String?      @unique
+  order         Order?       @relation(fields: [orderId], references: [id])
 
   @@map("payments")
 }
@@ -73,6 +83,7 @@ model Product {
   category    String
   imageUrl    String?
   active      Boolean     @default(true)
+  featured    Boolean     @default(false)
   orderItems  OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -89,17 +100,18 @@ enum OrderStatus {
 }
 
 model Order {
-  id        String       @id @default(cuid())
-  telephone String
-  email     String?
-  name      String?
-  note      String?
-  status    OrderStatus  @default(PENDING)
-  total     Int
-  items     OrderItem[]
-  payment   ShopPayment?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id            String      @id @default(cuid())
+  telephone     String
+  email         String?
+  name          String?
+  note          String?
+  status        OrderStatus @default(PENDING)
+  paymentMethod String      @default("local")
+  total         Int
+  items         OrderItem[]
+  payment       Payment?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@map("orders")
 }
@@ -114,17 +126,4 @@ model OrderItem {
   unitPrice Int
 
   @@map("order_items")
-}
-
-model ShopPayment {
-  id            String   @id @default(cuid())
-  orderId       String   @unique
-  order         Order    @relation(fields: [orderId], references: [id])
-  mercadopagoId String
-  amount        Int
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("shop_payments")
 }

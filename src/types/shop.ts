@@ -14,6 +14,8 @@ export interface OrderItem {
   unitPrice: number;
 }
 
+export type PaymentMethod = "mercadopago" | "local";
+
 export interface Order {
   id: string;
   name: string | null;
@@ -21,6 +23,7 @@ export interface Order {
   telephone: string;
   note: string | null;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
   total: number;
   items: OrderItem[];
   createdAt: Date;
@@ -35,6 +38,7 @@ export interface Product {
   category: string;
   imageUrl: string | null;
   active: boolean;
+  featured: boolean;
   createdAt: Date;
 }
 

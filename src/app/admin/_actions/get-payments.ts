@@ -1,28 +1,20 @@
 "use server";
 
-import { getPayments, getPaymentMonthlyCounts } from "@/services/payments";
+import {
+  getUnifiedPayments,
+  getPaymentMonthlyCounts,
+  type UnifiedPaymentRow,
+} from "@/services/payments";
 
-export type PaymentRow = {
-  id: string;
-  mercadopagoId: string;
-  amount: number;
-  status: string;
-  createdAt: string; // ISO string — safe for client serialization
-  appointment: {
-    id: string;
-    payerName: string | null;
-    payerEmail: string | null;
-    telephone: string;
-    date: string; // ISO string
-    time: string;
-  };
-};
+export type { UnifiedPaymentRow };
 
-export async function getPaymentsAction(
+export async function getUnifiedPaymentsAction(
   specificDate: string, // YYYY-MM-DD
-): Promise<{ success: true; data: PaymentRow[] } | { success: false; error: string }> {
+): Promise<
+  { success: true; data: UnifiedPaymentRow[] } | { success: false; error: string }
+> {
   try {
-    const data = await getPayments(specificDate);
+    const data = await getUnifiedPayments(specificDate);
     return { success: true, data };
   } catch (error) {
     console.error("Error fetching payments:", error);
@@ -33,7 +25,9 @@ export async function getPaymentsAction(
 export async function getPaymentMonthlyCountsAction(
   year: number,
   month: number, // 0-indexed (JS convention)
-): Promise<{ success: true; data: Record<string, number> } | { success: false; error: string }> {
+): Promise<
+  { success: true; data: Record<string, number> } | { success: false; error: string }
+> {
   try {
     const data = await getPaymentMonthlyCounts(year, month);
     return { success: true, data };
