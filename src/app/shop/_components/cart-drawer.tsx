@@ -59,7 +59,9 @@ function CartItemRow({ item }: { item: CartItem }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-2xl select-none">{categoryEmoji(item.category)}</span>
+          <span className="text-2xl select-none">
+            {categoryEmoji(item.category)}
+          </span>
         )}
       </div>
 
@@ -117,12 +119,15 @@ function EmptyCart({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
       <div className="w-16 h-16 rounded-full bg-surface dark:bg-zinc-800 flex items-center justify-center">
-        <ShoppingBag className="w-8 h-8 text-content-quaternary dark:text-zinc-600" strokeWidth={1.5} />
+        <ShoppingBag
+          className="w-8 h-8 text-content-quaternary dark:text-zinc-600"
+          strokeWidth={1.5}
+        />
       </div>
       <p className="text-sm font-semibold text-content dark:text-zinc-100">
         Tu carrito está vacío
       </p>
-      <p className="text-xs text-content-tertiary dark:text-zinc-500 max-w-[200px]">
+      <p className="text-xs text-content-tertiary dark:text-zinc-500 max-w-50">
         Explorá nuestros productos y agregá los que te gusten
       </p>
       <button
