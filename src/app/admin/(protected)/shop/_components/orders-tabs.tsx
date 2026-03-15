@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { Search, ChevronDown, ShoppingBag, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -353,13 +354,15 @@ export function OrderesTab() {
         </div>
       </div>
 
-      {selectedOrder && (
-        <OrderDetailPanel
-          order={orders.find((o) => o.id === selectedOrder.id) ?? selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-          onUpdateStatus={handleUpdateStatus}
-        />
-      )}
+      <AnimatePresence>
+        {selectedOrder && (
+          <OrderDetailPanel
+            order={orders.find((o) => o.id === selectedOrder.id) ?? selectedOrder}
+            onClose={() => setSelectedOrder(null)}
+            onUpdateStatus={handleUpdateStatus}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   RotateCcw,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,8 @@ import {
 interface OrderDetailPanelProps {
   order: Order;
   onClose: () => void;
-  onUpdateStatus: (id: string, status: OrderStatus) => void;
+  onUpdateStatus?: (id: string, status: OrderStatus) => void;
+  readOnly?: boolean;
 }
 
 const STATUS_ORDER: OrderStatus[] = [
@@ -79,6 +81,7 @@ export function OrderDetailPanel({
   order,
   onClose,
   onUpdateStatus,
+  readOnly = false,
 }: OrderDetailPanelProps) {
   const subtotal = order.items.reduce(
     (acc, item) => acc + item.unitPrice * item.quantity,
@@ -97,19 +100,27 @@ export function OrderDetailPanel({
       toast.error(result.error ?? "Error al actualizar el estado");
       return;
     }
-    onUpdateStatus(order.id, status);
+    onUpdateStatus?.(order.id, status);
     toast.success("Estado actualizado correctamente");
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
       {/* Backdrop */}
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
         className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 40, scale: 0.97 }}
+        transition={{ type: "spring" as const, stiffness: 400, damping: 30 }}
         className="relative w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col overflow-hidden"
         style={{
           background: "var(--color-base, #f9fafb)",
@@ -290,7 +301,7 @@ export function OrderDetailPanel({
         </div>
 
         {/* Footer actions */}
-        {order.status !== "CANCELLED" &&
+        {!readOnly && order.status !== "CANCELLED" &&
           (availableActions.length > 0 || previousStatus !== null) && (
             <div className="px-5 py-4 border-t border-border-subtle dark:border-zinc-800 shrink-0 bg-surface dark:bg-zinc-800">
               <p className="text-xs font-semibold tracking-wide uppercase text-content-quaternary dark:text-zinc-500 mb-3">
@@ -322,7 +333,7 @@ export function OrderDetailPanel({
               </div>
             </div>
           )}
-      </div>
+      </motion.div>
     </div>
   );
 }

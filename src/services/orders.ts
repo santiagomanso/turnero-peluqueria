@@ -81,7 +81,7 @@ export async function updateOrderStatus(
 ): Promise<void> {
   const order = await db.order.findUnique({
     where: { id },
-    select: { telephone: true, paymentMethod: true, total: true },
+    select: { telephone: true, paymentMethod: true, total: true, name: true },
   });
   if (!order) throw new Error("Orden no encontrada");
 
@@ -89,7 +89,11 @@ export async function updateOrderStatus(
 
   // READY → notify customer (fire-and-forget; never blocks the response)
   if (status === "READY") {
-    sendOrderReadyNotification({ telephone: order.telephone, orderId: id }).catch(
+    sendOrderReadyNotification({
+      telephone: order.telephone,
+      orderId: id,
+      customerName: order.name ?? "Cliente",
+    }).catch(
       (err) => console.error("[updateOrderStatus] WhatsApp notification failed:", err),
     );
   }
@@ -113,6 +117,65 @@ export async function updateOrderStatus(
   if (status !== "PICKED_UP") {
     await db.payment.deleteMany({ where: { orderId: id, source: "cash" } });
   }
+}
+
+// ─── Validate cart ─────────────────────────────────────────────────────────────
+
+export interface CartValidationItem {
+  productId: string;
+  quantity: number;
+}
+
+export interface CartValidationResult {
+  valid: boolean;
+  /** Products that are inactive or don't exist */
+  inactive: { productId: string; name: string }[];
+  /** Products with insufficient stock */
+  outOfStock: { productId: string; name: string; available: number; requested: number }[];
+}
+
+export async function validateCart(
+  items: CartValidationItem[],
+): Promise<CartValidationResult> {
+  const productIds = items.map((i) => i.productId);
+
+  // Fetch ALL products (including inactive) to distinguish inactive vs missing
+  const products = await db.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, name: true, stock: true, active: true },
+  });
+
+  const productMap = new Map(products.map((p) => [p.id, p]));
+
+  const inactive: CartValidationResult["inactive"] = [];
+  const outOfStock: CartValidationResult["outOfStock"] = [];
+
+  for (const item of items) {
+    const product = productMap.get(item.productId);
+
+    if (!product || !product.active) {
+      inactive.push({
+        productId: item.productId,
+        name: product?.name ?? "Producto desconocido",
+      });
+      continue;
+    }
+
+    if (product.stock < item.quantity) {
+      outOfStock.push({
+        productId: item.productId,
+        name: product.name,
+        available: product.stock,
+        requested: item.quantity,
+      });
+    }
+  }
+
+  return {
+    valid: inactive.length === 0 && outOfStock.length === 0,
+    inactive,
+    outOfStock,
+  };
 }
 
 // ─── Create order ──────────────────────────────────────────────────────────────

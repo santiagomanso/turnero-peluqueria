@@ -53,6 +53,7 @@ export function ShopView() {
         title="Tienda online"
         subtitle="Administrá tus productos y las órdenes de tus clientes."
         mobileControls={<ShopMobileDropdown />}
+        desktopControls={<ShopMobileDropdown />}
       />
 
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-7 py-5 max-md:px-4 max-md:py-4 gap-5">

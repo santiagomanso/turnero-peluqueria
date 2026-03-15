@@ -163,37 +163,58 @@ export async function sendOwnerClientMessage({
 
 /**
  * Notifies the customer that their shop order is ready for pickup.
- * TODO: Create template "order_ready_1" in Meta Business Suite.
- * Suggested body: "Hola! Tu pedido #{{1}} en Luckete Colorista ya está listo para retirar. ¡Te esperamos!"
+ *
+ * Template "order_ready_1" — body:
+ *   Hola {{1}} 👋
+ *   🎉 ¡Tu pedido *{{2}}* está listo para retirar!
+ *   📍 Podés pasar a buscarlo a *{{3}}*.
+ *   Tocá el botón para ver el detalle de tu pedido 👇
+ *
+ * Button URL (index 0): https://<domain>/shop/order/{{1}}  (suffix = orderId)
+ *
+ * Parameters:
+ *   body {{1}} = customerName
+ *   body {{2}} = order ref  (#XXXXXX)
+ *   body {{3}} = SALON_NAME
+ *   button {{1}} = orderId   (URL suffix)
  */
 export async function sendOrderReadyNotification({
   telephone,
   orderId,
+  customerName,
 }: {
   telephone: string;
   orderId: string;
+  customerName: string;
 }): Promise<void> {
-  // Placeholder — uncomment and complete once the template is approved in Meta.
-  console.log(
-    `[WhatsApp stub] Order ready → ${telephone} (ref: #${orderId.slice(-6).toUpperCase()})`,
-  );
-  // return sendWhatsAppMessage({
-  //   messaging_product: "whatsapp",
-  //   to: formatArgentinianPhone(telephone),
-  //   type: "template",
-  //   template: {
-  //     name: "order_ready_1",
-  //     language: { code: "es" },
-  //     components: [
-  //       {
-  //         type: "body",
-  //         parameters: [
-  //           { type: "text", text: orderId.slice(-6).toUpperCase() }, // {{1}} referencia
-  //         ],
-  //       },
-  //     ],
-  //   },
-  // });
+  const orderRef = `#${orderId.slice(-6).toUpperCase()}`;
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: formatArgentinianPhone(telephone),
+    type: "template",
+    template: {
+      name: "order_ready_1",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: customerName }, // {{1}}
+            { type: "text", text: orderRef },      // {{2}}
+            { type: "text", text: SALON_NAME },    // {{3}}
+          ],
+        },
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [
+            { type: "text", text: orderId }, // URL suffix → /shop/pedido/<orderId>
+          ],
+        },
+      ],
+    },
+  });
 }
 
 export async function sendTextMessage(to: string, text: string): Promise<void> {

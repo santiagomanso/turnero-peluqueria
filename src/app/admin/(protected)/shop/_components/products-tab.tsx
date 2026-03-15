@@ -8,7 +8,6 @@ import {
   Trash2,
   Package,
   ChevronDown,
-  Power,
   ChevronRight,
   Star,
   ArrowRight,
@@ -16,7 +15,6 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -121,7 +119,7 @@ const SIZE_COL: Record<CatSize, string> = {
   sm: "col-span-1",
 };
 
-// ─── Admin categories bento (mobile/tablet only) ─────────────────────────────
+// ─── Categories bento grid ──────────────────────────────────────────────────
 
 function AdminCategoriesBento({
   products,
@@ -143,27 +141,25 @@ function AdminCategoriesBento({
   );
 
   return (
-    <div className="flex-1 overflow-y-auto pb-6 flex flex-col gap-3">
-      {/* Todos los productos */}
-      <button
-        onClick={() => onSelect("todas")}
-        className="shrink-0 w-full rounded-2xl px-5 py-4 text-left flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 active:scale-[0.98] transition-transform"
-      >
-        <div>
-          <p className="text-sm font-extrabold text-content dark:text-zinc-100">
-            Todos los productos
-          </p>
-          <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-wider mt-0.5">
-            Ver todos
-          </p>
-        </div>
-        <span className="text-lg font-black text-content-secondary dark:text-zinc-400">
-          {products.length}
-        </span>
-      </button>
-
-      {/* Per-category grid */}
-      <div className="grid grid-cols-2 gap-3" style={{ gridAutoRows: "160px" }}>
+    <div className="flex-1 overflow-y-auto pb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ gridAutoRows: "160px" }}>
+        {/* Todos los productos */}
+        <button
+          onClick={() => onSelect("todas")}
+          className="col-span-2 rounded-2xl px-5 py-4 text-left flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 active:scale-[0.98] transition-transform"
+        >
+          <div>
+            <p className="text-sm font-extrabold text-content dark:text-zinc-100">
+              Todos los productos
+            </p>
+            <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-wider mt-0.5">
+              Ver todos
+            </p>
+          </div>
+          <span className="text-lg font-black text-content-secondary dark:text-zinc-400">
+            {products.length}
+          </span>
+        </button>
         {SHOP_CATEGORIES.map((cat) => {
           const style = CAT_STYLE[cat];
           const count = counts[cat] ?? 0;
@@ -249,16 +245,15 @@ function AdminCategoriesBento({
                       Ver productos →
                     </p>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <span
-                      className={cn("text-lg font-black", style.accentText)}
-                    >
-                      {count}
-                    </span>
-                    <p className="text-[0.6rem] text-content-quaternary dark:text-zinc-600 uppercase tracking-wider">
-                      {count === 1 ? "item" : "items"}
-                    </p>
-                  </div>
+                  <span
+                    className={cn(
+                      "text-xs font-bold px-2.5 py-1 rounded-full border shrink-0",
+                      style.accentBg,
+                      style.accentText,
+                    )}
+                  >
+                    {count} {count === 1 ? "producto" : "productos"}
+                  </span>
                 </div>
               </button>
             );
@@ -292,7 +287,8 @@ function AdminCategoriesBento({
                 </div>
                 <span
                   className={cn(
-                    "text-[0.6rem] font-semibold uppercase tracking-wider",
+                    "text-xs font-bold px-2.5 py-1 rounded-full border self-start",
+                    style.accentBg,
                     style.accentText,
                   )}
                 >
@@ -302,13 +298,13 @@ function AdminCategoriesBento({
             </button>
           );
         })}
+        {/* /Per-category grid */}
       </div>
-      {/* /Per-category grid */}
     </div>
   );
 }
 
-// ─── Admin product card (mobile/tablet grid) ─────────────────────────────────
+// ─── Admin product card ─────────────────────────────────────────────────────
 
 function AdminProductCard({
   product,
@@ -413,109 +409,6 @@ function AdminProductCard({
   );
 }
 
-// ─── Desktop table row ──────────────────────────────────────────────────────
-
-function ProductRow({
-  product,
-  onToggleActive,
-  onEdit,
-  onDelete,
-}: {
-  product: Product;
-  onToggleActive: (p: Product) => void;
-  onEdit: (p: Product) => void;
-  onDelete: (p: Product) => void;
-}) {
-  return (
-    <tr
-      className={cn(
-        "border-b border-border-subtle dark:border-zinc-800 last:border-b-0 hover:bg-surface/50 dark:hover:bg-zinc-800/50 transition-colors",
-        !product.active && "opacity-50",
-      )}
-    >
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-surface dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 overflow-hidden shrink-0 relative">
-            {product.imageUrl ? (
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package
-                  size={16}
-                  className="text-content-tertiary dark:text-zinc-500"
-                />
-              </div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-content dark:text-zinc-100 truncate">
-              {product.name}
-            </p>
-            <p className="text-xs text-content-tertiary dark:text-zinc-500 truncate">
-              {product.category}
-            </p>
-          </div>
-        </div>
-      </td>
-      <td className="px-4 py-3 text-sm font-medium text-content dark:text-zinc-100">
-        ${product.price.toLocaleString("es-AR")}
-      </td>
-      <td className="px-4 py-3 text-sm text-content-secondary dark:text-zinc-400">
-        {product.stock}
-      </td>
-      <td className="px-4 py-3">
-        <Badge
-          variant={product.active ? "default" : "secondary"}
-          className={cn(
-            "text-[0.65rem] font-medium",
-            product.active
-              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/30"
-              : "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700",
-          )}
-        >
-          {product.active ? "Activo" : "Inactivo"}
-        </Badge>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-1 justify-end">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100"
-            onClick={() => onToggleActive(product)}
-            title={product.active ? "Desactivar" : "Activar"}
-          >
-            <Power size={15} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100"
-            onClick={() => onEdit(product)}
-            title="Editar"
-          >
-            <Pencil size={15} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-content-tertiary dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400"
-            onClick={() => onDelete(product)}
-            title="Eliminar"
-          >
-            <Trash2 size={15} />
-          </Button>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
 // ─── Category filter dropdown ───────────────────────────────────────────────
 
 function CategoryFilter({
@@ -565,7 +458,6 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     isLoading,
   } = useAsyncData<Product>(getProductsAction, "products");
   const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("todas");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [modalProduct, setModalProduct] = useState<Product | undefined>(
     undefined,
@@ -611,16 +503,8 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     return () => window.removeEventListener(SHOP_SELECT_CATEGORY_EVENT, handle);
   }, []);
 
-  // Desktop: filter by search + dropdown
-  const desktopFiltered = products.filter((p) => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchCategory =
-      filterCategory === "todas" || p.category === filterCategory;
-    return matchSearch && matchCategory;
-  });
-
-  // Mobile: filter by selectedCategory + search
-  const mobileFiltered =
+  // Filter products by selected category + search
+  const filtered =
     selectedCategory === null
       ? []
       : products.filter(
@@ -677,6 +561,12 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     toast.success("Producto eliminado");
   }
 
+  // When the dropdown selects a category, navigate into it (same as bento click)
+  function handleDropdownCategory(value: string) {
+    setSelectedCategory(value);
+    setSearch("");
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -688,41 +578,77 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   }
 
   return (
-    <div className="h-full">
-      {/* ── Mobile/tablet ─────────────────────────────────────── */}
-      <div className="flex flex-col h-full lg:hidden">
-        {selectedCategory === null ? (
-          /* Categories bento view */
+    <div className="h-full flex flex-col">
+      {selectedCategory === null ? (
+        /* ── Categories bento view ───────────────────────────────── */
+        <>
+          {/* Filter bar */}
+          <div className="shrink-0 flex flex-col sm:flex-row gap-2 mb-3">
+            <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
+              <Search
+                size={15}
+                className="text-content-tertiary dark:text-zinc-500 shrink-0"
+              />
+              <input
+                className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
+                placeholder="Buscar producto..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  if (e.target.value.length > 0) {
+                    setSelectedCategory("todas");
+                  }
+                }}
+              />
+            </div>
+            <CategoryFilter
+              value="todas"
+              onChange={handleDropdownCategory}
+            />
+            <Button
+              className="bg-gold text-white hover:bg-gold/90 shrink-0"
+              onClick={handleOpenCreate}
+            >
+              <Plus size={15} />
+              Nuevo producto
+            </Button>
+          </div>
+
           <AdminCategoriesBento
             products={products}
-            onSelect={setSelectedCategory}
+            onSelect={(cat) => {
+              setSelectedCategory(cat);
+              setSearch("");
+            }}
           />
-        ) : (
-          /* Product grid for selected category */
-          <>
-            {/* Fixed header — breadcrumb + search + count */}
-            <div className="shrink-0 space-y-3 mb-3">
-              {/* Breadcrumb */}
-              <div className="flex items-center gap-1.5 text-[0.65rem] text-content-tertiary dark:text-zinc-500">
-                <button
-                  onClick={() => {
-                    setSelectedCategory(null);
-                    setSearch("");
-                  }}
-                  className="hover:text-gold transition-colors"
-                >
-                  Productos
-                </button>
-                <ChevronRight className="w-3 h-3" />
-                <span className="text-content dark:text-zinc-300 font-medium">
-                  {selectedCategory === "todas"
-                    ? "Todos los productos"
-                    : selectedCategory}
-                </span>
-              </div>
+        </>
+      ) : (
+        /* ── Product grid for selected category ─────────────────── */
+        <>
+          {/* Fixed header — breadcrumb + search + count */}
+          <div className="shrink-0 space-y-3 mb-3">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-1.5 text-[0.65rem] text-content-tertiary dark:text-zinc-500">
+              <button
+                onClick={() => {
+                  setSelectedCategory(null);
+                  setSearch("");
+                }}
+                className="hover:text-gold transition-colors"
+              >
+                Productos
+              </button>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-content dark:text-zinc-300 font-medium">
+                {selectedCategory === "todas"
+                  ? "Todos los productos"
+                  : selectedCategory}
+              </span>
+            </div>
 
-              {/* Search */}
-              <div className="flex items-center gap-2 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
+            {/* Search + category dropdown + nuevo producto */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
                 <Search
                   size={15}
                   className="text-content-tertiary dark:text-zinc-500 shrink-0"
@@ -734,118 +660,54 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-
-              {/* Product count */}
-              <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest">
-                {mobileFiltered.length} producto
-                {mobileFiltered.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-
-            {/* Scrollable product grid */}
-            {mobileFiltered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center flex-1 gap-3">
-                <Package
-                  size={36}
-                  className="text-content-quaternary dark:text-zinc-600 opacity-25"
-                />
-                <p className="text-sm text-content-tertiary dark:text-zinc-500 text-center">
-                  No se encontraron productos
-                </p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto pb-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {mobileFiltered.map((product) => (
-                    <AdminProductCard
-                      key={product.id}
-                      product={product}
-                      onToggleActive={handleToggleActive}
-                      onEdit={handleOpenEdit}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* ── Desktop: table ────────────────────────────────────── */}
-      <div className="hidden lg:flex lg:flex-col h-full gap-5">
-        {/* Filters bar — non-scrolling */}
-        <div className="shrink-0 flex flex-col sm:flex-row gap-2">
-          <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
-            <Search
-              size={15}
-              className="text-content-tertiary dark:text-zinc-500 shrink-0"
-            />
-            <input
-              className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
-              placeholder="Buscar producto..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <CategoryFilter value={filterCategory} onChange={setFilterCategory} />
-          <Button
-            className="bg-gold text-white hover:bg-gold/90 shrink-0"
-            onClick={handleOpenCreate}
-          >
-            <Plus size={15} />
-            Nuevo producto
-          </Button>
-        </div>
-
-        {/* Scrollable table */}
-        {desktopFiltered.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3">
-            <Package
-              size={36}
-              className="opacity-25 text-content-tertiary dark:text-zinc-500"
-            />
-            <p className="text-sm text-content-tertiary dark:text-zinc-500">
-              {products.length === 0
-                ? "Todavía no hay productos. ¡Creá el primero!"
-                : "No se encontraron productos"}
-            </p>
-            {products.length === 0 && (
+              <CategoryFilter
+                value={selectedCategory}
+                onChange={handleDropdownCategory}
+              />
               <Button
-                className="bg-gold text-white hover:bg-gold/90"
-                size="sm"
+                className="bg-gold text-white hover:bg-gold/90 shrink-0"
                 onClick={handleOpenCreate}
               >
                 <Plus size={15} />
-                Crear producto
+                Nuevo producto
               </Button>
-            )}
+            </div>
+
+            {/* Product count */}
+            <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest">
+              {filtered.length} producto
+              {filtered.length !== 1 ? "s" : ""}
+            </p>
           </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto rounded-xl border border-border-subtle dark:border-zinc-800">
-            <table className="w-full">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-surface dark:bg-zinc-800/50 border-b border-border-subtle dark:border-zinc-800">
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider">
-                    Producto
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider">
-                    Precio
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider">
-                    Stock
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-4 py-2.5 text-right text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {desktopFiltered.map((product) => (
-                  <ProductRow
+
+          {/* Scrollable product grid */}
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center flex-1 gap-3">
+              <Package
+                size={36}
+                className="text-content-quaternary dark:text-zinc-600 opacity-25"
+              />
+              <p className="text-sm text-content-tertiary dark:text-zinc-500 text-center">
+                {products.length === 0
+                  ? "Todavía no hay productos. ¡Creá el primero!"
+                  : "No se encontraron productos"}
+              </p>
+              {products.length === 0 && (
+                <Button
+                  className="bg-gold text-white hover:bg-gold/90"
+                  size="sm"
+                  onClick={handleOpenCreate}
+                >
+                  <Plus size={15} />
+                  Crear producto
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto pb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {filtered.map((product) => (
+                  <AdminProductCard
                     key={product.id}
                     product={product}
                     onToggleActive={handleToggleActive}
@@ -853,11 +715,11 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
                     onDelete={handleDelete}
                   />
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       <ProductModal
         open={isModalOpen}

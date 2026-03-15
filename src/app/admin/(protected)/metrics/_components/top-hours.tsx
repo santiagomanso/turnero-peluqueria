@@ -18,7 +18,7 @@ export function TopHours({ data }: TopHoursProps) {
       <div className="flex flex-col gap-2">
         {sorted.map((item, i) => (
           <div key={item.label} className="flex items-center gap-3">
-            <span className="text-[0.65rem] font-semibold text-content-quaternary dark:text-zinc-600 w-4">
+            <span className="text-[0.65rem] font-semibold text-content-quaternary dark:text-zinc-500 w-4">
               {i + 1}
             </span>
             <span className="text-xs font-medium text-content dark:text-zinc-200 w-12 shrink-0">

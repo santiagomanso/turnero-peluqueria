@@ -1,17 +1,26 @@
 "use client";
 
+import React from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle2, Store, CreditCard, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/app/shop/_store/use-cart";
 
 export default function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const method = searchParams.get("method");
+  const clearCart = useCart((s) => s.clearCart);
 
   const isLocal = method === "local";
+
+  // Clear cart once on mount — for MP the webhook already confirmed payment,
+  // for local the order was just created.
+  React.useEffect(() => {
+    clearCart();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <motion.div

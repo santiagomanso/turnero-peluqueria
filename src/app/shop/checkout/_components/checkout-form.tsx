@@ -139,10 +139,7 @@ export default function CheckoutForm() {
               <StepCart items={checkout.items} total={checkout.total} />
             )}
             {currentStep === 2 && (
-              <StepContact
-                form={form}
-                onPhoneChange={checkout.handlePhoneChange}
-              />
+              <StepContact form={form} />
             )}
             {currentStep === 3 && (
               <StepPayment

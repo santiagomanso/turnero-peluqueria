@@ -14,6 +14,7 @@ export type UnifiedPaymentRow = {
   customerName: string | null;
   customerPhone: string;
   // appointment-specific
+  appointmentId?: string;
   appointmentDate?: string; // ISO string
   appointmentTime?: string;
   // order-specific
@@ -68,6 +69,7 @@ export async function getUnifiedPayments(
         paidAt: p.paidAt.toISOString(),
         customerName: p.appointment.payerName ?? p.appointment.payerEmail,
         customerPhone: p.appointment.telephone,
+        appointmentId: p.appointmentId ?? undefined,
         appointmentDate: p.appointment.date.toISOString(),
         appointmentTime: p.appointment.time,
       };

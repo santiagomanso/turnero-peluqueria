@@ -1,8 +1,10 @@
 "use client";
 
+import React from "react";
 import { User, Phone, Mail, MessageSquare } from "lucide-react";
-import type { UseFormReturn } from "react-hook-form";
+import { Controller, type UseFormReturn } from "react-hook-form";
 import type { CheckoutFormValues } from "../_hooks/use-checkout-form";
+import { formatPhoneAsYouType } from "@/lib/format-phone";
 
 // ─── Shared form field wrapper ─────────────────────────────────────────────────
 
@@ -40,18 +42,14 @@ const inputClass =
 
 export default function StepContact({
   form,
-  onPhoneChange,
 }: {
   form: UseFormReturn<CheckoutFormValues>;
-  onPhoneChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const {
     register,
-    watch,
+    control,
     formState: { errors },
   } = form;
-
-  const phoneValue = watch("telephone");
 
   return (
     <div className="space-y-3">
@@ -68,12 +66,21 @@ export default function StepContact({
         label="Teléfono (WhatsApp)"
         error={errors.telephone?.message}
       >
-        <input
-          type="tel"
-          value={phoneValue}
-          onChange={onPhoneChange}
-          placeholder="3794 123456"
-          className={inputClass}
+        <Controller
+          name="telephone"
+          control={control}
+          render={({ field }) => (
+            <input
+              type="tel"
+              value={formatPhoneAsYouType(field.value)}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "");
+                field.onChange(digits);
+              }}
+              placeholder="3794 123456"
+              className={inputClass}
+            />
+          )}
         />
       </FormField>
 

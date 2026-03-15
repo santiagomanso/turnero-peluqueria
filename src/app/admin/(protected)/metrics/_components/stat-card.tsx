@@ -40,7 +40,7 @@ export function StatCard({
               label
             )}
           </p>
-          <Icon className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 shrink-0" />
+          <Icon className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
         </div>
         <p className="font-heebo text-2xl font-semibold text-content dark:text-zinc-100 leading-none">
           {value}

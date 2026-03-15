@@ -1,52 +1,49 @@
-import Navbar from "@/components/navbar";
-import { Container } from "@/components/ui/container";
 import Link from "next/link";
+import { Container } from "@/components/ui/container";
+import Navbar from "@/components/navbar";
+import { Home, CalendarCheck } from "lucide-react";
 
-function AnimatedCheckIcon() {
+function AnimatedCheck() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 100 100"
-      width="120"
-      height="120"
+      width="88"
+      height="88"
     >
       <style>{`
-        .path {
+        .ap-path {
           fill: none;
           stroke: #ceaa6b;
-          stroke-width: 8;
+          stroke-width: 7;
           stroke-linecap: round;
           stroke-linejoin: round;
         }
-        .circle {
+        .ap-circle {
           stroke-dasharray: 220;
           stroke-dashoffset: 220;
-          animation: draw-circle 0.6s ease-out forwards;
+          animation: ap-draw-circle 0.6s ease-out forwards;
         }
-        .check {
+        .ap-check {
           stroke-dasharray: 100;
           stroke-dashoffset: 100;
-          animation: draw-check 0.4s ease-out 0.6s forwards;
+          animation: ap-draw-check 0.4s ease-out 0.6s forwards;
         }
-        .container {
-          animation: pop 0.3s ease-out 1s both;
+        .ap-container {
+          animation: ap-pop 0.3s ease-out 1s both;
           transform-origin: center;
         }
-        @keyframes draw-circle {
-          to { stroke-dashoffset: 0; }
-        }
-        @keyframes draw-check {
-          to { stroke-dashoffset: 0; }
-        }
-        @keyframes pop {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.08); }
+        @keyframes ap-draw-circle { to { stroke-dashoffset: 0; } }
+        @keyframes ap-draw-check  { to { stroke-dashoffset: 0; } }
+        @keyframes ap-pop {
+          0%   { transform: scale(1); }
+          50%  { transform: scale(1.08); }
           100% { transform: scale(1); }
         }
       `}</style>
-      <g className="container">
-        <path className="path circle" d="M 62 17 A 35 35 0 1 0 81 65" />
-        <path className="path check" d="M 32 50 L 48 65 L 78 28" />
+      <g className="ap-container">
+        <path className="ap-path ap-circle" d="M 62 17 A 35 35 0 1 0 81 65" />
+        <path className="ap-path ap-check"  d="M 32 50 L 48 65 L 78 28" />
       </g>
     </svg>
   );
@@ -55,22 +52,42 @@ function AnimatedCheckIcon() {
 export default function AppointmentSuccessPage() {
   return (
     <Container.wrapper>
-      <Container.content className="space-y-5">
-        <Navbar title="Turno Confirmado" />
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border-subtle dark:border-zinc-800 shadow-sm p-8 flex flex-col items-center text-center gap-4">
-          <AnimatedCheckIcon />
-          <div>
-            <h2 className="text-2xl font-bold text-content dark:text-zinc-100">
-              ¡Turno creado!
-            </h2>
-            <p className="text-sm text-content-tertiary dark:text-zinc-500 mt-1">
-              Tu turno fue reservado y el pago procesado correctamente.
+      <Container.content>
+        <Navbar title="Turno confirmado" />
+
+        <div className="flex flex-col items-center justify-center gap-6 py-12 text-center px-4">
+          {/* Animated check */}
+          <div className="w-24 h-24 rounded-full bg-gold/10 dark:bg-gold/10 flex items-center justify-center">
+            <AnimatedCheck />
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-1.5">
+            <h1 className="text-2xl font-extrabold text-content dark:text-zinc-100">
+              ¡Turno reservado!
+            </h1>
+            <p className="text-sm text-content-tertiary dark:text-zinc-500 max-w-[280px] mx-auto">
+              Tu pago fue procesado correctamente. Te esperamos en el salón.
             </p>
           </div>
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-gold/10 text-gold border border-gold/30">
+            <CalendarCheck className="w-3.5 h-3.5" />
+            Pago confirmado con MercadoPago
+          </div>
+
+          {/* WhatsApp note */}
+          <p className="text-xs text-content-quaternary dark:text-zinc-600 max-w-[240px]">
+            Recibirás una confirmación por WhatsApp con los detalles de tu turno.
+          </p>
+
+          {/* CTA */}
           <Link
             href="/"
-            className="mt-4 px-6 py-3 rounded-md font-bold text-sm uppercase tracking-[0.08em] bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-zinc-950 hover:bg-gold/90 transition-all"
+            className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-gold text-white hover:bg-gold/90 transition-all shadow-md shadow-gold/20"
           >
+            <Home className="w-4 h-4" />
             Volver al inicio
           </Link>
         </div>
