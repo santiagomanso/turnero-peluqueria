@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
-import { useAdminAppointments } from "../_hooks/use-admin-appointments";
+import { useAdminAppointments } from "../_hooks/use-appointments";
 import { formatDateLongFromISO } from "@/lib/format-date";
-import { AdminPageHeader } from "./admin-page-header";
+import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
 
 const AppointmentsMobileDropdown = dynamic(
   () =>
@@ -64,7 +64,7 @@ export default function AdminAppointments() {
                     <AppointmentCard
                       key={appointment.id}
                       appointment={appointment}
-                      onDelete={vm.handleDelete}
+                      onDelete={vm.showCancelled ? undefined : vm.handleDelete}
                     />
                   ))}
                 </div>

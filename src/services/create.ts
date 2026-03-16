@@ -7,6 +7,7 @@ export type CreateAppointmentInput = {
   time: string;
   telephone: string;
   price: number;
+  isTest?: boolean;
 };
 
 export async function createAppointment(
@@ -19,6 +20,7 @@ export async function createAppointment(
       telephone: formatArgentinianPhone(data.telephone),
       price: data.price,
       status: "PENDING",
+      isTest: data.isTest ?? false,
     },
   });
 }

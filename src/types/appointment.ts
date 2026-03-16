@@ -19,6 +19,7 @@ export type Appointment = {
   status: AppointmentStatus;
   payerName: string | null;
   payerEmail: string | null;
+  isTest: boolean;
   payment?: Payment;
   createdAt: Date;
   updatedAt: Date;

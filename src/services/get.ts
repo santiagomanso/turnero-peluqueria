@@ -77,6 +77,7 @@ export async function getPastAppointments(): Promise<Appointment[]> {
 
 export async function getAppointmentsByDate(
   date: Date,
+  includeCancelled = false,
 ): Promise<Appointment[]> {
   const y = date.getUTCFullYear();
   const m = date.getUTCMonth();
@@ -88,6 +89,7 @@ export async function getAppointmentsByDate(
   return db.appointment.findMany({
     where: {
       date: { gte: start, lte: end },
+      ...(!includeCancelled && { status: { not: "CANCELLED" as const } }),
     },
     orderBy: { time: "asc" },
   });

@@ -22,6 +22,16 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { getProductsAction } from "../_actions/get-products";
 import { deleteProductAction } from "../_actions/delete-product";
 import { toggleProductActiveAction } from "../_actions/update-product";
@@ -463,6 +473,8 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     undefined,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     registerOpenCreate?.(() => {
@@ -546,19 +558,22 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     );
   }
 
-  async function handleDelete(product: Product) {
-    const confirmed = window.confirm(
-      `¿Estás seguro de eliminar "${product.name}"? Esta acción no se puede deshacer.`,
-    );
-    if (!confirmed) return;
+  function handleDelete(product: Product) {
+    setDeleteTarget(product);
+  }
 
-    const result = await deleteProductAction(product.id);
+  async function handleConfirmDelete() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const result = await deleteProductAction(deleteTarget.id);
+    setIsDeleting(false);
     if (!result.success) {
       toast.error(result.error ?? "Error al eliminar el producto");
       return;
     }
-    setProducts((prev) => prev.filter((p) => p.id !== product.id));
+    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     toast.success("Producto eliminado");
+    setDeleteTarget(null);
   }
 
   // When the dropdown selects a category, navigate into it (same as bento click)
@@ -720,6 +735,38 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
           )}
         </>
       )}
+
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl text-content dark:text-zinc-100">
+              ¿Eliminar producto?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-content-tertiary dark:text-zinc-500">
+              Esta acción no se puede deshacer. El producto{" "}
+              <span className="font-semibold text-content dark:text-zinc-300">
+                &quot;{deleteTarget?.name}&quot;
+              </span>{" "}
+              será eliminado permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white! dark:bg-zinc-800! border border-border-subtle dark:border-zinc-700 text-content-secondary dark:text-zinc-400 hover:bg-black/5! dark:hover:bg-zinc-700!">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-linear-to-br from-rose-400 to-red-800 border border-danger-border text-white hover:bg-danger-soft/80!"
+            >
+              {isDeleting ? "Eliminando..." : "Sí, eliminar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <ProductModal
         open={isModalOpen}

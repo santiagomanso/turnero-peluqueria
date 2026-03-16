@@ -5,8 +5,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { createAdminAppointmentAction } from "../_actions/create-admin-appointment";
-import { useAdminAppointments } from "../_hooks/use-admin-appointments";
+import { createAdminAppointmentAction } from "../_actions/create-appointment";
+import { useAdminAppointments } from "./use-appointments";
 import { ALL_HOURS } from "@/types/config";
 import type { AvailableHour } from "@/app/appointments/_actions/get-availability";
 
@@ -18,7 +18,10 @@ const formSchema = z.object({
 
 type FormType = z.infer<typeof formSchema>;
 
-export default function useAdminCreateForm(onSuccess?: () => void) {
+export default function useAdminCreateForm(
+  onSuccess?: () => void,
+  getIsTest?: () => boolean,
+) {
   const [currentStep, setCurrentStep] = React.useState(1);
   const [availableHours] = React.useState<AvailableHour[]>(
     ALL_HOURS.map((time) => ({ time, available: true })),
@@ -57,7 +60,10 @@ export default function useAdminCreateForm(onSuccess?: () => void) {
   const { handleRefresh } = useAdminAppointments();
 
   const onSubmit = async (data: FormType) => {
-    const result = await createAdminAppointmentAction(data);
+    const result = await createAdminAppointmentAction({
+      ...data,
+      isTest: getIsTest?.() ?? false,
+    });
     if (result.success) {
       toast.success("Turno creado correctamente ✓");
       form.reset({ date: today, time: "", telephone: "" });

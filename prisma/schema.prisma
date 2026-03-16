@@ -21,6 +21,7 @@ model Appointment {
   status     AppointmentStatus @default(PENDING)
   payerName  String?
   payerEmail String?
+  isTest     Boolean           @default(false)
   payment    Payment?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt

@@ -8,6 +8,7 @@ type CreateAdminAppointmentInput = {
   date: Date;
   time: string;
   telephone: string;
+  isTest?: boolean;
 };
 
 export async function createAdminAppointmentAction(
@@ -29,6 +30,7 @@ export async function createAdminAppointmentAction(
       time: data.time,
       telephone: data.telephone,
       price,
+      isTest: data.isTest,
     });
 
     revalidatePath("/admin");

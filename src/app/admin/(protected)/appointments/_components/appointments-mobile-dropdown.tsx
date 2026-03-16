@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Settings2, RefreshCw, Plus, CalendarDays } from "lucide-react";
+import { Settings2, RefreshCw, Plus, CalendarDays, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,11 +15,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useAdminAppointments } from "../_hooks/use-admin-appointments";
+import { useAdminAppointments } from "../_hooks/use-appointments";
 import { AppointmentCalendarBody } from "./appointment-calendar";
-import { ThemeMenuItem } from "./theme-menu-item";
+import { ThemeMenuItem } from "@/app/admin/_components/theme-menu-item";
 import { formatDateFromISO, isTodayFromISO } from "@/lib/format-date";
-import AdminCreateAppointment from "./admin-create-appointment";
+import AdminCreateAppointment from "./create-appointment-modal";
 
 /**
  * Dropdown menu shown in the mobile topbar for the Appointments page.
@@ -91,6 +91,20 @@ export function AppointmentsMobileDropdown() {
               />
             </PopoverContent>
           </Popover>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              vm.toggleShowCancelled();
+            }}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            {vm.showCancelled ? (
+              <EyeOff className="w-3.5 h-3.5" />
+            ) : (
+              <Eye className="w-3.5 h-3.5" />
+            )}
+            {vm.showCancelled ? "Ocultar cancelados" : "Mostrar cancelados"}
+          </DropdownMenuItem>
           <DropdownMenuSeparator className="dark:bg-zinc-800" />
           <ThemeMenuItem />
         </DropdownMenuContent>

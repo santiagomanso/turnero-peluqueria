@@ -1,10 +1,12 @@
 import { db } from "@/lib/db";
 import type { Appointment } from "@/types/appointment";
 
-export async function deleteAppointmentById(id: string): Promise<Appointment> {
-  // Changed from number
-  return db.appointment.delete({
+export async function cancelAppointmentById(
+  id: string,
+): Promise<Appointment> {
+  return db.appointment.update({
     where: { id },
+    data: { status: "CANCELLED" },
   });
 }
 

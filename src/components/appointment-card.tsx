@@ -12,7 +12,9 @@ import {
   MessageCircle,
   Scissors,
   Store,
+  RotateCcw,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { formatDateFromISO, formatDateISO } from "@/lib/format-date";
 import { Button } from "@/components/ui/button";
 import {
@@ -140,10 +142,11 @@ export default function AppointmentCard({
       const response = await deleteAppointmentAction(appointment.id);
       if (response.success) {
         toast.success("Turno cancelado correctamente");
-        setIsRemoving(true);
-        setTimeout(() => {
-          if (onDelete) onDelete(appointment.id);
-        }, 300);
+        setStatus(AppointmentStatus.CANCELLED);
+        if (onDelete) {
+          setIsRemoving(true);
+          setTimeout(() => onDelete(appointment.id), 300);
+        }
       } else {
         toast.error(response.error ?? "Error al cancelar el turno");
       }
@@ -268,7 +271,17 @@ export default function AppointmentCard({
             </Link>
           )}
 
-          {!publicView && (
+          {!publicView && status === "CANCELLED" && (
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(AppointmentStatus.PENDING)}
+              disabled={isUpdatingStatus}
+              className="text-xs gap-2 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reactivar turno
+            </DropdownMenuItem>
+          )}
+          {!publicView && status !== "CANCELLED" && (
             <AlertDialogTrigger asChild>
               <DropdownMenuItem
                 className="text-xs gap-2 cursor-pointer"
@@ -289,8 +302,8 @@ export default function AppointmentCard({
               ¿Cancelar turno?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-content-tertiary dark:text-zinc-500">
-              Esta acción no se puede deshacer. El turno para el {dateFormatted}{" "}
-              a las {appointment.time} será cancelado permanentemente.
+              El turno para el {dateFormatted} a las {appointment.time} será
+              marcado como cancelado. Podés reactivarlo después si es necesario.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -321,27 +334,52 @@ export default function AppointmentCard({
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       {/* ── MOBILE ── */}
-      <div className="sm:hidden rounded-xl border border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none overflow-hidden flex bg-white dark:bg-zinc-800">
+      <div className={cn(
+        "sm:hidden rounded-xl border overflow-hidden flex",
+        status === "CANCELLED"
+          ? "border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50"
+          : "border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none bg-white dark:bg-zinc-800",
+      )}>
         {status === "PENDING" && (
           <div className="w-0.75 shrink-0 bg-amber-500" />
         )}
 
         <div className="flex-1 min-w-0 overflow-hidden">
           {/* Top bar: Hora | Nombre | Menú */}
-          <div className="flex items-center justify-between px-3.5 py-2.5 bg-gray-100 dark:bg-black/30 border-b border-border-subtle dark:border-zinc-700">
-            <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+          <div className={cn(
+            "flex items-center justify-between px-3.5 py-2.5 border-b border-border-subtle dark:border-zinc-700",
+            status === "CANCELLED"
+              ? "bg-zinc-100 dark:bg-zinc-800/80"
+              : "bg-gray-100 dark:bg-black/30",
+          )}>
+            <div className={cn(
+              "w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0",
+              status === "CANCELLED" && "opacity-40",
+            )}>
               <span className="text-[0.65rem] font-bold text-gold font-heebo leading-none">
                 {appointment.time}
               </span>
             </div>
-            <p className="flex-1 mx-3 text-xs font-semibold text-content dark:text-zinc-100 truncate text-center">
-              {truncatedName}
-            </p>
+            <div className="flex-1 mx-3 flex items-center justify-center gap-1.5 min-w-0">
+              <p className={cn(
+                "text-xs font-semibold truncate",
+                status === "CANCELLED"
+                  ? "text-content-tertiary dark:text-zinc-500 line-through"
+                  : "text-content dark:text-zinc-100",
+              )}>
+                {truncatedName}
+              </p>
+              {appointment.isTest && (
+                <span className="shrink-0 text-[0.5rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800">
+                  Test
+                </span>
+              )}
+            </div>
             <ActionsMenu />
           </div>
 
           {/* Body */}
-          <div className="p-3.5">
+          <div className={cn("p-3.5", status === "CANCELLED" && "opacity-40")}>
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               <div>
                 <div className="flex items-center gap-1 mb-0.5">
@@ -402,22 +440,43 @@ export default function AppointmentCard({
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className="hidden sm:flex bg-white dark:bg-zinc-800 rounded-xl border border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none overflow-hidden items-stretch gap-4">
+      <div className={cn(
+        "hidden sm:flex rounded-xl border overflow-hidden items-stretch gap-4",
+        status === "CANCELLED"
+          ? "border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50"
+          : "border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none bg-white dark:bg-zinc-800",
+      )}>
         {status === "PENDING" && (
           <div className="w-0.75 self-stretch shrink-0 bg-amber-500" />
         )}
         <div
-          className={`w-11 h-11 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0 self-center ${status === "PENDING" ? "ml-3" : "ml-4"}`}
+          className={cn(
+            "w-11 h-11 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0 self-center",
+            status === "PENDING" ? "ml-3" : "ml-4",
+            status === "CANCELLED" && "opacity-40",
+          )}
         >
           <span className="text-xs font-bold text-gold font-heebo leading-none">
             {appointment.time}
           </span>
         </div>
 
-        <div className="flex-1 min-w-0 py-3">
-          <p className="text-sm font-semibold text-content dark:text-zinc-100 font-heebo mb-0.5 truncate">
-            {displayName}
-          </p>
+        <div className={cn("flex-1 min-w-0 py-3", status === "CANCELLED" && "opacity-40")}>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <p className={cn(
+              "text-sm font-semibold font-heebo truncate",
+              status === "CANCELLED"
+                ? "text-content-tertiary dark:text-zinc-500 line-through"
+                : "text-content dark:text-zinc-100",
+            )}>
+              {displayName}
+            </p>
+            {appointment.isTest && (
+              <span className="shrink-0 text-[0.5rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800">
+                Test
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 text-xs text-content-tertiary dark:text-zinc-500">
             <Calendar className="w-3 h-3" />
             <span>{dateFormatted}</span>
@@ -428,7 +487,12 @@ export default function AppointmentCard({
           </div>
         </div>
 
-        <p className="text-sm font-bold text-content dark:text-zinc-100 font-heebo shrink-0 self-center">
+        <p className={cn(
+          "text-sm font-bold font-heebo shrink-0 self-center",
+          status === "CANCELLED"
+            ? "text-content-tertiary dark:text-zinc-500 opacity-40"
+            : "text-content dark:text-zinc-100",
+        )}>
           {price}
         </p>
 

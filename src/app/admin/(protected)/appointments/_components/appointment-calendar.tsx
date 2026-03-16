@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
-import { useAdminAppointments } from "../_hooks/use-admin-appointments";
+import { useAdminAppointments } from "../_hooks/use-appointments";
 import { formatDateFromISO, isTodayFromISO } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 import type { DayButton } from "react-day-picker";

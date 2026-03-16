@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import DateStep from "@/app/appointments/new/_components/date-step";
 import HourStep from "@/app/appointments/new/_components/hour-step";
 import TelephoneStep from "@/app/appointments/new/_components/telephone-step";
-import useAdminCreateForm from "../_hooks/use-admin-create-form";
+import useAdminCreateForm from "../_hooks/use-create-form";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -92,7 +93,9 @@ function NavButtons({
 }
 
 function AdminFormContent({ onClose }: { onClose: () => void }) {
-  const appointmentForm = useAdminCreateForm(onClose);
+  const [isTest, setIsTest] = useState(false);
+  const getIsTest = useCallback(() => isTest, [isTest]);
+  const appointmentForm = useAdminCreateForm(onClose, getIsTest);
 
   return (
     <form
@@ -114,6 +117,18 @@ function AdminFormContent({ onClose }: { onClose: () => void }) {
           <TelephoneStep appointmentForm={appointmentForm} />
         )}
       </div>
+
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={isTest}
+          onChange={(e) => setIsTest(e.target.checked)}
+          className="size-4 rounded border-border-subtle accent-gold cursor-pointer"
+        />
+        <span className="text-xs text-content-secondary dark:text-zinc-400">
+          Prueba
+        </span>
+      </label>
 
       <NavButtons appointmentForm={appointmentForm} />
     </form>

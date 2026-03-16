@@ -13,6 +13,7 @@ interface AdminAppointmentsStore {
   appointments: Appointment[];
   isLoading: boolean;
   hasFetched: boolean;
+  showCancelled: boolean;
   monthlyCounts: Record<string, number>;
   isLoadingCounts: boolean;
   fetchAppointments: (date: Date) => Promise<void>;
@@ -20,6 +21,7 @@ interface AdminAppointmentsStore {
   handleDateSelect: (date: Date | undefined) => void;
   handleRefresh: () => void;
   handleDelete: (id: string) => void;
+  toggleShowCancelled: () => void;
 }
 
 export const useAdminAppointments = create<AdminAppointmentsStore>(
@@ -28,6 +30,7 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
     appointments: [],
     isLoading: false,
     hasFetched: false,
+    showCancelled: false,
     monthlyCounts: {},
     isLoadingCounts: false,
 
@@ -37,7 +40,10 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
       const normalized = new Date(date);
       normalized.setUTCHours(0, 0, 0, 0);
 
-      const result = await getAppointmentsByDateAction(normalized);
+      const result = await getAppointmentsByDateAction(
+        normalized,
+        get().showCancelled,
+      );
       set({
         appointments: result.success ? result.data : [],
         isLoading: false,
@@ -65,6 +71,11 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
       set((state) => ({
         appointments: state.appointments.filter((a) => a.id !== id),
       }));
+    },
+
+    toggleShowCancelled: () => {
+      set((state) => ({ showCancelled: !state.showCancelled }));
+      get().fetchAppointments(get().selectedDate);
     },
   }),
 );
