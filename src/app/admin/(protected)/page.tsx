@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
+import { OptionsDropdown } from "@/app/admin/_components/options-dropdown";
 import DashboardData from "./_components/dashboard-data";
 
 function DashboardSkeleton() {
@@ -16,17 +18,15 @@ function DashboardSkeleton() {
 
 export default function AdminPage() {
   return (
-    <div className="flex flex-col h-full">
-      <div className="px-7 py-6 max-md:px-4">
-        <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-          Panel de control
-        </h1>
-        <p className="text-sm text-content-tertiary dark:text-zinc-500 mt-1">
-          Resumen del día
-        </p>
-      </div>
+    <div className="flex flex-col h-full max-md:pt-0">
+      <AdminPageHeader
+        title="Panel de control"
+        subtitle="Resumen del día"
+        desktopControls={<OptionsDropdown />}
+        mobileControls={<OptionsDropdown />}
+      />
 
-      <div className="px-7 max-md:px-4 pb-6">
+      <div className="px-7 py-6 max-md:px-4">
         <Suspense fallback={<DashboardSkeleton />}>
           <DashboardData />
         </Suspense>

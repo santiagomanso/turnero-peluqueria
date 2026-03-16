@@ -1,6 +1,7 @@
 "use server";
 
 import MercadoPagoConfig, { Preference } from "mercadopago";
+import { db } from "@/lib/db";
 import { createAppointment } from "@/services/create";
 import { getConfig } from "@/services/config";
 import { getAppointmentsByDate } from "@/services/get";
@@ -103,6 +104,13 @@ export async function createPaymentPreferenceAction(
         auto_return: "approved",
       },
     });
+
+    if (result.init_point) {
+      await db.appointment.update({
+        where: { id: appointment.id },
+        data: { paymentUrl: result.init_point },
+      });
+    }
 
     return { success: true, initPoint: result.init_point };
   } catch (error) {

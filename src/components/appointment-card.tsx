@@ -13,6 +13,7 @@ import {
   Scissors,
   Store,
   RotateCcw,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateFromISO, formatDateISO } from "@/lib/format-date";
@@ -44,6 +45,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { deleteAppointmentAction } from "@/app/appointments/_actions/delete";
 import { updateAppointmentStatusAction } from "@/app/admin/_actions/update-status";
+import { regeneratePaymentLinkAction } from "@/app/admin/_actions/regenerate-payment-link";
 import type { Appointment } from "@/types/appointment";
 import { AppointmentStatus } from "@prisma/client";
 
@@ -157,6 +159,26 @@ export default function AppointmentCard({
     }
   };
 
+  const handleSendPaymentLink = async () => {
+    let url = appointment.paymentUrl;
+
+    if (!url) {
+      toast.loading("Generando link de pago...", { id: "payment-link" });
+      const result = await regeneratePaymentLinkAction(appointment.id);
+      toast.dismiss("payment-link");
+      if (!result.success || !result.paymentUrl) {
+        toast.error(result.error ?? "No se pudo generar el link");
+        return;
+      }
+      url = result.paymentUrl;
+    }
+
+    const message = encodeURIComponent(
+      `Hola! Te escribimos desde *Luckete Colorista*\n\nAcá tenés el link para pagar tu turno ${dateLabel} a las ${appointment.time} hs:\n${url}`,
+    );
+    window.open(`https://wa.me/${appointment.telephone}?text=${message}`, "_blank");
+  };
+
   const ActionsMenu = () => (
     <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
       <DropdownMenu>
@@ -248,6 +270,18 @@ export default function AppointmentCard({
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
               <DropdownMenuSeparator className="dark:bg-zinc-800" />
+              {status === "PENDING" && (
+                <DropdownMenuItem
+                  onClick={handleSendPaymentLink}
+                  className="text-xs gap-2 cursor-pointer"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Enviar link de pago
+                </DropdownMenuItem>
+              )}
+              {status === "PENDING" && (
+                <DropdownMenuSeparator className="dark:bg-zinc-800" />
+              )}
             </>
           )}
 
