@@ -3,14 +3,15 @@
 import { getOrders, getOrderById } from "@/services/orders";
 import type { Order } from "@/types/shop";
 
-export async function getOrdersAction(): Promise<{
+export async function getOrdersAction(cursor?: string): Promise<{
   success: boolean;
   orders?: Order[];
+  nextCursor?: string | null;
   error?: string;
 }> {
   try {
-    const orders = await getOrders();
-    return { success: true, orders };
+    const result = await getOrders(cursor);
+    return { success: true, orders: result.orders, nextCursor: result.nextCursor };
   } catch (error) {
     console.error("getOrdersAction error:", error);
     return { success: false, error: "Error al obtener las órdenes" };

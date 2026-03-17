@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Search, ChevronDown, ShoppingBag, Eye } from "lucide-react";
+import { Search, ChevronDown, ShoppingBag, Eye, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getOrdersAction } from "../_actions/get-orders";
 import { OrderDetailPanel } from "./order-detail-panel";
-import { useAsyncData } from "../_hooks/use-async-data";
 import {
   ORDER_STATUS_CONFIG,
   type Order,
@@ -70,17 +69,39 @@ const STATS = [
 ];
 
 export function OrderesTab() {
-  const {
-    data: orders,
-    setData: setOrders,
-    isLoading,
-  } = useAsyncData<Order>(getOrdersAction, "orders");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "todos">(
     "todos",
   );
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      setIsLoading(true);
+      const result = await getOrdersAction();
+      if (result.success && result.orders) {
+        setOrders(result.orders);
+        setNextCursor(result.nextCursor ?? null);
+      }
+      setIsLoading(false);
+    })();
+  }, []);
+
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    const result = await getOrdersAction(nextCursor);
+    if (result.success && result.orders) {
+      setOrders((prev) => [...prev, ...result.orders!]);
+      setNextCursor(result.nextCursor ?? null);
+    }
+    setIsLoadingMore(false);
+  }, [nextCursor, isLoadingMore]);
 
   const filtered = orders.filter((o) => {
     const matchSearch =
@@ -352,6 +373,24 @@ export function OrderesTab() {
             </div>
           ))}
         </div>
+
+        {/* Load more */}
+        {nextCursor && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadMore}
+              disabled={isLoadingMore}
+              className="dark:border-zinc-700 dark:text-zinc-300"
+            >
+              {isLoadingMore ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : null}
+              {isLoadingMore ? "Cargando..." : "Cargar más órdenes"}
+            </Button>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>

@@ -49,12 +49,53 @@ const includeItems = {
   },
 } as const;
 
-export async function getOrders(): Promise<Order[]> {
-  const orders = await db.order.findMany({
-    orderBy: { createdAt: "desc" },
-    include: includeItems,
-  });
-  return orders.map(mapOrder);
+const COMPLETED_STATUSES = ["PICKED_UP", "CANCELLED"] as const;
+const ACTIVE_STATUSES = ["PENDING", "PROCESSING", "READY"] as const;
+
+const COMPLETED_PAGE_SIZE = 20;
+
+export interface PaginatedOrders {
+  orders: Order[];
+  nextCursor: string | null;
+}
+
+/**
+ * Fetches all active orders + a page of completed orders.
+ * Active orders (PENDING, PROCESSING, READY) are always returned in full.
+ * Completed orders (PICKED_UP, CANCELLED) are paginated with cursor.
+ */
+export async function getOrders(cursor?: string): Promise<PaginatedOrders> {
+  const isInitialLoad = !cursor;
+
+  const [activeRaw, completedRaw] = await Promise.all([
+    isInitialLoad
+      ? db.order.findMany({
+          where: { status: { in: [...ACTIVE_STATUSES] } },
+          orderBy: { createdAt: "desc" },
+          include: includeItems,
+        })
+      : Promise.resolve([]),
+    db.order.findMany({
+      where: { status: { in: [...COMPLETED_STATUSES] } },
+      orderBy: { createdAt: "desc" },
+      include: includeItems,
+      take: COMPLETED_PAGE_SIZE + 1,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+    }),
+  ]);
+
+  const hasMore = completedRaw.length > COMPLETED_PAGE_SIZE;
+  const completedPage = hasMore
+    ? completedRaw.slice(0, COMPLETED_PAGE_SIZE)
+    : completedRaw;
+  const nextCursor = hasMore
+    ? completedPage[completedPage.length - 1].id
+    : null;
+
+  return {
+    orders: [...activeRaw.map(mapOrder), ...completedPage.map(mapOrder)],
+    nextCursor,
+  };
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {

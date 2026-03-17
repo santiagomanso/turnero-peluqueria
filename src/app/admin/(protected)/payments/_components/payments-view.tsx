@@ -159,12 +159,7 @@ function AppointmentDetailPanel({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 40, scale: 0.97 }}
         transition={{ type: "spring" as const, stiffness: 400, damping: 30 }}
-        className="relative w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col overflow-hidden"
-        style={{
-          background: "var(--color-base, #f9fafb)",
-          border: "1px solid var(--color-border-subtle, #e8e4df)",
-          maxHeight: "92svh",
-        }}
+        className="relative w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col overflow-hidden max-h-[92svh] bg-base dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800"
       >
         {/* Drag handle mobile */}
         <div className="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
