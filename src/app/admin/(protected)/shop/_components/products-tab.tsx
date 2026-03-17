@@ -152,7 +152,10 @@ function AdminCategoriesBento({
 
   return (
     <div className="flex-1 overflow-y-auto pb-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ gridAutoRows: "160px" }}>
+      <div
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        style={{ gridAutoRows: "160px" }}
+      >
         {/* Todos los productos */}
         <button
           onClick={() => onSelect("todas")}
@@ -521,8 +524,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
       ? []
       : products.filter(
           (p) =>
-            (selectedCategory === "todas" ||
-              p.category === selectedCategory) &&
+            (selectedCategory === "todas" || p.category === selectedCategory) &&
             p.name.toLowerCase().includes(search.toLowerCase()),
         );
 
@@ -598,7 +600,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
         /* ── Categories bento view ───────────────────────────────── */
         <>
           {/* Filter bar */}
-          <div className="shrink-0 flex gap-2 mb-3">
+          <div className="hidden shrink-0 flex gap-2 mb-3">
             <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
               <Search
                 size={15}
@@ -617,10 +619,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
               />
             </div>
             <div className="hidden sm:flex gap-2">
-              <CategoryFilter
-                value="todas"
-                onChange={handleDropdownCategory}
-              />
+              <CategoryFilter value="todas" onChange={handleDropdownCategory} />
               <Button
                 className="bg-gold text-white hover:bg-gold/90 shrink-0"
                 onClick={handleOpenCreate}
