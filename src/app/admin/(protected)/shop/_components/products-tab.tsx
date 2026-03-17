@@ -598,7 +598,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
         /* ── Categories bento view ───────────────────────────────── */
         <>
           {/* Filter bar */}
-          <div className="shrink-0 flex flex-col sm:flex-row gap-2 mb-3">
+          <div className="shrink-0 flex gap-2 mb-3">
             <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
               <Search
                 size={15}
@@ -616,17 +616,19 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
                 }}
               />
             </div>
-            <CategoryFilter
-              value="todas"
-              onChange={handleDropdownCategory}
-            />
-            <Button
-              className="bg-gold text-white hover:bg-gold/90 shrink-0"
-              onClick={handleOpenCreate}
-            >
-              <Plus size={15} />
-              Nuevo producto
-            </Button>
+            <div className="hidden sm:flex gap-2">
+              <CategoryFilter
+                value="todas"
+                onChange={handleDropdownCategory}
+              />
+              <Button
+                className="bg-gold text-white hover:bg-gold/90 shrink-0"
+                onClick={handleOpenCreate}
+              >
+                <Plus size={15} />
+                Nuevo producto
+              </Button>
+            </div>
           </div>
 
           <AdminCategoriesBento
@@ -662,7 +664,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
             </div>
 
             {/* Search + category dropdown + nuevo producto */}
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex gap-2">
               <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
                 <Search
                   size={15}
@@ -675,17 +677,19 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <CategoryFilter
-                value={selectedCategory}
-                onChange={handleDropdownCategory}
-              />
-              <Button
-                className="bg-gold text-white hover:bg-gold/90 shrink-0"
-                onClick={handleOpenCreate}
-              >
-                <Plus size={15} />
-                Nuevo producto
-              </Button>
+              <div className="hidden sm:flex gap-2">
+                <CategoryFilter
+                  value={selectedCategory}
+                  onChange={handleDropdownCategory}
+                />
+                <Button
+                  className="bg-gold text-white hover:bg-gold/90 shrink-0"
+                  onClick={handleOpenCreate}
+                >
+                  <Plus size={15} />
+                  Nuevo producto
+                </Button>
+              </div>
             </div>
 
             {/* Product count */}
