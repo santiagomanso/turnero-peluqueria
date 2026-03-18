@@ -5,7 +5,7 @@ export default function ProductSkeleton() {
       <div className="h-3 w-32 bg-surface dark:bg-zinc-800 rounded" />
 
       {/* Image */}
-      <div className="aspect-[4/3] rounded-2xl bg-surface dark:bg-zinc-800" />
+      <div className="aspect-4/3 rounded-2xl bg-surface dark:bg-zinc-800" />
 
       {/* Name + price */}
       <div className="space-y-2">

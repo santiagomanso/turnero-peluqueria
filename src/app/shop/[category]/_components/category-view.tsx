@@ -10,36 +10,51 @@ import { useCart } from "@/app/shop/_store/use-cart";
 // ─── Category accent colors ────────────────────────────────────────────────────
 
 const CATEGORY_ACCENT: Record<ShopCategory, string> = {
-  "Shampoo y Acondicionador":     "bg-violet-500/15 text-violet-700 dark:text-violet-400 border-violet-500/25",
-  "Mascarillas y Baños de Crema": "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/25",
-  "Tratamientos Capilares":       "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25",
-  "Aceites y Serums":             "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/25",
-  "Protectores y Sprays":         "bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/25",
-  "Cremas para Peinar":           "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-400 border-fuchsia-500/25",
-  "Accesorios":                   "bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/25",
+  "Shampoo y Acondicionador":
+    "bg-violet-500/15 text-violet-700 dark:text-violet-400 border-violet-500/25",
+  "Mascarillas y Baños de Crema":
+    "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/25",
+  "Tratamientos Capilares":
+    "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25",
+  "Aceites y Serums":
+    "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/25",
+  "Protectores y Sprays":
+    "bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/25",
+  "Cremas para Peinar":
+    "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-400 border-fuchsia-500/25",
+  Accesorios:
+    "bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/25",
 };
 
 const CATEGORY_EMOJI: Record<ShopCategory, string> = {
-  "Shampoo y Acondicionador":     "💧",
+  "Shampoo y Acondicionador": "💧",
   "Mascarillas y Baños de Crema": "🫙",
-  "Tratamientos Capilares":       "✨",
-  "Aceites y Serums":             "🌿",
-  "Protectores y Sprays":         "💨",
-  "Cremas para Peinar":           "🪄",
-  "Accesorios":                   "🪮",
+  "Tratamientos Capilares": "✨",
+  "Aceites y Serums": "🌿",
+  "Protectores y Sprays": "💨",
+  "Cremas para Peinar": "🪄",
+  Accesorios: "🪮",
 };
 
 // ─── Product card (vertical, works for both featured and regular) ─────────────
 
-function ProductCard({ product, category }: { product: Product; category: ShopCategory }) {
-  const added = useCart((state) => state.items.some((i) => i.id === product.id));
+function ProductCard({
+  product,
+  category,
+}: {
+  product: Product;
+  category: ShopCategory;
+}) {
+  const added = useCart((state) =>
+    state.items.some((i) => i.id === product.id),
+  );
   const priceFormatted = `$${product.price.toLocaleString("es-AR")}`;
   const href = `/shop/${categoryToSlug(category)}/${product.id}`;
 
   return (
     <Link
       href={href}
-      className={`relative rounded-2xl overflow-hidden flex flex-col shadow-sm bg-white dark:bg-zinc-900 ring-2 transition-[box-shadow] duration-200 h-full ${
+      className={`relative rounded-2xl overflow-hidden flex flex-col shadow-sm bg-white dark:bg-zinc-900 ring-2 transition-shadow duration-200 h-full ${
         added ? "ring-gold" : "ring-border-subtle dark:ring-zinc-800"
       }`}
     >
@@ -60,7 +75,7 @@ function ProductCard({ product, category }: { product: Product; category: ShopCa
       </div>
 
       {/* Image */}
-      <div className="bg-surface dark:bg-zinc-800 aspect-[4/3] flex items-center justify-center relative overflow-hidden">
+      <div className="bg-surface dark:bg-zinc-800 aspect-4/3 flex items-center justify-center relative overflow-hidden">
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -138,7 +153,9 @@ export function CategoryHeader({ category }: { category: ShopCategory }) {
           Tienda
         </Link>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-content dark:text-zinc-300 font-medium">{category}</span>
+        <span className="text-content dark:text-zinc-300 font-medium">
+          {category}
+        </span>
       </div>
 
       {/* Category title */}
@@ -167,12 +184,16 @@ interface CategoryViewProps {
   products: Product[];
 }
 
-export default function CategoryView({ category, products }: CategoryViewProps) {
+export default function CategoryView({
+  category,
+  products,
+}: CategoryViewProps) {
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* Product count — fixed outside scroll */}
       <p className="shrink-0 text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest mb-4">
-        {products.length} producto{products.length !== 1 ? "s" : ""} disponible{products.length !== 1 ? "s" : ""}
+        {products.length} producto{products.length !== 1 ? "s" : ""} disponible
+        {products.length !== 1 ? "s" : ""}
       </p>
 
       {/* Scrollable area — only the product grid */}
@@ -184,7 +205,10 @@ export default function CategoryView({ category, products }: CategoryViewProps) 
             transition={{ delay: 0.1 }}
             className="flex flex-col items-center justify-center py-20 gap-3"
           >
-            <Package size={40} className="text-content-quaternary dark:text-zinc-600 opacity-40" />
+            <Package
+              size={40}
+              className="text-content-quaternary dark:text-zinc-600 opacity-40"
+            />
             <p className="text-sm text-content-tertiary dark:text-zinc-500 text-center">
               No hay productos disponibles en esta categoría.
             </p>
@@ -199,7 +223,7 @@ export default function CategoryView({ category, products }: CategoryViewProps) 
           <AnimatePresence mode="popLayout">
             <motion.div
               key={category}
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+              className="grid grid-cols-2 sm:grid-cols-3 gap-3"
             >
               {products.map((product, i) => (
                 <motion.div
