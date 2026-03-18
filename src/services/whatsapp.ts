@@ -175,7 +175,6 @@ export async function sendOwnerClientMessage({
  * Parameters:
  *   body {{1}} = customerName
  *   body {{2}} = order ref  (#XXXXXX)
- *   body {{3}} = SALON_NAME
  *   button {{1}} = orderId   (URL suffix)
  */
 export async function sendOrderReadyNotification({
@@ -201,7 +200,6 @@ export async function sendOrderReadyNotification({
           parameters: [
             { type: "text", text: customerName }, // {{1}}
             { type: "text", text: orderRef },      // {{2}}
-            { type: "text", text: SALON_NAME },    // {{3}}
           ],
         },
         {
