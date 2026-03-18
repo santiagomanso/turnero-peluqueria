@@ -44,13 +44,14 @@ export function ShopView() {
 
   useEffect(() => {
     window.addEventListener(SHOP_CREATE_EVENT, handleOpenCreate);
-    return () => window.removeEventListener(SHOP_CREATE_EVENT, handleOpenCreate);
+    return () =>
+      window.removeEventListener(SHOP_CREATE_EVENT, handleOpenCreate);
   }, [handleOpenCreate]);
 
   return (
     <div className="flex flex-col h-full max-md:pt-0">
       <AdminPageHeader
-        title="Tienda online"
+        title="Tienda online (admin)"
         subtitle="Administrá tus productos y las órdenes de tus clientes."
         mobileControls={<ShopMobileDropdown />}
         desktopControls={<ShopMobileDropdown />}
