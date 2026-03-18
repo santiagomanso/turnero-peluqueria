@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Package, ChevronRight, Check, Star } from "lucide-react";
+import { Package, ChevronRight, Check, Star } from "lucide-react";
 import { SHOP_CATEGORIES, type ShopCategory, type Product } from "@/types/shop";
 import { categoryToSlug } from "@/lib/shop-utils";
 import { useCart } from "@/app/shop/_store/use-cart";
@@ -29,44 +29,16 @@ const CATEGORY_EMOJI: Record<ShopCategory, string> = {
   "Accesorios":                   "🪮",
 };
 
-// ─── Shared add/remove button ─────────────────────────────────────────────────
-
-function AddButton({
-  product,
-  added,
-}: {
-  product: Product;
-  added: boolean;
-}) {
-  const toggle = useCart((state) => state.toggle);
-
-  return (
-    <button
-      onClick={() => toggle(product)}
-      className={`w-full flex items-center justify-center gap-1.5 py-1.5 text-[0.6rem] rounded-lg font-bold active:scale-95 transition-colors border ${
-        added
-          ? "border-gold text-gold bg-transparent"
-          : "border-transparent bg-gold text-white"
-      }`}
-    >
-      {added ? (
-        <Check className="w-3 h-3" />
-      ) : (
-        <ShoppingCart className="w-3 h-3" />
-      )}
-      {added ? "Quitar" : "Agregar"}
-    </button>
-  );
-}
-
 // ─── Product card (vertical, works for both featured and regular) ─────────────
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, category }: { product: Product; category: ShopCategory }) {
   const added = useCart((state) => state.items.some((i) => i.id === product.id));
   const priceFormatted = `$${product.price.toLocaleString("es-AR")}`;
+  const href = `/shop/${categoryToSlug(category)}/${product.id}`;
 
   return (
-    <div
+    <Link
+      href={href}
       className={`relative rounded-2xl overflow-hidden flex flex-col shadow-sm bg-white dark:bg-zinc-900 ring-2 transition-[box-shadow] duration-200 h-full ${
         added ? "ring-gold" : "ring-border-subtle dark:ring-zinc-800"
       }`}
@@ -101,7 +73,7 @@ function ProductCard({ product }: { product: Product }) {
             {CATEGORY_EMOJI[product.category as ShopCategory] ?? "📦"}
           </span>
         )}
-        {product.stock <= 3 && product.stock > 0 && !added && (
+        {product.stock <= 3 && product.stock > 0 && (
           <span className="absolute bottom-2 right-2 text-[0.55rem] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 border border-amber-300/50 px-1.5 py-0.5 rounded-full">
             Últimas unidades
           </span>
@@ -120,14 +92,11 @@ function ProductCard({ product }: { product: Product }) {
             </p>
           )}
         </div>
-        <div className="flex flex-col gap-1.5 mt-1">
-          <span className="text-sm font-extrabold text-content dark:text-zinc-100">
-            {priceFormatted}
-          </span>
-          <AddButton product={product} added={added} />
-        </div>
+        <span className="text-sm font-extrabold text-content dark:text-zinc-100 mt-1">
+          {priceFormatted}
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -244,7 +213,7 @@ export default function CategoryView({ category, products }: CategoryViewProps) 
                     delay: i * 0.05,
                   }}
                 >
-                  <ProductCard product={product} />
+                  <ProductCard product={product} category={category} />
                 </motion.div>
               ))}
             </motion.div>
