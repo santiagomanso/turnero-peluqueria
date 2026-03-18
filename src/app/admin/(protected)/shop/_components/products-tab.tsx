@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronRight,
   Star,
-  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -35,7 +34,7 @@ import {
 import { getProductsAction } from "../_actions/get-products";
 import { deleteProductAction } from "../_actions/delete-product";
 import { toggleProductActiveAction } from "../_actions/update-product";
-import { SHOP_CATEGORIES, type ShopCategory, type Product } from "@/types/shop";
+import { SHOP_CATEGORIES, type Product } from "@/types/shop";
 import { ProductModal } from "./product-modal";
 import { useAsyncData } from "../_hooks/use-async-data";
 import {
@@ -43,278 +42,12 @@ import {
   SHOP_SELECT_CATEGORY_EVENT,
 } from "@/app/admin/_components/shop-mobile-controls";
 import Image from "next/image";
+import ShopCategoriesBento from "@/app/shop/_components/shop-categories-bento";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface ProductosTabProps {
   registerOpenCreate?: (fn: () => void) => void;
-}
-
-// ─── Category visual styles ──────────────────────────────────────────────────
-
-type CatSize = "xl" | "wide" | "sm";
-
-const CAT_STYLE: Record<
-  ShopCategory,
-  {
-    bg: string;
-    accentText: string;
-    accentBg: string;
-    emoji: string;
-    gradient: string;
-    size: CatSize;
-  }
-> = {
-  "Shampoo y Acondicionador": {
-    bg: "bg-violet-100 dark:bg-violet-950",
-    accentText: "text-violet-700 dark:text-violet-300",
-    accentBg: "bg-violet-500/15 border border-violet-500/30",
-    emoji: "💧",
-    gradient: "from-violet-400/40 via-purple-300/20 to-transparent",
-    size: "xl",
-  },
-  "Mascarillas y Baños de Crema": {
-    bg: "bg-rose-100 dark:bg-rose-950",
-    accentText: "text-rose-700 dark:text-rose-300",
-    accentBg: "bg-rose-500/15 border border-rose-500/30",
-    emoji: "🫙",
-    gradient: "from-rose-400/40 via-pink-300/20 to-transparent",
-    size: "sm",
-  },
-  "Tratamientos Capilares": {
-    bg: "bg-amber-100 dark:bg-amber-950",
-    accentText: "text-amber-700 dark:text-amber-300",
-    accentBg: "bg-amber-500/15 border border-amber-500/30",
-    emoji: "✨",
-    gradient: "from-amber-400/40 via-yellow-300/20 to-transparent",
-    size: "sm",
-  },
-  "Aceites y Serums": {
-    bg: "bg-emerald-100 dark:bg-emerald-950",
-    accentText: "text-emerald-700 dark:text-emerald-300",
-    accentBg: "bg-emerald-500/15 border border-emerald-500/30",
-    emoji: "🌿",
-    gradient: "from-emerald-400/40 via-green-300/20 to-transparent",
-    size: "wide",
-  },
-  "Protectores y Sprays": {
-    bg: "bg-sky-100 dark:bg-sky-950",
-    accentText: "text-sky-700 dark:text-sky-300",
-    accentBg: "bg-sky-500/15 border border-sky-500/30",
-    emoji: "💨",
-    gradient: "from-sky-400/40 via-blue-300/20 to-transparent",
-    size: "wide",
-  },
-  "Cremas para Peinar": {
-    bg: "bg-teal-100 dark:bg-teal-950",
-    accentText: "text-teal-700 dark:text-teal-300",
-    accentBg: "bg-teal-500/15 border border-teal-500/30",
-    emoji: "🪄",
-    gradient: "from-teal-400/40 via-cyan-300/20 to-transparent",
-    size: "sm",
-  },
-  Accesorios: {
-    bg: "bg-orange-100 dark:bg-orange-950",
-    accentText: "text-orange-700 dark:text-orange-300",
-    accentBg: "bg-orange-500/15 border border-orange-500/30",
-    emoji: "🪮",
-    gradient: "from-orange-400/40 via-amber-300/20 to-transparent",
-    size: "sm",
-  },
-};
-
-const SIZE_COL: Record<CatSize, string> = {
-  xl: "col-span-2",
-  wide: "col-span-2",
-  sm: "col-span-1",
-};
-
-// ─── Categories bento grid ──────────────────────────────────────────────────
-
-function AdminCategoriesBento({
-  products,
-  onSelect,
-}: {
-  products: Product[];
-  onSelect: (cat: string) => void;
-}) {
-  const counts = useMemo(
-    () =>
-      SHOP_CATEGORIES.reduce(
-        (acc, cat) => ({
-          ...acc,
-          [cat]: products.filter((p) => p.category === cat).length,
-        }),
-        {} as Record<string, number>,
-      ),
-    [products],
-  );
-
-  return (
-    <div className="flex-1 overflow-y-auto pb-6">
-      <div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
-        style={{ gridAutoRows: "160px" }}
-      >
-        {/* Todos los productos */}
-        <button
-          onClick={() => onSelect("todas")}
-          className="col-span-2 rounded-2xl px-5 py-4 text-left flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 active:scale-[0.98] transition-transform"
-        >
-          <div>
-            <p className="text-sm font-extrabold text-content dark:text-zinc-100">
-              Todos los productos
-            </p>
-            <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-wider mt-0.5">
-              Ver todos
-            </p>
-          </div>
-          <span className="text-lg font-black text-content-secondary dark:text-zinc-400">
-            {products.length}
-          </span>
-        </button>
-        {SHOP_CATEGORIES.map((cat) => {
-          const style = CAT_STYLE[cat];
-          const count = counts[cat] ?? 0;
-
-          if (style.size === "xl") {
-            return (
-              <button
-                key={cat}
-                onClick={() => onSelect(cat)}
-                className={cn(
-                  SIZE_COL.xl,
-                  "relative rounded-2xl overflow-hidden text-left active:scale-[0.98] transition-transform border border-border-subtle dark:border-zinc-800 cursor-pointer",
-                  style.bg,
-                )}
-              >
-                <div
-                  className={cn(
-                    "absolute inset-0 bg-linear-to-br opacity-60",
-                    style.gradient,
-                  )}
-                />
-                <div className="relative h-full flex flex-col p-5 gap-2">
-                  <div className="flex items-start justify-between">
-                    <span className="text-5xl select-none">{style.emoji}</span>
-                    <span
-                      className={cn(
-                        "text-xs font-bold px-2.5 py-1 rounded-full border",
-                        style.accentBg,
-                        style.accentText,
-                      )}
-                    >
-                      {count} {count === 1 ? "producto" : "productos"}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-extrabold text-content dark:text-zinc-100 leading-tight flex-1">
-                    {cat}
-                  </h3>
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 text-xs font-semibold",
-                      style.accentText,
-                    )}
-                  >
-                    Ver productos
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-              </button>
-            );
-          }
-
-          if (style.size === "wide") {
-            return (
-              <button
-                key={cat}
-                onClick={() => onSelect(cat)}
-                className={cn(
-                  SIZE_COL.wide,
-                  "relative rounded-2xl overflow-hidden text-left active:scale-[0.98] transition-transform border border-border-subtle dark:border-zinc-800 cursor-pointer",
-                  style.bg,
-                )}
-              >
-                <div
-                  className={cn(
-                    "absolute inset-0 bg-linear-to-br opacity-50",
-                    style.gradient,
-                  )}
-                />
-                <div className="relative h-full flex items-center gap-4 px-5">
-                  <span className="text-4xl select-none shrink-0">
-                    {style.emoji}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-extrabold text-content dark:text-zinc-100 leading-tight">
-                      {cat}
-                    </h3>
-                    <p
-                      className={cn(
-                        "text-xs font-semibold mt-1",
-                        style.accentText,
-                      )}
-                    >
-                      Ver productos →
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      "text-xs font-bold px-2.5 py-1 rounded-full border shrink-0",
-                      style.accentBg,
-                      style.accentText,
-                    )}
-                  >
-                    {count} {count === 1 ? "producto" : "productos"}
-                  </span>
-                </div>
-              </button>
-            );
-          }
-
-          // sm
-          return (
-            <button
-              key={cat}
-              onClick={() => onSelect(cat)}
-              className={cn(
-                SIZE_COL.sm,
-                "relative rounded-2xl overflow-hidden text-left active:scale-[0.98] transition-transform border border-border-subtle dark:border-zinc-800 cursor-pointer",
-                style.bg,
-              )}
-            >
-              <div
-                className={cn(
-                  "absolute inset-0 bg-linear-to-br opacity-50",
-                  style.gradient,
-                )}
-              />
-              <div className="relative h-full flex flex-col p-4 justify-between">
-                <div>
-                  <span className="text-3xl select-none block mb-2">
-                    {style.emoji}
-                  </span>
-                  <h3 className="text-sm font-extrabold text-content dark:text-zinc-100 leading-tight">
-                    {cat}
-                  </h3>
-                </div>
-                <span
-                  className={cn(
-                    "text-xs font-bold px-2.5 py-1 rounded-full border self-start",
-                    style.accentBg,
-                    style.accentText,
-                  )}
-                >
-                  {count} {count === 1 ? "producto" : "productos"}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-        {/* /Per-category grid */}
-      </div>
-    </div>
-  );
 }
 
 // ─── Admin product card ─────────────────────────────────────────────────────
@@ -479,6 +212,19 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Counts per category for the bento grid
+  const categoryCounts = useMemo(
+    () =>
+      SHOP_CATEGORIES.reduce(
+        (acc, cat) => ({
+          ...acc,
+          [cat]: products.filter((p) => p.category === cat).length,
+        }),
+        {} as Record<string, number>,
+      ),
+    [products],
+  );
+
   useEffect(() => {
     registerOpenCreate?.(() => {
       setModalProduct(undefined);
@@ -486,7 +232,6 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     });
   }, [registerOpenCreate]);
 
-  // Notify options menu: we're in gestor + current category
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent(SHOP_ACTIVE_CATEGORY_EVENT, {
@@ -495,7 +240,6 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     );
   }, [selectedCategory]);
 
-  // On unmount, hide the category section from the options menu
   useEffect(() => {
     return () => {
       window.dispatchEvent(
@@ -506,7 +250,6 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     };
   }, []);
 
-  // Listen for category selection from options menu
   useEffect(() => {
     function handle(e: Event) {
       const { category } = (e as CustomEvent<{ category: string | null }>)
@@ -518,7 +261,6 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     return () => window.removeEventListener(SHOP_SELECT_CATEGORY_EVENT, handle);
   }, []);
 
-  // Filter products by selected category + search
   const filtered =
     selectedCategory === null
       ? []
@@ -578,7 +320,6 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     setDeleteTarget(null);
   }
 
-  // When the dropdown selects a category, navigate into it (same as bento click)
   function handleDropdownCategory(value: string) {
     setSelectedCategory(value);
     setSearch("");
@@ -598,50 +339,36 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     <div className="h-full flex flex-col">
       {selectedCategory === null ? (
         /* ── Categories bento view ───────────────────────────────── */
-        <>
-          {/* Filter bar */}
-          <div className="hidden shrink-0 flex gap-2 mb-3">
-            <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
-              <Search
-                size={15}
-                className="text-content-tertiary dark:text-zinc-500 shrink-0"
-              />
-              <input
-                className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
-                placeholder="Buscar producto..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  if (e.target.value.length > 0) {
-                    setSelectedCategory("todas");
-                  }
-                }}
-              />
+        <div className="flex-1 overflow-y-auto pb-6">
+          {/* Todos los productos */}
+          <button
+            onClick={() => handleDropdownCategory("todas")}
+            className="w-full col-span-2 rounded-2xl px-5 py-4 mb-3 text-left flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 active:scale-[0.98] transition-transform"
+          >
+            <div>
+              <p className="text-sm font-extrabold text-content dark:text-zinc-100">
+                Todos los productos
+              </p>
+              <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-wider mt-0.5">
+                Ver todos
+              </p>
             </div>
-            <div className="hidden sm:flex gap-2">
-              <CategoryFilter value="todas" onChange={handleDropdownCategory} />
-              <Button
-                className="bg-gold text-white hover:bg-gold/90 shrink-0"
-                onClick={handleOpenCreate}
-              >
-                <Plus size={15} />
-                Nuevo producto
-              </Button>
-            </div>
-          </div>
+            <span className="text-lg font-black text-content-secondary dark:text-zinc-400">
+              {products.length}
+            </span>
+          </button>
 
-          <AdminCategoriesBento
-            products={products}
+          <ShopCategoriesBento
+            categoryCounts={categoryCounts}
             onSelect={(cat) => {
               setSelectedCategory(cat);
               setSearch("");
             }}
           />
-        </>
+        </div>
       ) : (
         /* ── Product grid for selected category ─────────────────── */
         <>
-          {/* Fixed header — breadcrumb + search + count */}
           <div className="shrink-0 space-y-3 mb-3">
             {/* Breadcrumb */}
             <div className="flex items-center gap-1.5 text-[0.65rem] text-content-tertiary dark:text-zinc-500">
@@ -691,14 +418,11 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
               </div>
             </div>
 
-            {/* Product count */}
             <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest">
-              {filtered.length} producto
-              {filtered.length !== 1 ? "s" : ""}
+              {filtered.length} producto{filtered.length !== 1 ? "s" : ""}
             </p>
           </div>
 
-          {/* Scrollable product grid */}
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 gap-3">
               <Package
