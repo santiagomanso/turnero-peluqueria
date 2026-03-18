@@ -164,7 +164,7 @@ export async function sendOwnerClientMessage({
 /**
  * Notifies the customer that their shop order is ready for pickup.
  *
- * Template "order_ready_1" — body:
+ * Template "order_pick_up_1" — body:
  *   Hola {{1}} 👋
  *   🎉 ¡Tu pedido *{{2}}* está listo para retirar!
  *   📍 Podés pasar a buscarlo a *{{3}}*.
@@ -193,7 +193,7 @@ export async function sendOrderReadyNotification({
     to: formatArgentinianPhone(telephone),
     type: "template",
     template: {
-      name: "order_ready_1",
+      name: "order_pick_up_1",
       language: { code: "es" },
       components: [
         {
