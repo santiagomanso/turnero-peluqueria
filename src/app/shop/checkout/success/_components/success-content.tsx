@@ -51,7 +51,7 @@ export default function SuccessContent() {
         <h1 className="text-xl font-extrabold text-content dark:text-zinc-100 mb-1">
           {isLocal ? "Pedido registrado" : "Pago confirmado"}
         </h1>
-        <p className="text-sm text-content-tertiary dark:text-zinc-500 max-w-[280px]">
+        <p className="text-sm text-content-tertiary dark:text-zinc-500 max-w-70">
           {isLocal
             ? "Tu pedido fue registrado. Te contactaremos por WhatsApp cuando esté listo para retirar."
             : "Tu pago fue procesado correctamente. Te avisaremos por WhatsApp cuando tu pedido esté listo."}
