@@ -17,12 +17,12 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { updateOrderStatusAction } from "../_actions/update-order-status";
+import { sendOrderReadyNotificationAction } from "../_actions/send-order-ready-notification";
 import {
   ORDER_STATUS_CONFIG,
   type Order,
   type OrderStatus,
 } from "@/types/shop";
-import { sendOrderReadyNotificationAction } from "../_actions/send-order-ready-notification";
 
 interface OrderDetailPanelProps {
   order: Order;
@@ -105,13 +105,19 @@ export function OrderDetailPanel({
 
     if (status === "READY" && order.telephone) {
       try {
-        await sendOrderReadyNotificationAction({
+        const waResult = await sendOrderReadyNotificationAction({
           orderId: order.id,
           telephone: order.telephone,
           customerName: order.name ?? "Cliente",
         });
+        if (!waResult.success) {
+          toast.error(
+            `WhatsApp no enviado: ${waResult.error ?? "error desconocido"}`,
+          );
+        }
       } catch (e) {
         console.error("Error enviando WhatsApp:", e);
+        toast.error("No se pudo enviar el WhatsApp al cliente");
       }
     }
 
