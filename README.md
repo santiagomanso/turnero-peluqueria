@@ -384,20 +384,20 @@ export function formatArgentinianPhone(telephone: string): string {
 
 ### Admin Components
 
-| File                                                    | Purpose                                                                             |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `admin-sidebar.tsx`                                     | Desktop sidebar (nav order: Turnos→Métricas→Pagos→Tienda→Configuración)             |
-| `admin-mobile-sheet.tsx`                                | Mobile nav drawer (`dynamic ssr:false`)                                             |
-| `admin-appointments.tsx`                                | Grid de turnos; usa `AppointmentsMobileDropdown` para ambos desktop y mobile        |
-| `appointments-mobile-dropdown.tsx`                      | Dropdown unificado Turnos: `[+] [↻] [🌙] [📅 Hoy/fecha]`                            |
-| `metrics-mobile-dropdown.tsx`                           | Dropdown unificado Métricas: período (Semana/Mes/Año) + refresh + theme             |
-| `payments-mobile-dropdown.tsx`                          | Dropdown unificado Pagos: `[↻] [🌙] [📅]` + calendario con días coloreados          |
-| `admin-create-appointment.tsx`                          | Dialog 3 pasos (date → time → telephone)                                            |
-| `admin-theme-provider.tsx`                              | Lee/escribe cookie `admin-theme`, aplica `.dark` en `<html>`                        |
-| `(protected)/payments/_components/payments-view.tsx`    | Vista pagos: `specificDate` siempre seteado (default hoy), sin period pills         |
-| `(protected)/shop/products/_components/products-tab.tsx`| Tabla/cards de productos con crear/editar/toggle activo                             |
-| `(protected)/shop/products/_components/product-modal.tsx`| Dialog shadcn para crear/editar producto; upload imagen vía Cloudinary              |
-| `(protected)/shop/orders/_components/orders-view.tsx`   | Lista de órdenes con detalles y cambio de estado                                    |
+| File                                                      | Purpose                                                                      |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `admin-sidebar.tsx`                                       | Desktop sidebar (nav order: Turnos→Métricas→Pagos→Tienda→Configuración)      |
+| `admin-mobile-sheet.tsx`                                  | Mobile nav drawer (`dynamic ssr:false`)                                      |
+| `admin-appointments.tsx`                                  | Grid de turnos; usa `AppointmentsMobileDropdown` para ambos desktop y mobile |
+| `appointments-mobile-dropdown.tsx`                        | Dropdown unificado Turnos: `[+] [↻] [🌙] [📅 Hoy/fecha]`                     |
+| `metrics-mobile-dropdown.tsx`                             | Dropdown unificado Métricas: período (Semana/Mes/Año) + refresh + theme      |
+| `payments-mobile-dropdown.tsx`                            | Dropdown unificado Pagos: `[↻] [🌙] [📅]` + calendario con días coloreados   |
+| `admin-create-appointment.tsx`                            | Dialog 3 pasos (date → time → telephone)                                     |
+| `admin-theme-provider.tsx`                                | Lee/escribe cookie `admin-theme`, aplica `.dark` en `<html>`                 |
+| `(protected)/payments/_components/payments-view.tsx`      | Vista pagos: `specificDate` siempre seteado (default hoy), sin period pills  |
+| `(protected)/shop/products/_components/products-tab.tsx`  | Tabla/cards de productos con crear/editar/toggle activo                      |
+| `(protected)/shop/products/_components/product-modal.tsx` | Dialog shadcn para crear/editar producto; upload imagen vía Cloudinary       |
+| `(protected)/shop/orders/_components/orders-view.tsx`     | Lista de órdenes con detalles y cambio de estado                             |
 
 ### Layout Structure (`src/app/admin/(protected)/layout.tsx`)
 
@@ -753,6 +753,8 @@ CRON_SECRET=...
 - [ ] nichos personalizados (agrupar personas de la misma edad y mismo tratamiento, marketing dirigido)
 - [ ] hacer funcional el checkout del shop online (MercadoPago para compras de productos)
 - [ ] implementar notificaciones a la dueña para nuevos pedidos de tienda
+- [ ] Orden de compra confirmada => Enviar whatsapp de confirmación de compra en tienda online
+- [ ] orden de compra luego de pagar arranco en estado procesando => revisar, debería empezar en pendiente de preparación
 
 ---
 
@@ -773,6 +775,7 @@ src/app/admin/(protected)/payments/
 ```
 
 `src/services/payments.ts` — lógica de BD:
+
 - `getPayments(specificDate: string)` — pagos del día filtrando por `createdAt`
 - `getPaymentMonthlyCounts(year, month)` — conteo por día para el calendario
 
@@ -808,6 +811,7 @@ src/app/admin/(protected)/shop/
 ```
 
 `src/services/shop.ts` — lógica de BD:
+
 - `getProducts()` — todos los productos
 - `getActiveProductsByCategory(category)` — productos activos por categoría (para shop público)
 - `getProductCategoryCounts()` — conteo por categoría (para bento grid)
@@ -821,6 +825,7 @@ El campo de imagen permite URL directa o subir imagen. Al subir, se envía a Clo
 ## Categorías disponibles (`SHOP_CATEGORIES`)
 
 Definidas en `src/types/shop.ts`:
+
 ```typescript
 export const SHOP_CATEGORIES = [
   "Shampoo y Acondicionador",
@@ -874,9 +879,13 @@ src/app/shop/
 
 ```typescript
 export function categoryToSlug(category: string): string {
-  return category.toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+  return category
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
 }
 export function slugToCategory(slug: string): ShopCategory | undefined {
   return SHOP_CATEGORIES.find((c) => categoryToSlug(c) === slug);
@@ -886,12 +895,13 @@ export function slugToCategory(slug: string): ShopCategory | undefined {
 ## Patrón Non-async page + Suspense
 
 **NUNCA** hacer `page.tsx` async. Siempre usar:
+
 ```tsx
 // page.tsx
 export default function ShopPage() {
   return (
     <Suspense fallback={<Skeleton />}>
-      <DataComponent />   {/* este sí es async */}
+      <DataComponent /> {/* este sí es async */}
     </Suspense>
   );
 }
@@ -1422,11 +1432,11 @@ Usa API v22.0.
 Creados en Meta Business Suite, categoría `UTILITY`, idioma `Spanish (ARG)`.
 Pie de página: `Luckete Colorista • Asistente automático`
 
-| Nombre                         | Uso                                              | Función en código                |
-| ------------------------------ | ------------------------------------------------ | -------------------------------- |
-| `owner_client_contact_1`       | Cliente quiere hablar sin dejar mensaje          | `sendOwnerClientContact(phone)`  |
-| `owner_client_message_1`       | Cliente dejó un mensaje                          | `sendOwnerClientMessage(phone, msg)` |
-| `owner_appointment_modified_1` | Turno modificado exitosamente                    | `sendOwnerAppointmentModified(phone)` |
+| Nombre                         | Uso                                     | Función en código                     |
+| ------------------------------ | --------------------------------------- | ------------------------------------- |
+| `owner_client_contact_1`       | Cliente quiere hablar sin dejar mensaje | `sendOwnerClientContact(phone)`       |
+| `owner_client_message_1`       | Cliente dejó un mensaje                 | `sendOwnerClientMessage(phone, msg)`  |
+| `owner_appointment_modified_1` | Turno modificado exitosamente           | `sendOwnerAppointmentModified(phone)` |
 
 ✅ El bot ahora usa estos templates aprobados para notificar a la dueña (en lugar de `sendTextMessage` que solo funciona dentro de la ventana de 24hs de Meta). Las funciones están en `src/services/whatsapp.ts`.
 

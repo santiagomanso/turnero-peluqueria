@@ -120,8 +120,8 @@ export async function sendOwnerClientContact({
         {
           type: "body",
           parameters: [
-            { type: "text", text: clientName },  // {{1}} Nombre
-            { type: "text", text: clientPhone },  // {{2}} Teléfono
+            { type: "text", text: clientName }, // {{1}} Nombre
+            { type: "text", text: clientPhone }, // {{2}} Teléfono
           ],
         },
       ],
@@ -151,9 +151,9 @@ export async function sendOwnerClientMessage({
         {
           type: "body",
           parameters: [
-            { type: "text", text: clientName },  // {{1}} Nombre
-            { type: "text", text: clientPhone },  // {{2}} Teléfono
-            { type: "text", text: message },      // {{3}} Mensaje
+            { type: "text", text: clientName }, // {{1}} Nombre
+            { type: "text", text: clientPhone }, // {{2}} Teléfono
+            { type: "text", text: message }, // {{3}} Mensaje
           ],
         },
       ],
@@ -161,22 +161,6 @@ export async function sendOwnerClientMessage({
   });
 }
 
-/**
- * Notifies the customer that their shop order is ready for pickup.
- *
- * Template "order_pick_up_1" — body:
- *   Hola {{1}} 👋
- *   🎉 ¡Tu pedido *{{2}}* está listo para retirar!
- *   📍 Podés pasar a buscarlo a *{{3}}*.
- *   Tocá el botón para ver el detalle de tu pedido 👇
- *
- * Button URL (index 0): https://<domain>/shop/order/{{1}}  (suffix = orderId)
- *
- * Parameters:
- *   body {{1}} = customerName
- *   body {{2}} = order ref  (#XXXXXX)
- *   button {{1}} = orderId   (URL suffix)
- */
 export async function sendOrderReadyNotification({
   telephone,
   orderId,
@@ -199,7 +183,7 @@ export async function sendOrderReadyNotification({
           type: "body",
           parameters: [
             { type: "text", text: customerName }, // {{1}}
-            { type: "text", text: orderRef },      // {{2}}
+            { type: "text", text: orderRef }, // {{2}}
           ],
         },
         {

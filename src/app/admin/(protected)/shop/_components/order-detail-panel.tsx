@@ -22,6 +22,7 @@ import {
   type Order,
   type OrderStatus,
 } from "@/types/shop";
+import { sendOrderReadyNotificationAction } from "../_actions/send-order-ready-notification";
 
 interface OrderDetailPanelProps {
   order: Order;
@@ -101,6 +102,19 @@ export function OrderDetailPanel({
       return;
     }
     onUpdateStatus?.(order.id, status);
+
+    if (status === "READY" && order.telephone) {
+      try {
+        await sendOrderReadyNotificationAction({
+          orderId: order.id,
+          telephone: order.telephone,
+          customerName: order.name ?? "Cliente",
+        });
+      } catch (e) {
+        console.error("Error enviando WhatsApp:", e);
+      }
+    }
+
     toast.success("Estado actualizado correctamente");
   }
 
@@ -296,7 +310,8 @@ export function OrderDetailPanel({
         </div>
 
         {/* Footer actions */}
-        {!readOnly && order.status !== "CANCELLED" &&
+        {!readOnly &&
+          order.status !== "CANCELLED" &&
           (availableActions.length > 0 || previousStatus !== null) && (
             <div className="px-5 py-4 border-t border-border-subtle dark:border-zinc-800 shrink-0 bg-surface dark:bg-zinc-800">
               <p className="text-xs font-semibold tracking-wide uppercase text-content-quaternary dark:text-zinc-500 mb-3">
@@ -322,7 +337,8 @@ export function OrderDetailPanel({
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-content-tertiary dark:text-zinc-500 border border-border-subtle dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-500 hover:text-content-secondary dark:hover:text-zinc-400 transition-all"
                   >
                     <RotateCcw size={12} />
-                    Revertir a &quot;{ORDER_STATUS_CONFIG[previousStatus].label}&quot;
+                    Revertir a &quot;{ORDER_STATUS_CONFIG[previousStatus].label}
+                    &quot;
                   </button>
                 )}
               </div>
