@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import type { Order, OrderStatus, PaymentMethod } from "@/types/shop";
 import { sendOrderReadyNotification } from "@/services/whatsapp";
+import { formatArgentinianPhone } from "@/lib/format-phone";
 
 function mapOrder(o: {
   id: string;
@@ -134,8 +135,8 @@ export async function updateOrderStatus(
       telephone: order.telephone,
       orderId: id,
       customerName: order.name ?? "Cliente",
-    }).catch(
-      (err) => console.error("[updateOrderStatus] WhatsApp notification failed:", err),
+    }).catch((err) =>
+      console.error("[updateOrderStatus] WhatsApp notification failed:", err),
     );
   }
 
@@ -172,7 +173,12 @@ export interface CartValidationResult {
   /** Products that are inactive or don't exist */
   inactive: { productId: string; name: string }[];
   /** Products with insufficient stock */
-  outOfStock: { productId: string; name: string; available: number; requested: number }[];
+  outOfStock: {
+    productId: string;
+    name: string;
+    available: number;
+    requested: number;
+  }[];
 }
 
 export async function validateCart(
@@ -275,7 +281,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     // Create order with items
     return tx.order.create({
       data: {
-        telephone: input.telephone,
+        telephone: formatArgentinianPhone(input.telephone),
         name: input.name,
         email: input.email ?? null,
         note: input.note ?? null,
