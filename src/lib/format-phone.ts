@@ -1,10 +1,12 @@
 import { parsePhoneNumber, AsYouType } from "libphonenumber-js";
 
-/** Normaliza para DB: "3794800756" → "5493794800756" */
+/** Normaliza para DB/WhatsApp: "3794800756" o "03794800756" → "5493794800756" */
 export function formatArgentinianPhone(telephone: string): string {
   const digits = telephone.replace(/\D/g, "");
   if (digits.startsWith("54")) return digits;
-  return `549${digits}`;
+  // Strip leading 0 (formato local argentino: 03794800756 → 3794800756)
+  const normalized = digits.startsWith("0") ? digits.slice(1) : digits;
+  return `549${normalized}`;
 }
 
 /** Formatea en tiempo real mientras el usuario escribe: "3794800756" → "3794 80-0756" */
