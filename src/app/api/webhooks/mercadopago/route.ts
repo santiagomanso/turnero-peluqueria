@@ -144,11 +144,6 @@ async function handleShopOrderPayment(
     return;
   }
 
-  await db.order.update({
-    where: { id: orderId },
-    data: { status: "PROCESSING" },
-  });
-
   await db.payment.upsert({
     where: { orderId },
     create: {
@@ -162,13 +157,15 @@ async function handleShopOrderPayment(
     update: { status: payment.status },
   });
 
-  console.log("Order marked as PROCESSING:", orderId);
+  console.log("Order payment recorded:", orderId);
 
-  sendOrderConfirmation({
-    telephone: existing.telephone,
-    customerName: existing.name ?? "Cliente",
-    orderId,
-  }).catch((err) =>
-    console.error("[MP Webhook] WhatsApp order confirmation failed:", err),
-  );
+  try {
+    await sendOrderConfirmation({
+      telephone: existing.telephone,
+      customerName: existing.name ?? "Cliente",
+      orderId,
+    });
+  } catch (err) {
+    console.error("[MP Webhook] WhatsApp order confirmation failed:", err);
+  }
 }
