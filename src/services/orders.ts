@@ -302,14 +302,16 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     });
   });
 
-  // Notify customer via WhatsApp (fire-and-forget)
-  sendOrderConfirmation({
-    telephone: input.telephone,
-    customerName: input.name,
-    orderId: order.id,
-  }).catch((err) =>
-    console.error("[createOrder] WhatsApp confirmation failed:", err),
-  );
+  // Notify customer via WhatsApp
+  try {
+    await sendOrderConfirmation({
+      telephone: input.telephone,
+      customerName: input.name,
+      orderId: order.id,
+    });
+  } catch (err) {
+    console.error("[createOrder] WhatsApp confirmation failed:", err);
+  }
 
   return mapOrder(order);
 }
