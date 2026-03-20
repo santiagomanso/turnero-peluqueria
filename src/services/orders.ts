@@ -303,12 +303,14 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   });
 
   // Notify customer via WhatsApp
+  console.log("[createOrder] Sending confirmation to:", input.telephone, "orderId:", order.id);
   try {
     await sendOrderConfirmation({
       telephone: input.telephone,
       customerName: input.name,
       orderId: order.id,
     });
+    console.log("[createOrder] WhatsApp confirmation sent successfully");
   } catch (err) {
     console.error("[createOrder] WhatsApp confirmation failed:", err);
   }
