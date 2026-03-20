@@ -104,7 +104,7 @@ export function ShopView() {
 
         <div className="flex-1 min-h-0">
           {activeTab === "ordenes" ? (
-            <div className="overflow-y-auto h-full">
+            <div className="h-full flex flex-col">
               <OrdersTab
                 registerRefresh={(fn) => {
                   refreshOrdersRef.current = fn;

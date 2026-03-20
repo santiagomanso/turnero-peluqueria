@@ -204,9 +204,9 @@ export function OrdersTab({ registerRefresh }: OrdersTabProps) {
 
   return (
     <>
-      <div className="space-y-5">
+      <div className="flex flex-col h-full gap-5">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3">
           {STATS.map((s) => {
             const count = orders.filter((o) => o.status === s.key).length;
             return (
@@ -240,7 +240,7 @@ export function OrdersTab({ registerRefresh }: OrdersTabProps) {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="shrink-0 flex flex-col sm:flex-row gap-2">
           <div className="flex items-center gap-2 flex-1 rounded-lg px-3 py-2 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
             <Search
               size={15}
@@ -275,10 +275,10 @@ export function OrdersTab({ registerRefresh }: OrdersTabProps) {
           </div>
         </div>
 
-        {/* Table desktop */}
-        <div className="hidden md:block rounded-xl overflow-hidden border border-border-subtle dark:border-zinc-700">
+        {/* Desktop: the bordered div IS the scroll container so sticky thead stays inside it */}
+        <div className="hidden md:flex flex-col flex-1 min-h-0 rounded-xl border border-border-subtle dark:border-zinc-700 overflow-y-auto overflow-x-clip">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="bg-surface dark:bg-zinc-800 border-b border-border-subtle dark:border-zinc-700">
                 {[
                   "Orden",
@@ -356,10 +356,28 @@ export function OrdersTab({ registerRefresh }: OrdersTabProps) {
               </p>
             </div>
           )}
-        </div>
 
-        {/* Cards mobile */}
-        <div className="md:hidden space-y-3">
+          {/* Desktop load more */}
+          {nextCursor && (
+            <div className="flex justify-center pt-2 pb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadMore}
+                disabled={isLoadingMore}
+                className="dark:border-zinc-700 dark:text-zinc-300"
+              >
+                {isLoadingMore ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : null}
+                {isLoadingMore ? "Cargando..." : "Cargar más órdenes"}
+              </Button>
+            </div>
+          )}
+        </div> {/* end desktop scroll container */}
+
+        {/* Mobile: own scroll container */}
+        <div className="md:hidden flex-1 min-h-0 overflow-y-auto space-y-3 pb-4">
           {filtered.length === 0 && (
             <div className="py-12 text-center">
               <ShoppingBag
@@ -443,25 +461,23 @@ export function OrdersTab({ registerRefresh }: OrdersTabProps) {
               )}
             </div>
           ))}
-        </div>
-
-        {/* Load more */}
-        {nextCursor && (
-          <div className="flex justify-center pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={loadMore}
-              disabled={isLoadingMore}
-              className="dark:border-zinc-700 dark:text-zinc-300"
-            >
-              {isLoadingMore ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : null}
-              {isLoadingMore ? "Cargando..." : "Cargar más órdenes"}
-            </Button>
-          </div>
-        )}
+          {nextCursor && (
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadMore}
+                disabled={isLoadingMore}
+                className="dark:border-zinc-700 dark:text-zinc-300"
+              >
+                {isLoadingMore ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : null}
+                {isLoadingMore ? "Cargando..." : "Cargar más órdenes"}
+              </Button>
+            </div>
+          )}
+        </div> {/* end mobile scroll container */}
       </div>
 
       <AnimatePresence>
