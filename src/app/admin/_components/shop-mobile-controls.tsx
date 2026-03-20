@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings2, Plus, Sun, Moon, Tag } from "lucide-react";
+import { Settings2, Plus, Sun, Moon, Tag, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ import { useAdminTheme } from "./admin-theme-provider";
 import { SHOP_CATEGORIES } from "@/types/shop";
 
 export const SHOP_CREATE_EVENT = "shop:open-create";
+export const SHOP_REFRESH_EVENT = "shop:refresh";
 export const SHOP_ACTIVE_CATEGORY_EVENT = "shop:active-category";
 export const SHOP_SELECT_CATEGORY_EVENT = "shop:select-category";
 
@@ -42,7 +43,9 @@ export function ShopMobileControls() {
 
   function selectCategory(cat: string | null) {
     window.dispatchEvent(
-      new CustomEvent(SHOP_SELECT_CATEGORY_EVENT, { detail: { category: cat } }),
+      new CustomEvent(SHOP_SELECT_CATEGORY_EVENT, {
+        detail: { category: cat },
+      }),
     );
   }
 
@@ -63,6 +66,14 @@ export function ShopMobileControls() {
         >
           <Plus className="w-3.5 h-3.5 text-gold" />
           Nuevo producto
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={() => window.dispatchEvent(new Event(SHOP_REFRESH_EVENT))}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-content-tertiary dark:text-zinc-400" />
+          Actualizar
         </DropdownMenuItem>
 
         {gestorActive && (
@@ -91,7 +102,11 @@ export function ShopMobileControls() {
                     Todos los productos
                   </DropdownMenuRadioItem>
                   {SHOP_CATEGORIES.map((cat) => (
-                    <DropdownMenuRadioItem key={cat} value={cat} className="text-xs">
+                    <DropdownMenuRadioItem
+                      key={cat}
+                      value={cat}
+                      className="text-xs"
+                    >
                       {cat}
                     </DropdownMenuRadioItem>
                   ))}

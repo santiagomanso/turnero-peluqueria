@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 import type { Order, OrderStatus, PaymentMethod } from "@/types/shop";
-import { sendOrderReadyNotification } from "@/services/whatsapp";
+import {
+  sendOrderConfirmation,
+  sendOrderReadyNotification,
+} from "@/services/whatsapp";
 import { formatArgentinianPhone } from "@/lib/format-phone";
 
 function mapOrder(o: {
@@ -298,6 +301,15 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       include: includeItems,
     });
   });
+
+  // Notify customer via WhatsApp (fire-and-forget)
+  sendOrderConfirmation({
+    telephone: input.telephone,
+    customerName: input.name,
+    orderId: order.id,
+  }).catch((err) =>
+    console.error("[createOrder] WhatsApp confirmation failed:", err),
+  );
 
   return mapOrder(order);
 }

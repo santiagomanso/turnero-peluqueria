@@ -8,6 +8,11 @@ export function formatDate(date: Date): string {
   return formatInTimeZone(date, TZ, "dd/MM/yyyy", { locale: es });
 }
 
+/** "19/03" — día y mes, sin año */
+export function formatDateDayMonth(date: Date | string): string {
+  return formatInTimeZone(new Date(date), TZ, "dd/MM");
+}
+
 /** "viernes 27 de febrero" */
 export function formatDateLong(date: Date): string {
   return formatInTimeZone(date, TZ, "EEEE d 'de' MMMM", { locale: es });

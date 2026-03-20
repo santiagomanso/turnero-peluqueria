@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   X,
   Store,
@@ -11,11 +12,23 @@ import {
   MapPin,
   CheckCircle2,
   RotateCcw,
+  ChevronDown,
+  Loader2,
+  MessageCircle,
+  FileText,
+  MessageSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { updateOrderStatusAction } from "../_actions/update-order-status";
 import {
   ORDER_STATUS_CONFIG,
@@ -41,41 +54,23 @@ const NEXT_ACTIONS: {
   status: OrderStatus;
   label: string;
   icon: React.ReactNode;
-  className: string;
 }[] = [
   {
     status: "PROCESSING",
     label: "Preparando pedido",
-    icon: <ShoppingCart size={14} />,
-    className:
-      "bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800 dark:hover:bg-blue-900",
+    icon: <ShoppingCart size={13} />,
   },
   {
     status: "READY",
     label: "Listo para retirar",
-    icon: <MapPin size={14} />,
-    className:
-      "bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800 dark:hover:bg-purple-900",
+    icon: <MapPin size={13} />,
   },
   {
     status: "PICKED_UP",
     label: "Marcar como retirado",
-    icon: <CheckCircle2 size={14} />,
-    className: "bg-gold text-white hover:bg-gold/90",
+    icon: <CheckCircle2 size={13} />,
   },
 ];
-
-function StatusBadge({ status }: { status: OrderStatus }) {
-  const cfg = ORDER_STATUS_CONFIG[status];
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
-      style={{ color: cfg.color, background: cfg.bg }}
-    >
-      {cfg.label}
-    </span>
-  );
-}
 
 export function OrderDetailPanel({
   order,
@@ -83,6 +78,8 @@ export function OrderDetailPanel({
   onUpdateStatus,
   readOnly = false,
 }: OrderDetailPanelProps) {
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const subtotal = order.items.reduce(
     (acc, item) => acc + item.unitPrice * item.quantity,
     0,
@@ -94,8 +91,15 @@ export function OrderDetailPanel({
   );
   const previousStatus = currentIdx > 0 ? STATUS_ORDER[currentIdx - 1] : null;
 
+  const showActions =
+    !readOnly &&
+    order.status !== "CANCELLED" &&
+    (availableActions.length > 0 || previousStatus !== null);
+
   async function handleUpdateStatus(status: OrderStatus) {
+    setIsUpdating(true);
     const result = await updateOrderStatusAction(order.id, status);
+    setIsUpdating(false);
     if (!result.success) {
       toast.error(result.error ?? "Error al actualizar el estado");
       return;
@@ -135,7 +139,6 @@ export function OrderDetailPanel({
               <span className="font-mono font-bold text-gold">
                 #{order.id.slice(-6).toUpperCase()}
               </span>
-              <StatusBadge status={order.status} />
             </div>
             <p className="text-xs mt-1 text-content-tertiary dark:text-zinc-500">
               {new Date(order.createdAt).toLocaleDateString("es-AR", {
@@ -145,14 +148,69 @@ export function OrderDetailPanel({
               })}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onClose}
-            aria-label="Cerrar"
-          >
-            <X size={18} />
-          </Button>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {showActions && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    disabled={isUpdating}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity disabled:opacity-50"
+                    style={{
+                      color: ORDER_STATUS_CONFIG[order.status].color,
+                      background: ORDER_STATUS_CONFIG[order.status].bg,
+                    }}
+                  >
+                    {isUpdating ? (
+                      <Loader2 size={11} className="animate-spin" />
+                    ) : (
+                      <>
+                        {ORDER_STATUS_CONFIG[order.status].label}
+                        <ChevronDown size={11} />
+                      </>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-52 dark:bg-zinc-900 dark:border-zinc-800"
+                >
+                  {availableActions.map((action) => (
+                    <DropdownMenuItem
+                      key={action.status}
+                      onClick={() => handleUpdateStatus(action.status)}
+                      className="text-xs gap-2 cursor-pointer"
+                    >
+                      <span className="text-gold shrink-0">{action.icon}</span>
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                  {previousStatus !== null && availableActions.length > 0 && (
+                    <DropdownMenuSeparator className="dark:bg-zinc-800" />
+                  )}
+                  {previousStatus !== null && (
+                    <DropdownMenuItem
+                      onClick={() => handleUpdateStatus(previousStatus)}
+                      className="text-xs gap-2 cursor-pointer text-content-secondary dark:text-zinc-300"
+                    >
+                      <RotateCcw size={13} className="shrink-0" />
+                      Revertir a &quot;
+                      {ORDER_STATUS_CONFIG[previousStatus].label}&quot;
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onClose}
+              aria-label="Cerrar"
+            >
+              <X size={18} />
+            </Button>
+          </div>
         </div>
 
         {/* Body scrollable */}
@@ -190,7 +248,7 @@ export function OrderDetailPanel({
                 <span className="text-gold shrink-0">{row.icon}</span>
                 <span
                   className={cn(
-                    "text-sm",
+                    "text-sm flex-1",
                     i === 0
                       ? "font-medium text-content dark:text-zinc-100"
                       : "text-content-secondary dark:text-zinc-400",
@@ -198,6 +256,67 @@ export function OrderDetailPanel({
                 >
                   {row.value}
                 </span>
+                {i === 2 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 gap-1 text-[0.65rem] text-green-600 dark:text-green-500 hover:text-green-700 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30 px-2"
+                      >
+                        <MessageCircle size={12} />
+                        WhatsApp
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-52 dark:bg-zinc-900 dark:border-zinc-800"
+                    >
+                      <a
+                        href={`https://wa.me/${order.telephone}?text=${encodeURIComponent(
+                          `Hola, te escribimos desde *Luckete Colorista* en relación al pedido *#${order.id.slice(-6).toUpperCase()}* que hiciste el día ${new Date(order.createdAt).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}.\n\n`,
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
+                          <FileText size={13} className="text-gold shrink-0" />
+                          Sobre el pedido
+                        </DropdownMenuItem>
+                      </a>
+                      {order.note && (
+                        <a
+                          href={`https://wa.me/${order.telephone}?text=${encodeURIComponent(
+                            `Hola, te escribimos desde *Luckete Colorista* en relación a tu pedido *#${order.id.slice(-6).toUpperCase()}*, tu nota de pedido: _${order.note}_\n\n`,
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
+                            <MessageSquare
+                              size={13}
+                              className="text-gold shrink-0"
+                            />
+                            Sobre la nota
+                          </DropdownMenuItem>
+                        </a>
+                      )}
+                      <a
+                        href={`https://wa.me/${order.telephone}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
+                          <MessageCircle
+                            size={13}
+                            className="text-gold shrink-0"
+                          />
+                          Mensaje vacío
+                        </DropdownMenuItem>
+                      </a>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             ))}
           </div>
@@ -294,42 +413,6 @@ export function OrderDetailPanel({
             </div>
           </div>
         </div>
-
-        {/* Footer actions */}
-        {!readOnly &&
-          order.status !== "CANCELLED" &&
-          (availableActions.length > 0 || previousStatus !== null) && (
-            <div className="px-5 py-4 border-t border-border-subtle dark:border-zinc-800 shrink-0 bg-surface dark:bg-zinc-800">
-              <p className="text-xs font-semibold tracking-wide uppercase text-content-quaternary dark:text-zinc-500 mb-3">
-                Actualizar estado
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                {availableActions.map((action) => (
-                  <button
-                    key={action.status}
-                    onClick={() => handleUpdateStatus(action.status)}
-                    className={cn(
-                      "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all",
-                      action.className,
-                    )}
-                  >
-                    {action.icon}
-                    {action.label}
-                  </button>
-                ))}
-                {previousStatus !== null && (
-                  <button
-                    onClick={() => handleUpdateStatus(previousStatus)}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-content-tertiary dark:text-zinc-500 border border-border-subtle dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-500 hover:text-content-secondary dark:hover:text-zinc-400 transition-all"
-                  >
-                    <RotateCcw size={12} />
-                    Revertir a &quot;{ORDER_STATUS_CONFIG[previousStatus].label}
-                    &quot;
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
       </motion.div>
     </div>
   );

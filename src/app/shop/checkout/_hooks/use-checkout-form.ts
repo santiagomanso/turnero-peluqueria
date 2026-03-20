@@ -20,11 +20,7 @@ export const checkoutSchema = z.object({
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(100),
   telephone: z.string().min(8, "Ingresá un número de teléfono válido"),
-  email: z
-    .string()
-    .email("Email inválido")
-    .optional()
-    .or(z.literal("")),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
   note: z.string().max(500).optional(),
 });
 
@@ -43,6 +39,7 @@ export default function useCheckoutForm() {
 
   const router = useRouter();
   const items = useCart((s) => s.items);
+  const saveLastOrder = useCart((s) => s.saveLastOrder);
   const removeFromCart = useCart((s) => s.remove);
   const clearCart = useCart((s) => s.clearCart);
   const totalPrice = useCart((s) => s.totalPrice);
@@ -148,6 +145,7 @@ export default function useCheckoutForm() {
       }
 
       if (paymentMethod === "mercadopago") {
+        saveLastOrder();
         const mpResult = await createShopPreferenceAction(orderResult.order);
         if (!mpResult.success) {
           setGlobalError(mpResult.error);
@@ -156,6 +154,7 @@ export default function useCheckoutForm() {
         }
         window.location.href = mpResult.initPoint;
       } else {
+        saveLastOrder();
         clearCart();
         router.push(
           `/shop/checkout/success?orderId=${orderResult.order.id}&method=local`,

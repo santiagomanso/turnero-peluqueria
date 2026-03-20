@@ -176,7 +176,10 @@ export default function AppointmentCard({
     const message = encodeURIComponent(
       `Hola! Te escribimos desde *Luckete Colorista*\n\nAcá tenés el link para pagar tu turno ${dateLabel} a las ${appointment.time} hs:\n${url}`,
     );
-    window.open(`https://wa.me/${appointment.telephone}?text=${message}`, "_blank");
+    window.open(
+      `https://wa.me/${appointment.telephone}?text=${message}`,
+      "_blank",
+    );
   };
 
   const ActionsMenu = () => (
@@ -368,39 +371,47 @@ export default function AppointmentCard({
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       {/* ── MOBILE ── */}
-      <div className={cn(
-        "sm:hidden rounded-xl border overflow-hidden flex",
-        status === "CANCELLED"
-          ? "border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50"
-          : "border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none bg-white dark:bg-zinc-800",
-      )}>
+      <div
+        className={cn(
+          "sm:hidden rounded-xl border overflow-hidden flex",
+          status === "CANCELLED"
+            ? "border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50"
+            : "border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none bg-white dark:bg-zinc-800",
+        )}
+      >
         {status === "PENDING" && (
           <div className="w-0.75 shrink-0 bg-amber-500" />
         )}
 
         <div className="flex-1 min-w-0 overflow-hidden">
           {/* Top bar: Hora | Nombre | Menú */}
-          <div className={cn(
-            "flex items-center justify-between px-3.5 py-2.5 border-b border-border-subtle dark:border-zinc-700",
-            status === "CANCELLED"
-              ? "bg-zinc-100 dark:bg-zinc-800/80"
-              : "bg-gray-100 dark:bg-black/30",
-          )}>
-            <div className={cn(
-              "w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0",
-              status === "CANCELLED" && "opacity-40",
-            )}>
+          <div
+            className={cn(
+              "flex items-center justify-between px-3.5 py-2.5 border-b border-border-subtle dark:border-zinc-700",
+              status === "CANCELLED"
+                ? "bg-zinc-100 dark:bg-zinc-800/80"
+                : "bg-gray-100 dark:bg-black/30",
+            )}
+          >
+            <div
+              className={cn(
+                "w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0",
+                status === "CANCELLED" && "opacity-40",
+              )}
+            >
               <span className="text-[0.65rem] font-bold text-gold font-heebo leading-none">
                 {appointment.time}
               </span>
             </div>
             <div className="flex-1 mx-3 flex items-center justify-center gap-1.5 min-w-0">
-              <p className={cn(
-                "text-xs font-semibold truncate",
-                status === "CANCELLED"
-                  ? "text-content-tertiary dark:text-zinc-500 line-through"
-                  : "text-content dark:text-zinc-100",
-              )}>
+              <p
+                className={cn(
+                  "text-xs font-semibold truncate",
+                  status === "CANCELLED"
+                    ? "text-content-tertiary dark:text-zinc-500 line-through"
+                    : "text-content dark:text-zinc-100",
+                )}
+              >
                 {truncatedName}
               </p>
               {appointment.isTest && (
@@ -474,12 +485,14 @@ export default function AppointmentCard({
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className={cn(
-        "hidden sm:flex rounded-xl border overflow-hidden items-stretch gap-4",
-        status === "CANCELLED"
-          ? "border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50"
-          : "border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none bg-white dark:bg-zinc-800",
-      )}>
+      <div
+        className={cn(
+          "hidden sm:flex rounded-xl border overflow-hidden items-stretch gap-4",
+          status === "CANCELLED"
+            ? "border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50"
+            : "border-border-subtle dark:border-zinc-700 shadow shadow-neutral-400/20 dark:shadow-none bg-white dark:bg-zinc-800",
+        )}
+      >
         {status === "PENDING" && (
           <div className="w-0.75 self-stretch shrink-0 bg-amber-500" />
         )}
@@ -495,14 +508,21 @@ export default function AppointmentCard({
           </span>
         </div>
 
-        <div className={cn("flex-1 min-w-0 py-3", status === "CANCELLED" && "opacity-40")}>
+        <div
+          className={cn(
+            "flex-1 min-w-0 py-3",
+            status === "CANCELLED" && "opacity-40",
+          )}
+        >
           <div className="flex items-center gap-1.5 mb-0.5">
-            <p className={cn(
-              "text-sm font-semibold font-heebo truncate",
-              status === "CANCELLED"
-                ? "text-content-tertiary dark:text-zinc-500 line-through"
-                : "text-content dark:text-zinc-100",
-            )}>
+            <p
+              className={cn(
+                "text-sm font-semibold font-heebo truncate",
+                status === "CANCELLED"
+                  ? "text-content-tertiary dark:text-zinc-500 line-through"
+                  : "text-content dark:text-zinc-100",
+              )}
+            >
               {displayName}
             </p>
             {appointment.isTest && (
@@ -521,14 +541,26 @@ export default function AppointmentCard({
           </div>
         </div>
 
-        <p className={cn(
-          "text-sm font-bold font-heebo shrink-0 self-center",
-          status === "CANCELLED"
-            ? "text-content-tertiary dark:text-zinc-500 opacity-40"
-            : "text-content dark:text-zinc-100",
-        )}>
-          {price}
-        </p>
+        <div
+          className={cn(
+            "shrink-0 self-center text-right",
+            status === "CANCELLED" && "opacity-40",
+          )}
+        >
+          <p
+            className={cn(
+              "text-sm font-bold font-heebo",
+              status === "CANCELLED"
+                ? "text-content-tertiary dark:text-zinc-500"
+                : "text-content dark:text-zinc-100",
+            )}
+          >
+            {shortPhone}
+          </p>
+          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
+            {price}
+          </p>
+        </div>
 
         <div className="pr-4 self-center">
           <ActionsMenu />

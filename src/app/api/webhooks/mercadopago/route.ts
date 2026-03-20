@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
-import { sendAppointmentConfirmation } from "@/services/whatsapp";
+import {
+  sendAppointmentConfirmation,
+  sendOrderConfirmation,
+} from "@/services/whatsapp";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -161,5 +164,11 @@ async function handleShopOrderPayment(
 
   console.log("Order marked as PROCESSING:", orderId);
 
-  // TODO: Send WhatsApp notification to owner about new paid order
+  sendOrderConfirmation({
+    telephone: existing.telephone,
+    customerName: existing.name ?? "Cliente",
+    orderId,
+  }).catch((err) =>
+    console.error("[MP Webhook] WhatsApp order confirmation failed:", err),
+  );
 }

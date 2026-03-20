@@ -208,3 +208,41 @@ export async function sendTextMessage(to: string, text: string): Promise<void> {
   });
   console.log(`✅ Mensaje enviado a ${to}`);
 }
+
+export async function sendOrderConfirmation({
+  telephone,
+  customerName,
+  orderId,
+}: {
+  telephone: string;
+  customerName: string;
+  orderId: string;
+}): Promise<void> {
+  const orderRef = `#${orderId.slice(-8).toUpperCase()}`;
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: formatArgentinianPhone(telephone),
+    type: "template",
+    template: {
+      name: "order_confirmation_2",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: customerName }, // {{1}} nombre
+            { type: "text", text: orderRef }, // {{2}} número de pedido
+          ],
+        },
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [
+            { type: "text", text: orderId }, // sufijo URL → /shop/order/<orderId>
+          ],
+        },
+      ],
+    },
+  });
+}

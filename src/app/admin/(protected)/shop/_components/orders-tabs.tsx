@@ -2,16 +2,27 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Search, ChevronDown, ShoppingBag, Eye, Loader2 } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  ShoppingBag,
+  Eye,
+  Loader2,
+  CreditCard,
+  Banknote,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getOrdersAction } from "../_actions/get-orders";
 import { OrderDetailPanel } from "./order-detail-panel";
+import { formatDateDayMonth } from "@/lib/format-date";
 import {
   ORDER_STATUS_CONFIG,
   type Order,
   type OrderStatus,
 } from "@/types/shop";
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   const cfg = ORDER_STATUS_CONFIG[status];
@@ -21,6 +32,47 @@ function StatusBadge({ status }: { status: OrderStatus }) {
       style={{ color: cfg.color, background: cfg.bg }}
     >
       {cfg.label}
+    </span>
+  );
+}
+
+function PaymentMethodBadge({ order }: { order: Order }) {
+  const isMp = order.paymentMethod === "mercadopago";
+  return (
+    <div className="flex items-center gap-1.5">
+      {isMp ? (
+        <CreditCard
+          size={11}
+          className="text-content-tertiary dark:text-zinc-500 shrink-0"
+        />
+      ) : (
+        <Banknote
+          size={11}
+          className="text-content-tertiary dark:text-zinc-500 shrink-0"
+        />
+      )}
+      <span className="text-xs text-content-secondary dark:text-zinc-400">
+        {isMp ? "MercadoPago" : "Efectivo"}
+      </span>
+    </div>
+  );
+}
+
+function PaymentStatusBadge({ order }: { order: Order }) {
+  const isMp = order.paymentMethod === "mercadopago";
+  const isPaid = isMp
+    ? order.status !== "PENDING"
+    : order.status === "PICKED_UP";
+  return (
+    <span
+      className={cn(
+        "text-xs font-semibold",
+        isPaid
+          ? "text-green-600 dark:text-green-400"
+          : "text-amber-600 dark:text-amber-400",
+      )}
+    >
+      {isPaid ? "Pagado" : "En el local"}
     </span>
   );
 }
@@ -68,7 +120,33 @@ const STATS = [
   },
 ];
 
-export function OrderesTab() {
+// ─── Fetch function (outside component to avoid linter issues) ─────────────────
+
+type SetOrders = React.Dispatch<React.SetStateAction<Order[]>>;
+type SetCursor = React.Dispatch<React.SetStateAction<string | null>>;
+type SetBool = React.Dispatch<React.SetStateAction<boolean>>;
+
+async function fetchOrders(
+  setOrders: SetOrders,
+  setNextCursor: SetCursor,
+  setIsLoading: SetBool,
+) {
+  setIsLoading(true);
+  const result = await getOrdersAction();
+  if (result.success && result.orders) {
+    setOrders(result.orders);
+    setNextCursor(result.nextCursor ?? null);
+  }
+  setIsLoading(false);
+}
+
+// ─── Component ─────────────────────────────────────────────────────────────────
+
+interface OrdersTabProps {
+  registerRefresh?: (fn: () => void) => void;
+}
+
+export function OrdersTab({ registerRefresh }: OrdersTabProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -80,16 +158,14 @@ export function OrderesTab() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const refresh = useCallback(() => {
+    fetchOrders(setOrders, setNextCursor, setIsLoading);
+  }, []);
+
   useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      const result = await getOrdersAction();
-      if (result.success && result.orders) {
-        setOrders(result.orders);
-        setNextCursor(result.nextCursor ?? null);
-      }
-      setIsLoading(false);
-    })();
+    refresh();
+    registerRefresh?.(refresh);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadMore = useCallback(async () => {
@@ -129,7 +205,7 @@ export function OrderesTab() {
   return (
     <>
       <div className="space-y-5">
-        {/* Stats — 2x2 mobile, 4 desktop */}
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {STATS.map((s) => {
             const count = orders.filter((o) => o.status === s.key).length;
@@ -208,8 +284,8 @@ export function OrderesTab() {
                   "Orden",
                   "Cliente",
                   "Fecha",
-                  "Productos",
-                  "Total",
+                  "Medio",
+                  "Pago",
                   "Estado",
                   "",
                 ].map((h) => (
@@ -244,17 +320,13 @@ export function OrderesTab() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-xs text-content-secondary dark:text-zinc-400">
-                    {new Date(order.createdAt).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                    {formatDateDayMonth(order.createdAt)}
                   </td>
-                  <td className="px-4 py-3 text-center text-xs font-medium text-content-secondary dark:text-zinc-400">
-                    {order.items.length}
+                  <td className="px-4 py-3">
+                    <PaymentMethodBadge order={order} />
                   </td>
-                  <td className="px-4 py-3 font-semibold text-content dark:text-zinc-100">
-                    ${order.total.toLocaleString("es-AR")}
+                  <td className="px-4 py-3">
+                    <PaymentStatusBadge order={order} />
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={order.status} />
@@ -336,21 +408,20 @@ export function OrderesTab() {
                       Fecha
                     </span>
                     <span className="text-content-secondary dark:text-zinc-400">
-                      {new Date(order.createdAt).toLocaleDateString("es-AR", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                      {formatDateDayMonth(order.createdAt)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm items-center">
                     <span className="text-content-tertiary dark:text-zinc-500">
-                      Productos
+                      Medio
                     </span>
-                    <span className="text-content-secondary dark:text-zinc-400">
-                      {order.items.length} ítem
-                      {order.items.length !== 1 ? "s" : ""}
+                    <PaymentMethodBadge order={order} />
+                  </div>
+                  <div className="flex justify-between text-sm items-center">
+                    <span className="text-content-tertiary dark:text-zinc-500">
+                      Pago
                     </span>
+                    <PaymentStatusBadge order={order} />
                   </div>
                   <div className="flex justify-between text-sm font-semibold">
                     <span className="text-content-tertiary dark:text-zinc-500">
@@ -396,7 +467,9 @@ export function OrderesTab() {
       <AnimatePresence>
         {selectedOrder && (
           <OrderDetailPanel
-            order={orders.find((o) => o.id === selectedOrder.id) ?? selectedOrder}
+            order={
+              orders.find((o) => o.id === selectedOrder.id) ?? selectedOrder
+            }
             onClose={() => setSelectedOrder(null)}
             onUpdateStatus={handleUpdateStatus}
           />

@@ -23,7 +23,11 @@ interface CartStore {
   totalItems: () => number;
   totalPrice: () => number;
 
-  // Drawer state (not persisted — see partialize below)
+  // Snapshot of the last completed order (persisted so success screen can read it)
+  lastOrder: CartItem[] | null;
+  saveLastOrder: () => void;
+
+  // Drawer state (not persisted)
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -90,6 +94,12 @@ export const useCart = create<CartStore>()(
       totalPrice: () =>
         get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
 
+      // ─── Last order snapshot ─────────────────────────────────────────────────
+
+      lastOrder: null,
+
+      saveLastOrder: () => set((state) => ({ lastOrder: [...state.items] })),
+
       // ─── Drawer ─────────────────────────────────────────────────────────────
 
       isOpen: false,
@@ -98,8 +108,10 @@ export const useCart = create<CartStore>()(
     }),
     {
       name: "shop-cart",
-      // Only persist items — drawer open/close state is ephemeral
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({
+        items: state.items,
+        lastOrder: state.lastOrder,
+      }),
     },
   ),
 );
