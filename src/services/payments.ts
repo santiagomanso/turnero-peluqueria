@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
-import { startOfDay, endOfDay } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
+
+const TZ = "America/Argentina/Buenos_Aires";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,11 +32,13 @@ export type UnifiedPaymentRow = {
 export async function getUnifiedPayments(
   specificDate: string,
 ): Promise<UnifiedPaymentRow[]> {
-  const day = new Date(specificDate + "T12:00:00.000Z");
+  // Use Argentina timezone for day boundaries so the list view matches the heatmap
+  const dayStart = fromZonedTime(`${specificDate}T00:00:00`, TZ);
+  const dayEnd = fromZonedTime(`${specificDate}T23:59:59.999`, TZ);
 
   const payments = await db.payment.findMany({
     where: {
-      paidAt: { gte: startOfDay(day), lt: endOfDay(day) },
+      paidAt: { gte: dayStart, lte: dayEnd },
     },
     orderBy: { paidAt: "desc" },
     include: {
@@ -98,8 +102,13 @@ export async function getPaymentMonthlyCounts(
   year: number,
   month: number, // 0-indexed (JS convention)
 ): Promise<Record<string, number>> {
-  const startDate = new Date(year, month, 1);
-  const endDate = new Date(year, month + 1, 1);
+  const monthStr = String(month + 1).padStart(2, "0");
+  const nextMonth = month + 1 > 11 ? 1 : month + 2;
+  const nextYear = month + 1 > 11 ? year + 1 : year;
+  const nextMonthStr = String(nextMonth).padStart(2, "0");
+
+  const startDate = fromZonedTime(`${year}-${monthStr}-01T00:00:00`, TZ);
+  const endDate = fromZonedTime(`${nextYear}-${nextMonthStr}-01T00:00:00`, TZ);
 
   const payments = await db.payment.findMany({
     where: { paidAt: { gte: startDate, lt: endDate } },
@@ -108,7 +117,7 @@ export async function getPaymentMonthlyCounts(
 
   const counts: Record<string, number> = {};
   for (const p of payments) {
-    const key = p.paidAt.toISOString().split("T")[0];
+    const key = formatInTimeZone(p.paidAt, TZ, "yyyy-MM-dd");
     counts[key] = (counts[key] ?? 0) + 1;
   }
 

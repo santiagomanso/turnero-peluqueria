@@ -65,7 +65,7 @@ function PaymentsCalendarBody({
   const selected = new Date(specificDate + "T12:00:00.000Z");
 
   const ColoredDayButton = (props: React.ComponentProps<typeof DayButton>) => {
-    const dateKey = props.day.date.toISOString().split("T")[0];
+    const dateKey = format(props.day.date, "yyyy-MM-dd");
     const count = monthlyCounts[dateKey] ?? 0;
     const colorClass = getPaymentDayColor(count);
     return (
