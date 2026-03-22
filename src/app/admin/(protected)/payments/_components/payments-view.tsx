@@ -358,7 +358,7 @@ function PaymentsList({
   }
 
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0 gap-2.5">
       {/* ── Mobile cards ── */}
       <div className="lg:hidden space-y-2.5">
         {payments.map((p) => (
@@ -372,102 +372,104 @@ function PaymentsList({
       </div>
 
       {/* ── Desktop table ── */}
-      <div className="hidden lg:block overflow-x-auto rounded-xl border border-border-subtle dark:border-zinc-800">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-surface dark:bg-zinc-800/50 border-b border-border-subtle dark:border-zinc-800">
-              {["Hora", "Tipo", "Método", "Cliente", "Detalle", "Monto", ""].map(
-                (h) => (
-                  <th
-                    key={h || "actions"}
-                    className="px-4 py-2.5 text-left text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider whitespace-nowrap"
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((p, idx) => (
-              <tr
-                key={p.id}
-                className={cn(
-                  "border-b border-border-subtle dark:border-zinc-800 last:border-b-0 transition-colors hover:bg-surface/60 dark:hover:bg-zinc-800/30",
-                  idx % 2 === 0
-                    ? "bg-white dark:bg-zinc-900"
-                    : "bg-surface/40 dark:bg-zinc-900/50",
-                )}
-              >
-                <td className="px-4 py-3 text-xs text-content-secondary dark:text-zinc-400 whitespace-nowrap tabular-nums">
-                  {new Date(p.paidAt).toLocaleTimeString("es-AR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </td>
-                <td className="px-4 py-3">
-                  <TypeBadge type={p.type} />
-                </td>
-                <td className="px-4 py-3">
-                  <SourceBadge source={p.source} />
-                </td>
-                <td className="px-4 py-3">
-                  <p className="text-sm font-medium text-content dark:text-zinc-100 whitespace-nowrap">
-                    {p.customerName ?? `+${p.customerPhone}`}
-                  </p>
-                  <p className="text-xs text-content-tertiary dark:text-zinc-500">
-                    +{p.customerPhone}
-                  </p>
-                </td>
-                <td className="px-4 py-3 text-xs text-content-secondary dark:text-zinc-400 whitespace-nowrap">
-                  {p.type === "appointment" && p.appointmentDate ? (
-                    <>
-                      {formatDateLongFromISO(p.appointmentDate)} ·{" "}
-                      {p.appointmentTime}
-                    </>
-                  ) : p.orderId ? (
-                    <span className="font-mono text-gold">
-                      #{p.orderId.slice(-6).toUpperCase()}
-                    </span>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap tabular-nums">
-                    ${p.amount.toLocaleString("es-AR")}
-                  </span>
-                  {p.mercadopagoId && (
-                    <p
-                      className="text-[0.55rem] font-mono text-content-quaternary dark:text-zinc-600 truncate max-w-20"
-                      title={p.mercadopagoId}
+      <div className="hidden lg:flex flex-col flex-1 min-h-0 rounded-xl border border-border-subtle dark:border-zinc-800 overflow-hidden">
+        <div className="overflow-y-auto flex-1">
+          <table className="w-full">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-surface dark:bg-zinc-800/50 border-b border-border-subtle dark:border-zinc-800">
+                {["Hora", "Tipo", "Método", "Cliente", "Detalle", "Monto", ""].map(
+                  (h) => (
+                    <th
+                      key={h || "actions"}
+                      className="px-4 py-2.5 text-left text-xs font-medium text-content-tertiary dark:text-zinc-500 uppercase tracking-wider whitespace-nowrap"
                     >
-                      {p.mercadopagoId.slice(0, 8)}…
-                    </p>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onViewDetail(p)}
-                    disabled={loadingPaymentId === p.id}
-                    className="text-xs gap-1.5 text-content-tertiary dark:text-zinc-500 hover:text-gold"
-                  >
-                    {loadingPaymentId === p.id ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Eye className="w-3 h-3" />
-                    )}
-                    Ver
-                  </Button>
-                </td>
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {payments.map((p, idx) => (
+                <tr
+                  key={p.id}
+                  className={cn(
+                    "border-b border-border-subtle dark:border-zinc-800 last:border-b-0 transition-colors hover:bg-surface/60 dark:hover:bg-zinc-800/30",
+                    idx % 2 === 0
+                      ? "bg-white dark:bg-zinc-900"
+                      : "bg-surface/40 dark:bg-zinc-900/50",
+                  )}
+                >
+                  <td className="px-4 py-3 text-xs text-content-secondary dark:text-zinc-400 whitespace-nowrap tabular-nums">
+                    {new Date(p.paidAt).toLocaleTimeString("es-AR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className="px-4 py-3">
+                    <TypeBadge type={p.type} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <SourceBadge source={p.source} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="text-sm font-medium text-content dark:text-zinc-100 whitespace-nowrap">
+                      {p.customerName ?? `+${p.customerPhone}`}
+                    </p>
+                    <p className="text-xs text-content-tertiary dark:text-zinc-500">
+                      +{p.customerPhone}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-content-secondary dark:text-zinc-400 whitespace-nowrap">
+                    {p.type === "appointment" && p.appointmentDate ? (
+                      <>
+                        {formatDateLongFromISO(p.appointmentDate)} ·{" "}
+                        {p.appointmentTime}
+                      </>
+                    ) : p.orderId ? (
+                      <span className="font-mono text-gold">
+                        #{p.orderId.slice(-6).toUpperCase()}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap tabular-nums">
+                      ${p.amount.toLocaleString("es-AR")}
+                    </span>
+                    {p.mercadopagoId && (
+                      <p
+                        className="text-[0.55rem] font-mono text-content-quaternary dark:text-zinc-600 truncate max-w-20"
+                        title={p.mercadopagoId}
+                      >
+                        {p.mercadopagoId.slice(0, 8)}…
+                      </p>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onViewDetail(p)}
+                      disabled={loadingPaymentId === p.id}
+                      className="text-xs gap-1.5 text-content-tertiary dark:text-zinc-500 hover:text-gold"
+                    >
+                      {loadingPaymentId === p.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Eye className="w-3 h-3" />
+                      )}
+                      Ver
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -548,7 +550,7 @@ export function PaymentsView() {
         mobileControls={controls}
       />
 
-      <div className="flex flex-col flex-1 min-h-0 overflow-y-auto px-4 lg:px-7 py-5 space-y-4">
+      <div className="flex flex-col flex-1 min-h-0 overflow-y-auto lg:overflow-y-hidden px-4 lg:px-7 py-5 gap-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-sm text-content-tertiary dark:text-zinc-500 animate-pulse">
