@@ -83,7 +83,7 @@ export default function useCreateAppointmentForm(
   const [isValidatingDiscount, setIsValidatingDiscount] = React.useState(false);
   const [fullDates, setFullDates] = React.useState<Date[]>([]);
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const router = useRouter();
   const searchParams = useSearchParams();

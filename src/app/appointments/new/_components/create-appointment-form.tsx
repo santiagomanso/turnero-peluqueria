@@ -6,6 +6,7 @@ import DateStep from "./date-step";
 import HourStep from "./hour-step";
 import TelephoneStep from "./telephone-step";
 import ConfirmationStep from "./confirmation-step";
+import PaymentStep from "./payment-step";
 import ProgressBar from "./progress-bar";
 import BottomNavigationButtons from "./bottom-navigation-buttons";
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
@@ -58,8 +59,14 @@ function AppointmentFormInner({
               bookingCost={bookingCost}
             />
           )}
+          {appointmentForm.currentStep === 5 && (
+            <PaymentStep
+              appointmentForm={appointmentForm}
+              bookingCost={bookingCost}
+            />
+          )}
         </div>
-        <BottomNavigationButtons appointmentForm={appointmentForm} />
+        <BottomNavigationButtons appointmentForm={appointmentForm} bookingCost={bookingCost} />
       </form>
     </div>
   );
