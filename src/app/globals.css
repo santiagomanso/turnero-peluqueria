@@ -206,6 +206,29 @@
       rgba(201, 169, 110, 0.2)
     );
   }
+
+  @keyframes ring-rotate-cw {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes ring-rotate-ccw {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(-360deg); }
+  }
+  @keyframes ring-expand {
+    0%   { opacity: 0; width: 60px; height: 60px; }
+    15%  { opacity: 1; }
+    100% { opacity: 0.22; width: min(70vw, 520px); height: min(70vw, 520px); }
+  }
+  @keyframes ring-expand-outer {
+    0%   { opacity: 0; width: 60px; height: 60px; }
+    15%  { opacity: 0.55; }
+    100% { opacity: 0.1; width: min(90vw, 700px); height: min(90vw, 700px); }
+  }
+  @keyframes scroll-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.25; }
+  }
 }
 
 @supports (padding-top: env(safe-area-inset-top)) {
