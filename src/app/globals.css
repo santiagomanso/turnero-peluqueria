@@ -10,6 +10,10 @@
   --font-dancingScript: var(--font-dancing-script);
   --font-heebo: var(--font-heebo);
 
+  /* Micro text sizes (below Tailwind's text-xs minimum of 12px) */
+  --text-micro: 0.594rem;  /* 9.5px */
+  --text-nano: 0.531rem;   /* 8.5px */
+
   /* ── LUXURY LIGHT PALETTE ─────────────────────────────
      4 roles: base · surface · content · gold
   ──────────────────────────────────────────────────── */
