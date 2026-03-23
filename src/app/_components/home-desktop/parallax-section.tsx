@@ -18,6 +18,7 @@ type Props = {
   dark?: boolean;
   external?: boolean;
   decoNumber: string;
+  bgClass?: string;
 };
 
 const titleVariants = {
@@ -31,7 +32,7 @@ const titleVariants = {
 export function ParallaxSection({
   id, counter, titleLine1, titleLine2, accentLine = 2,
   description, ctaLabel, ctaHref, ctaVariant, dark = false,
-  external = false, decoNumber,
+  external = false, decoNumber, bgClass,
 }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -39,12 +40,6 @@ export function ParallaxSection({
     offset: ["start end", "end start"],
   });
   const decoY = useTransform(scrollYProgress, [0, 1], ["0px", "80px"]);
-
-  const bgClass = dark
-    ? "bg-[#1a1714]"
-    : id === "section-02"
-    ? "bg-[#e5e1db]"
-    : "bg-surface";
 
   const ctaClass = cn(
     "inline-flex items-center gap-2 px-9 py-4 rounded-xl text-sm font-semibold transition-all",
@@ -62,7 +57,7 @@ export function ParallaxSection({
     <section
       ref={sectionRef}
       id={id}
-      className={cn("relative h-svh flex items-center justify-center overflow-hidden", bgClass)}
+      className={cn("relative h-svh flex items-center justify-center overflow-hidden", bgClass ?? "bg-surface")}
     >
       {/* Parallax decorative number */}
       <motion.span
