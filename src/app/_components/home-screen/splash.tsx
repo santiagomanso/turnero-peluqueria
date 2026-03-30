@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 
 export function SplashSection() {
   return (
-    <section className="relative h-svh bg-surface flex flex-col items-center justify-center overflow-hidden pt-14">
+    <section id="splash" className="relative h-svh bg-surface flex flex-col items-center justify-center overflow-hidden pt-14">
 
       {/* Animated rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

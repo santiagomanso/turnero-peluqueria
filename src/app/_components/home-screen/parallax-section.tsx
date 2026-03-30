@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -22,6 +22,7 @@ type Props = {
   decoNumber: string;
   bgClass?: string;
   nextSectionId?: string;
+  prevSectionId?: string;
 };
 
 const titleVariants = {
@@ -35,7 +36,7 @@ const titleVariants = {
 export function ParallaxSection({
   id, counter, titleLine1, titleLine2, accentLine = 2,
   description, ctaLabel, ctaHref, ctaVariant, ctaIcon: CtaIcon,
-  dark = false, external = false, decoNumber, bgClass, nextSectionId,
+  dark = false, external = false, decoNumber, bgClass, nextSectionId, prevSectionId,
 }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -179,26 +180,58 @@ export function ParallaxSection({
 
       </div>
 
-      {/* Scroll to next section */}
-      {nextSectionId && (
-        <motion.button
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer group"
+      {/* Section navigation arrows */}
+      {(prevSectionId || nextSectionId) && (
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
-          aria-label="Ir a la siguiente sección"
         >
-          <ChevronDown
-            size={22}
-            strokeWidth={1.5}
-            className={cn(
-              "group-hover:translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-gold"
-            )}
-          />
-        </motion.button>
+          {prevSectionId && (
+            <button
+              onClick={() => document.getElementById(prevSectionId)?.scrollIntoView({ behavior: "smooth" })}
+              aria-label="Ir a la sección anterior"
+              className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 group",
+                dark
+                  ? "border-white/20 hover:border-white/50 hover:bg-white/10"
+                  : "border-gold/30 hover:border-gold/70 hover:bg-gold/10"
+              )}
+            >
+              <ChevronUp
+                size={15}
+                strokeWidth={1.8}
+                className={cn(
+                  "group-hover:-translate-y-0.5 transition-transform duration-300",
+                  dark ? "text-white/50" : "text-gold"
+                )}
+              />
+            </button>
+          )}
+          {nextSectionId && (
+            <button
+              onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
+              aria-label="Ir a la siguiente sección"
+              className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 group",
+                dark
+                  ? "border-white/20 hover:border-white/50 hover:bg-white/10"
+                  : "border-gold/30 hover:border-gold/70 hover:bg-gold/10"
+              )}
+            >
+              <ChevronDown
+                size={15}
+                strokeWidth={1.8}
+                className={cn(
+                  "group-hover:translate-y-0.5 transition-transform duration-300",
+                  dark ? "text-white/50" : "text-gold"
+                )}
+              />
+            </button>
+          )}
+        </motion.div>
       )}
     </section>
   );

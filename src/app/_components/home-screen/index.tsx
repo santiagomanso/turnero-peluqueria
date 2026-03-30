@@ -24,6 +24,7 @@ export function HomeScreen() {
         ctaHref="/appointments/new"
         ctaVariant="gold"
         ctaIcon={CalendarPlus}
+        prevSectionId="splash"
         nextSectionId="section-02"
       />
 
@@ -40,6 +41,7 @@ export function HomeScreen() {
         ctaVariant="outline"
         ctaIcon={Search}
         bgClass="bg-[#e5e1db] dark:bg-[#1e1c19]"
+        prevSectionId="section-01"
         nextSectionId="section-03"
       />
 
@@ -55,6 +57,7 @@ export function HomeScreen() {
         ctaHref="/shop"
         ctaVariant="outline"
         ctaIcon={ShoppingBag}
+        prevSectionId="section-02"
         nextSectionId="section-04"
       />
 
@@ -71,6 +74,7 @@ export function HomeScreen() {
         ctaVariant="whatsapp"
         ctaIcon={MessageCircle}
         bgClass="bg-[#1a1714]"
+        prevSectionId="section-03"
         dark
         external
       />
