@@ -66,7 +66,7 @@ export function HomeNavbar() {
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 rounded-lg text-xs font-medium text-content-secondary dark:text-zinc-400 hover:bg-gold/10 hover:text-gold transition-colors"
+                className="px-4 py-2 rounded-lg text-xs font-medium text-content-secondary dark:text-zinc-400 hover:bg-black/8 hover:text-content dark:hover:bg-white/8 dark:hover:text-zinc-100 transition-colors"
               >
                 {link.label}
               </a>
@@ -74,7 +74,7 @@ export function HomeNavbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="px-4 py-2 rounded-lg text-xs font-medium text-content-secondary dark:text-zinc-400 hover:bg-gold/10 hover:text-gold transition-colors"
+                className="px-4 py-2 rounded-lg text-xs font-medium text-content-secondary dark:text-zinc-400 hover:bg-black/8 hover:text-content dark:hover:bg-white/8 dark:hover:text-zinc-100 transition-colors"
               >
                 {link.label}
               </Link>
@@ -142,7 +142,7 @@ export function HomeNavbar() {
                 ))}
               </ul>
               <div className="px-3">
-                <p className="text-xs text-content-quaternary dark:text-zinc-600 mb-2 tracking-wide">Tema</p>
+                <p className="text-xs text-content-secondary dark:text-zinc-300 mb-2 tracking-wide">Tema</p>
                 <ThemeToggle />
               </div>
             </motion.div>

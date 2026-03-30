@@ -31,7 +31,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             "flex items-center justify-center w-7 h-7 rounded-md transition-all",
             theme === value
               ? "bg-white dark:bg-zinc-800 text-gold shadow-sm"
-              : "text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-300"
+              : "text-content-secondary dark:text-zinc-300 hover:text-content dark:hover:text-zinc-100"
           )}
         >
           <Icon size={13} strokeWidth={1.8} />

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
 export function SplashSection() {
   return (
@@ -52,24 +53,24 @@ export function SplashSection() {
         </p>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+      {/* Scroll indicator — arrow */}
+      <motion.button
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer group"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 0.8 }}
         onClick={() => {
           document.getElementById("section-01")?.scrollIntoView({ behavior: "smooth" });
         }}
+        aria-label="Ir a la primera sección"
       >
-        <span className="font-archivo text-nano tracking-[0.22em] uppercase text-content-quaternary dark:text-zinc-600">
-          Scroll
-        </span>
-        <span
-          className="w-px h-9 bg-linear-to-b from-gold to-transparent"
+        <ChevronDown
+          size={22}
+          strokeWidth={1.5}
+          className="text-gold group-hover:translate-y-1 transition-transform duration-300"
           style={{ animation: "scroll-pulse 2s ease 2.2s infinite" }}
         />
-      </motion.div>
+      </motion.button>
 
     </section>
   );

@@ -1,6 +1,8 @@
 import { SplashSection } from "./splash";
 import { HomeNavbar } from "./home-navbar";
 import { ParallaxSection } from "./parallax-section";
+import { HomeFooter } from "./home-footer";
+import { CalendarPlus, Search, ShoppingBag, MessageCircle } from "lucide-react";
 
 export function HomeScreen() {
   return (
@@ -16,9 +18,11 @@ export function HomeScreen() {
         titleLine2="próximo turno"
         accentLine={2}
         description="Reservá online en segundos. Elegí día, hora y servicio — sin llamadas, sin esperas."
-        ctaLabel="Agendar turno →"
+        ctaLabel="Agendar turno"
         ctaHref="/appointments/new"
         ctaVariant="gold"
+        ctaIcon={CalendarPlus}
+        nextSectionId="section-02"
       />
 
       <ParallaxSection
@@ -29,10 +33,12 @@ export function HomeScreen() {
         titleLine2="tu reserva"
         accentLine={2}
         description="¿Ya tenés turno? Revisá fecha, hora y estado de tu reserva en cualquier momento."
-        ctaLabel="Ver mi turno →"
+        ctaLabel="Ver mi turno"
         ctaHref="/appointments/get"
         ctaVariant="outline"
+        ctaIcon={Search}
         bgClass="bg-[#e5e1db] dark:bg-[#1e1c19]"
+        nextSectionId="section-03"
       />
 
       <ParallaxSection
@@ -43,9 +49,11 @@ export function HomeScreen() {
         titleLine2="insumos"
         accentLine={2}
         description="Productos profesionales para el cuidado del cabello. Envío a toda la provincia."
-        ctaLabel="Ver productos →"
+        ctaLabel="Ver productos"
         ctaHref="/shop"
         ctaVariant="outline"
+        ctaIcon={ShoppingBag}
+        nextSectionId="section-04"
       />
 
       <ParallaxSection
@@ -56,13 +64,16 @@ export function HomeScreen() {
         titleLine2="nosotros"
         accentLine={2}
         description="Precios, disponibilidad, dudas. Escribinos por WhatsApp y respondemos rápido."
-        ctaLabel="Escribir por WhatsApp →"
+        ctaLabel="Escribir por WhatsApp"
         ctaHref="https://wa.me/+5493794619887"
         ctaVariant="whatsapp"
+        ctaIcon={MessageCircle}
         bgClass="bg-[#1a1714]"
         dark
         external
       />
+
+      <HomeFooter />
     </div>
   );
 }

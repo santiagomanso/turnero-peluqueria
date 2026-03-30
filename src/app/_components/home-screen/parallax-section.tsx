@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -15,10 +16,12 @@ type Props = {
   ctaLabel: string;
   ctaHref: string;
   ctaVariant: "gold" | "outline" | "whatsapp";
+  ctaIcon: React.ElementType;
   dark?: boolean;
   external?: boolean;
   decoNumber: string;
   bgClass?: string;
+  nextSectionId?: string;
 };
 
 const titleVariants = {
@@ -31,8 +34,8 @@ const titleVariants = {
 
 export function ParallaxSection({
   id, counter, titleLine1, titleLine2, accentLine = 2,
-  description, ctaLabel, ctaHref, ctaVariant, dark = false,
-  external = false, decoNumber, bgClass,
+  description, ctaLabel, ctaHref, ctaVariant, ctaIcon: CtaIcon,
+  dark = false, external = false, decoNumber, bgClass, nextSectionId,
 }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -41,16 +44,26 @@ export function ParallaxSection({
   });
   const decoY = useTransform(scrollYProgress, [0, 1], ["0px", "80px"]);
 
-  const ctaClass = cn(
-    "inline-flex items-center gap-2 px-9 py-4 rounded-xl text-sm font-semibold transition-all",
-    {
-      "bg-gold text-content hover:shadow-[0_8px_32px_rgba(201,169,110,0.45)] hover:scale-[1.04]":
-        ctaVariant === "gold",
-      "border border-content/20 dark:border-zinc-700 text-content dark:text-zinc-100 hover:border-content/50 hover:bg-black/[0.03]":
-        ctaVariant === "outline",
-      "bg-[#25D366] text-white hover:shadow-[0_8px_28px_rgba(37,211,102,0.4)] hover:scale-[1.04]":
-        ctaVariant === "whatsapp",
-    }
+  const baseCta = "inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-semibold transition-all group";
+  const ctaClass = cn(baseCta, {
+    "bg-gold text-content hover:shadow-[0_8px_32px_rgba(201,169,110,0.45)] hover:scale-[1.04]":
+      ctaVariant === "gold",
+    "border border-content/20 dark:border-zinc-700 text-content dark:text-zinc-100 hover:border-content/50 hover:bg-black/[0.03]":
+      ctaVariant === "outline",
+    "bg-[#25D366] text-white hover:shadow-[0_8px_28px_rgba(37,211,102,0.4)] hover:scale-[1.04]":
+      ctaVariant === "whatsapp",
+  });
+
+  const ctaContent = (
+    <>
+      <CtaIcon size={15} strokeWidth={2} />
+      <span>{ctaLabel}</span>
+      <ArrowRight
+        size={14}
+        strokeWidth={2}
+        className="transition-transform duration-200 group-hover:translate-x-1"
+      />
+    </>
   );
 
   return (
@@ -75,13 +88,13 @@ export function ParallaxSection({
       </motion.span>
 
       {/* Main content */}
-      <div className="relative z-10 max-w-[680px] w-[90%] text-center mx-auto">
+      <div className="relative z-10 max-w-[720px] w-[90%] text-center mx-auto">
 
         {/* Counter */}
         <motion.span
           className={cn(
-            "block text-tiny tracking-[0.22em] uppercase mb-6",
-            dark ? "text-white/30" : "text-content-quaternary dark:text-zinc-600"
+            "block text-tiny tracking-[0.22em] uppercase mb-8",
+            dark ? "text-white/30" : "text-content-quaternary dark:text-zinc-500"
           )}
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -91,10 +104,10 @@ export function ParallaxSection({
           {counter}
         </motion.span>
 
-        {/* Title — clip reveal */}
+        {/* Title — clip reveal, impactful like splash */}
         <h2 className={cn(
-          "font-heebo font-light leading-[1.05] tracking-[0.03em] mb-0",
-          "text-[clamp(2.8rem,7vw,5rem)]",
+          "font-heebo font-light leading-[1.0] tracking-[0.06em] mb-0",
+          "text-[clamp(3rem,8vw,6rem)]",
           dark ? "text-white" : "text-content dark:text-zinc-100"
         )}>
           <span className="block overflow-hidden">
@@ -125,7 +138,7 @@ export function ParallaxSection({
 
         {/* Expanding divider */}
         <motion.div
-          className="h-px bg-linear-to-r from-transparent via-gold to-transparent mx-auto mt-7 mb-7"
+          className="h-px bg-linear-to-r from-transparent via-gold to-transparent mx-auto mt-8 mb-7"
           initial={{ width: 0 }}
           whileInView={{ width: 80 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -136,7 +149,7 @@ export function ParallaxSection({
         <motion.p
           className={cn(
             "text-sm leading-[1.85] max-w-[400px] mx-auto mb-9",
-            dark ? "text-white/38" : "text-content-secondary dark:text-zinc-400"
+            dark ? "text-white/40" : "text-content-secondary dark:text-zinc-400"
           )}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -155,16 +168,38 @@ export function ParallaxSection({
         >
           {external ? (
             <a href={ctaHref} target="_blank" rel="noreferrer" className={ctaClass}>
-              {ctaLabel}
+              {ctaContent}
             </a>
           ) : (
             <Link href={ctaHref} className={ctaClass}>
-              {ctaLabel}
+              {ctaContent}
             </Link>
           )}
         </motion.div>
 
       </div>
+
+      {/* Scroll to next section */}
+      {nextSectionId && (
+        <motion.button
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer group"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
+          aria-label="Ir a la siguiente sección"
+        >
+          <ChevronDown
+            size={22}
+            strokeWidth={1.5}
+            className={cn(
+              "group-hover:translate-y-1 transition-transform duration-300",
+              dark ? "text-white/40" : "text-gold"
+            )}
+          />
+        </motion.button>
+      )}
     </section>
   );
 }
