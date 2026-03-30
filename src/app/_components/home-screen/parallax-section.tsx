@@ -180,14 +180,14 @@ export function ParallaxSection({
 
       </div>
 
-      {/* Up arrow — top center, below navbar */}
+      {/* Up arrow — just below navbar */}
       {prevSectionId && (
         <motion.button
-          className="absolute top-16 left-1/2 -translate-x-1/2 cursor-pointer group"
+          className="absolute top-[58px] left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          viewport={{ once: true, amount: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
           onClick={() => document.getElementById(prevSectionId)?.scrollIntoView({ behavior: "smooth" })}
           aria-label="Ir a la sección anterior"
         >
@@ -202,14 +202,14 @@ export function ParallaxSection({
         </motion.button>
       )}
 
-      {/* Down arrow — bottom center */}
+      {/* Down arrow — above bottom edge */}
       {nextSectionId && (
         <motion.button
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 cursor-pointer group"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
+          viewport={{ once: true, amount: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
           onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
           aria-label="Ir a la siguiente sección"
         >
