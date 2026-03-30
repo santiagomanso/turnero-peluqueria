@@ -180,58 +180,48 @@ export function ParallaxSection({
 
       </div>
 
-      {/* Section navigation arrows */}
-      {(prevSectionId || nextSectionId) && (
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3"
+      {/* Up arrow — top center, below navbar */}
+      {prevSectionId && (
+        <motion.button
+          className="absolute top-16 left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          onClick={() => document.getElementById(prevSectionId)?.scrollIntoView({ behavior: "smooth" })}
+          aria-label="Ir a la sección anterior"
         >
-          {prevSectionId && (
-            <button
-              onClick={() => document.getElementById(prevSectionId)?.scrollIntoView({ behavior: "smooth" })}
-              aria-label="Ir a la sección anterior"
-              className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 group",
-                dark
-                  ? "border-white/20 hover:border-white/50 hover:bg-white/10"
-                  : "border-gold/30 hover:border-gold/70 hover:bg-gold/10"
-              )}
-            >
-              <ChevronUp
-                size={15}
-                strokeWidth={1.8}
-                className={cn(
-                  "group-hover:-translate-y-0.5 transition-transform duration-300",
-                  dark ? "text-white/50" : "text-gold"
-                )}
-              />
-            </button>
-          )}
-          {nextSectionId && (
-            <button
-              onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
-              aria-label="Ir a la siguiente sección"
-              className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 group",
-                dark
-                  ? "border-white/20 hover:border-white/50 hover:bg-white/10"
-                  : "border-gold/30 hover:border-gold/70 hover:bg-gold/10"
-              )}
-            >
-              <ChevronDown
-                size={15}
-                strokeWidth={1.8}
-                className={cn(
-                  "group-hover:translate-y-0.5 transition-transform duration-300",
-                  dark ? "text-white/50" : "text-gold"
-                )}
-              />
-            </button>
-          )}
-        </motion.div>
+          <ChevronUp
+            size={22}
+            strokeWidth={1.5}
+            className={cn(
+              "group-hover:-translate-y-1 transition-transform duration-300",
+              dark ? "text-white/40" : "text-gold"
+            )}
+          />
+        </motion.button>
+      )}
+
+      {/* Down arrow — bottom center */}
+      {nextSectionId && (
+        <motion.button
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 cursor-pointer group"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
+          aria-label="Ir a la siguiente sección"
+        >
+          <ChevronDown
+            size={22}
+            strokeWidth={1.5}
+            className={cn(
+              "group-hover:translate-y-1 transition-transform duration-300",
+              dark ? "text-white/40" : "text-gold"
+            )}
+          />
+        </motion.button>
       )}
     </section>
   );

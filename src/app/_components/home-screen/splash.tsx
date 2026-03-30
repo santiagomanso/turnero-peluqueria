@@ -55,7 +55,7 @@ export function SplashSection() {
 
       {/* Scroll indicator — arrow */}
       <motion.button
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer group"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 cursor-pointer group"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 0.8 }}
