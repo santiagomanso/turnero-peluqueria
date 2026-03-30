@@ -1,0 +1,137 @@
+<h2>¿Qué layout querés para la home en desktop?</h2>
+<p class="subtitle">El mobile no cambia. Solo estamos rediseñando la experiencia en pantallas grandes.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="bento" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #f5f3ef;">
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 160px 100px; gap: 8px; font-family: sans-serif;">
+        <!-- Hero grande izquierda -->
+        <div style="grid-row: span 2; background: #1a1714; border-radius: 12px; padding: 20px; color: #c9a96e; display: flex; flex-direction: column; justify-content: flex-end;">
+          <div style="font-size: 9px; color: #c9a96e; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">Luckete Colorista</div>
+          <div style="font-size: 18px; font-weight: bold; color: white; line-height: 1.2;">Donde el color<br>se vuelve arte</div>
+          <div style="margin-top: 12px; background: #c9a96e; color: #1a1714; padding: 6px 12px; border-radius: 8px; font-size: 9px; font-weight: bold; display: inline-block; width: fit-content;">Agendar turno →</div>
+        </div>
+        <!-- Card top center -->
+        <div style="background: white; border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.07);">
+          <div style="font-size: 18px; margin-bottom: 4px;">📅</div>
+          <div style="font-size: 9px; font-weight: 600; color: #1a1714;">Consultar turno</div>
+          <div style="font-size: 8px; color: #9c9189; margin-top: 2px;">Ver mi reserva</div>
+        </div>
+        <!-- Card top right -->
+        <div style="background: #c9a96e; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-size: 18px; margin-bottom: 4px;">🛍️</div>
+          <div style="font-size: 9px; font-weight: 600; color: #1a1714;">Tienda</div>
+        </div>
+        <!-- Card bottom center-right span -->
+        <div style="grid-column: span 2; background: white; border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.07); display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 20px;">💬</div>
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #1a1714;">WhatsApp consultas</div>
+            <div style="font-size: 8px; color: #9c9189;">Respuesta en minutos</div>
+          </div>
+          <div style="margin-left: auto; background: #25D366; color: white; padding: 4px 10px; border-radius: 6px; font-size: 8px; font-weight: 600;">Escribinos</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Bento Grid</h3>
+      <p>Cards de distintos tamaños que llenan toda la pantalla. El hero ocupa el protagonismo, los accesos rápidos conviven en un mosaico. Muy visual, moderno.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #f5f3ef;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 260px; font-family: sans-serif;">
+        <!-- Panel izquierda: info del salón -->
+        <div style="background: #1a1714; border-radius: 12px; padding: 20px; color: white; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-size: 9px; color: #c9a96e; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">Luckete Colorista</div>
+            <div style="font-size: 20px; font-weight: bold; line-height: 1.2;">El arte<br>del color</div>
+            <div style="margin-top: 8px; font-size: 8px; color: rgba(255,255,255,0.5); line-height: 1.5;">Especialistas en colorimetría,<br>corte y tratamientos capilares</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="background: rgba(201,169,110,0.15); border: 1px solid rgba(201,169,110,0.3); border-radius: 8px; padding: 6px 10px; font-size: 8px; color: #c9a96e;">✂️ Lun–Sáb: 9am – 7pm</div>
+            <div style="background: rgba(201,169,110,0.15); border: 1px solid rgba(201,169,110,0.3); border-radius: 8px; padding: 6px 10px; font-size: 8px; color: #c9a96e;">📍 Posadas, Misiones</div>
+          </div>
+        </div>
+        <!-- Panel derecha: acciones -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: #c9a96e; border-radius: 12px; padding: 14px; flex: 1.5; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 9px; font-weight: 700; color: #1a1714;">Agendar turno</div>
+              <div style="font-size: 8px; color: rgba(26,23,20,0.6); margin-top: 2px;">Reservá tu próxima visita</div>
+            </div>
+            <div style="font-size: 16px;">→</div>
+          </div>
+          <div style="background: white; border-radius: 12px; padding: 14px; flex: 1; border: 1px solid rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-size: 9px; font-weight: 600; color: #1a1714;">Consultar turno</div>
+            <div style="font-size: 12px; color: #9c9189;">📋</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
+            <div style="background: white; border-radius: 10px; padding: 12px; border: 1px solid rgba(0,0,0,0.07); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+              <div style="font-size: 14px;">🛍️</div>
+              <div style="font-size: 8px; font-weight: 600; color: #1a1714; text-align: center;">Tienda</div>
+            </div>
+            <div style="background: #25D366; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+              <div style="font-size: 14px;">💬</div>
+              <div style="font-size: 8px; font-weight: 600; color: white; text-align: center;">WhatsApp</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Split Panel</h3>
+      <p>Panel izquierdo oscuro con identidad del salón (horario, ubicación, tagline). Panel derecho con los 4 accesos rápidos en cards. Elegante, equilibrado.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="magazine" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #f5f3ef;">
+      <div style="display: flex; flex-direction: column; gap: 8px; height: 260px; font-family: sans-serif;">
+        <!-- Hero full width -->
+        <div style="background: linear-gradient(135deg, #1a1714 60%, #2d2420); border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: space-between; flex: 1;">
+          <div>
+            <div style="font-size: 8px; color: #c9a96e; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">Luckete Colorista</div>
+            <div style="font-size: 22px; font-weight: bold; color: white; line-height: 1.2;">Donde el color<br>se vuelve arte</div>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <div style="background: #c9a96e; color: #1a1714; padding: 6px 14px; border-radius: 8px; font-size: 8px; font-weight: bold;">Agendar turno</div>
+              <div style="border: 1px solid rgba(201,169,110,0.4); color: #c9a96e; padding: 6px 14px; border-radius: 8px; font-size: 8px;">Ver mis turnos</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; text-align: right;">
+            <div style="background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.2); border-radius: 8px; padding: 8px 12px; font-size: 8px; color: #c9a96e;">✂️ Lun–Sáb 9–19hs</div>
+            <div style="background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.2); border-radius: 8px; padding: 8px 12px; font-size: 8px; color: #c9a96e;">⭐ 4.9 / 5 estrellas</div>
+          </div>
+        </div>
+        <!-- Bottom row: 3 cards -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+          <div style="background: white; border-radius: 10px; padding: 14px; border: 1px solid rgba(0,0,0,0.07); display: flex; align-items: center; gap: 8px;">
+            <div style="font-size: 16px;">🛍️</div>
+            <div>
+              <div style="font-size: 8px; font-weight: 600; color: #1a1714;">Tienda insumos</div>
+              <div style="font-size: 7px; color: #9c9189;">Ver productos</div>
+            </div>
+          </div>
+          <div style="background: #25D366; border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 8px;">
+            <div style="font-size: 16px;">💬</div>
+            <div>
+              <div style="font-size: 8px; font-weight: 600; color: white;">WhatsApp</div>
+              <div style="font-size: 7px; color: rgba(255,255,255,0.7);">Consultas</div>
+            </div>
+          </div>
+          <div style="background: white; border-radius: 10px; padding: 14px; border: 1px solid rgba(0,0,0,0.07); display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 7px; color: #9c9189; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Próximo disponible</div>
+            <div style="font-size: 9px; font-weight: 600; color: #1a1714;">Mañana 10:00hs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Hero + Row</h3>
+      <p>Hero ancho en la parte superior (oscuro, con CTA prominentes), fila de 3 cards secundarias debajo. Simple, impactante, la vista va directo al CTA principal.</p>
+    </div>
+  </div>
+
+</div>

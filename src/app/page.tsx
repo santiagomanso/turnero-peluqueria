@@ -1,24 +1,16 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Header from "@/components/header";
 import HomeLink from "@/components/home-link";
 import Navbar from "@/components/navbar";
 import { Container } from "@/components/ui/container";
 import { Plus, SquarePen, ShoppingCart, Phone } from "lucide-react";
-
-// Lazy-load the desktop component to avoid SSR issues with scroll listeners
-const HomeDesktop = dynamic(
-  () => import("./_components/home-desktop").then((m) => m.HomeDesktop),
-  { ssr: false }
-);
+import { HomeDesktopWrapper } from "./_components/home-desktop-wrapper";
 
 export default function Home() {
   return (
     <>
       {/* ── Desktop (≥ lg) ── */}
       <div className="hidden lg:block">
-        <HomeDesktop />
+        <HomeDesktopWrapper />
       </div>
 
       {/* ── Mobile (< lg) — unchanged ── */}
