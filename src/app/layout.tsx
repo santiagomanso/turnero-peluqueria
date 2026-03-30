@@ -46,8 +46,11 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get("admin-theme");
-  const isDark = themeCookie?.value === "dark";
-  const hasCookie = !!themeCookie;
+  const themeValue = themeCookie?.value as "dark" | "light" | "system" | undefined;
+  const validTheme: "dark" | "light" | "system" =
+    themeValue === "dark" || themeValue === "light" || themeValue === "system"
+      ? themeValue
+      : "system";
 
   return (
     <html
@@ -58,12 +61,12 @@ export default async function RootLayout({
         ${dancingScript.variable}
         ${heebo.variable}
         ${spaceMono.variable}
-        ${isDark ? "dark" : ""}
+        ${validTheme === "dark" ? "dark" : ""}
         antialiased
       `}
     >
       <body>
-        <PublicThemeProvider defaultDark={isDark} hasCookie={hasCookie}>
+        <PublicThemeProvider defaultTheme={validTheme}>
           {children}
         </PublicThemeProvider>
         <Toaster />

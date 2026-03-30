@@ -5,13 +5,13 @@ import { useTheme } from "./public-theme-provider";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const { isDark, toggle } = useTheme();
+  const { isDark, setTheme } = useTheme();
 
   return (
     <Button
       variant="outline"
       size="icon"
-      onClick={toggle}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
       className="h-9 w-9 shadow-sm text-content dark:text-white hover:text-content dark:hover:text-zinc-100"
       aria-label="Cambiar tema"
     >

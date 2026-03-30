@@ -20,7 +20,7 @@ type Props = {
 };
 
 function NavbarComponent({ title, rightElement, hideSettings = false }: Props) {
-  const { isDark, toggle } = useTheme();
+  const { isDark, setTheme } = useTheme();
 
   return (
     <nav className="flex justify-between items-center mb-5">
@@ -51,7 +51,7 @@ function NavbarComponent({ title, rightElement, hideSettings = false }: Props) {
               className="w-44 dark:bg-zinc-900 dark:border-zinc-800"
             >
               <DropdownMenuItem
-                onClick={toggle}
+                onClick={() => setTheme(isDark ? "light" : "dark")}
                 className="text-xs gap-2 cursor-pointer"
               >
                 {isDark ? (
