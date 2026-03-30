@@ -1,3 +1,5 @@
+"use client";
+
 import { SplashSection } from "./splash";
 import { HomeNavbar } from "./home-navbar";
 import { ParallaxSection } from "./parallax-section";
