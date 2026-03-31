@@ -92,7 +92,7 @@ export function SplashSection() {
       {/* Animated rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <span
-          className="absolute rounded-full border border-dashed border-gold/30"
+          className="absolute rounded-full border border-dashed border-gold/70 dark:border-gold/30"
           style={{
             animation:
               "ring-expand-outer 2.4s cubic-bezier(0.16,1,0.3,1) 0.1s forwards, ring-rotate-ccw 12s linear infinite",
@@ -101,7 +101,7 @@ export function SplashSection() {
           }}
         />
         <span
-          className="absolute rounded-full border border-gold/60"
+          className="absolute rounded-full border border-gold dark:border-gold/60"
           style={{
             animation:
               "ring-expand 2.2s cubic-bezier(0.16,1,0.3,1) forwards, ring-rotate-cw 8s linear infinite",
@@ -148,7 +148,7 @@ export function SplashSection() {
         <ChevronDown
           size={22}
           strokeWidth={1.5}
-          className="text-gold group-hover:translate-y-1 transition-transform duration-300"
+          className="text-content/50 dark:text-gold group-hover:translate-y-1 transition-transform duration-300"
           style={{ animation: "scroll-pulse 2s ease 2.2s infinite" }}
         />
       </motion.button>

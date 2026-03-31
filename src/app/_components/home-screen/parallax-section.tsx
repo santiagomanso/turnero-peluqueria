@@ -229,7 +229,7 @@ export function ParallaxSection({
             strokeWidth={1.5}
             className={cn(
               "group-hover:-translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-gold",
+              dark ? "text-white/40" : "text-content/50 dark:text-gold",
             )}
           />
         </motion.button>
@@ -254,7 +254,7 @@ export function ParallaxSection({
             strokeWidth={1.5}
             className={cn(
               "group-hover:translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-gold",
+              dark ? "text-white/40" : "text-content/50 dark:text-gold",
             )}
           />
         </motion.button>
