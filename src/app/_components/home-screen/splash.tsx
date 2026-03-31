@@ -6,35 +6,73 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const SUBTITLE = "Donde el color se vuelve arte";
-const CHAR_DELAY_MS = 55;
-// Content block finishes at delay:0.6 + duration:1 = 1.6s → start typing at 1.8s
-const TYPEWRITER_START_MS = 1800;
+
+// Timing constants
+const CONTENT_APPEAR_MS = 1800;  // wait for splash content fade-in to finish
+const CURSOR_WAIT_MS    = 3000;  // cursor blinks (no text) before/after typing
+const TYPE_CHAR_MS      = 55;    // ms per character while typing
+const DELETE_CHAR_MS    = 22;    // ms per character while deleting (fast)
+const HOLD_FULL_MS      = 6000;  // pause after full text before deleting
+
+type Phase = "idle" | "waiting" | "typing" | "full" | "deleting";
 
 function TypewriterSubtitle() {
   const [displayed, setDisplayed] = useState("");
-  const [done, setDone] = useState(false);
+  const [phase, setPhase] = useState<Phase>("idle");
 
+  // After content appears, move from idle → waiting (cursor blink)
   useEffect(() => {
-    let charIndex = 0;
-    const startTimeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        charIndex++;
-        setDisplayed(SUBTITLE.slice(0, charIndex));
-        if (charIndex >= SUBTITLE.length) {
-          clearInterval(interval);
-          setDone(true);
-        }
-      }, CHAR_DELAY_MS);
-      return () => clearInterval(interval);
-    }, TYPEWRITER_START_MS);
-
-    return () => clearTimeout(startTimeout);
+    const t = setTimeout(() => setPhase("waiting"), CONTENT_APPEAR_MS);
+    return () => clearTimeout(t);
   }, []);
+
+  // Phase state machine
+  useEffect(() => {
+    if (phase === "waiting") {
+      // Cursor blinks for CURSOR_WAIT_MS, then start typing
+      const t = setTimeout(() => setPhase("typing"), CURSOR_WAIT_MS);
+      return () => clearTimeout(t);
+    }
+
+    if (phase === "typing") {
+      let i = displayed.length;
+      const interval = setInterval(() => {
+        i++;
+        setDisplayed(SUBTITLE.slice(0, i));
+        if (i >= SUBTITLE.length) {
+          clearInterval(interval);
+          setPhase("full");
+        }
+      }, TYPE_CHAR_MS);
+      return () => clearInterval(interval);
+    }
+
+    if (phase === "full") {
+      // Hold full text, then delete
+      const t = setTimeout(() => setPhase("deleting"), HOLD_FULL_MS);
+      return () => clearTimeout(t);
+    }
+
+    if (phase === "deleting") {
+      let i = displayed.length;
+      const interval = setInterval(() => {
+        i--;
+        setDisplayed(SUBTITLE.slice(0, Math.max(0, i)));
+        if (i <= 0) {
+          clearInterval(interval);
+          setPhase("waiting"); // loop: cursor blinks again
+        }
+      }, DELETE_CHAR_MS);
+      return () => clearInterval(interval);
+    }
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const showCursor = phase === "waiting" || phase === "typing" || phase === "deleting";
 
   return (
     <p className="font-archivo text-micro lg:text-xs tracking-[0.24em] uppercase text-gold mt-1 lg:mt-3 h-4">
       {displayed}
-      {!done && (
+      {showCursor && (
         <motion.span
           className="inline-block w-px h-[1em] bg-gold align-middle ml-px"
           animate={{ opacity: [1, 0] }}
@@ -47,8 +85,10 @@ function TypewriterSubtitle() {
 
 export function SplashSection() {
   return (
-    <section id="splash" className="relative h-svh bg-surface flex flex-col items-center justify-center overflow-hidden pt-14">
-
+    <section
+      id="splash"
+      className="relative h-svh bg-surface flex flex-col items-center justify-center overflow-hidden pt-14"
+    >
       {/* Animated rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <span
@@ -83,7 +123,7 @@ export function SplashSection() {
           alt="Luckete Colorista"
           width={96}
           height={96}
-          className="mb-4 object-contain dark:brightness-0 dark:invert w-11 h-11 lg:w-24 lg:h-24"
+          className="mb-4 object-contain dark:brightness-0 dark:invert w-20 h-20 lg:w-40 lg:h-40"
           priority
         />
         <h1 className="font-heebo font-light text-4xl lg:text-8xl tracking-[0.06em] text-content dark:text-zinc-100">
@@ -99,7 +139,9 @@ export function SplashSection() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 0.8 }}
         onClick={() => {
-          document.getElementById("section-01")?.scrollIntoView({ behavior: "smooth" });
+          document
+            .getElementById("section-01")
+            ?.scrollIntoView({ behavior: "smooth" });
         }}
         aria-label="Ir a la primera sección"
       >
@@ -110,7 +152,6 @@ export function SplashSection() {
           style={{ animation: "scroll-pulse 2s ease 2.2s infinite" }}
         />
       </motion.button>
-
     </section>
   );
 }
