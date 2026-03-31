@@ -38,7 +38,7 @@ export function HomeNavbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-5 lg:px-8 transition-all duration-300",
           scrolled
-            ? "bg-surface/90 backdrop-blur-md border-b border-border-subtle dark:border-zinc-800"
+            ? "bg-white/90 dark:bg-[#141210]/90 backdrop-blur-md border-b border-border-subtle dark:border-zinc-800"
             : "bg-transparent backdrop-blur-sm border-b border-transparent"
         )}
       >
