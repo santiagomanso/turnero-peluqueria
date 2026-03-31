@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mockups — Enfoque A vs B</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0ebe4; color: #2a2420; }
+
+  /* ---- PAGE LAYOUT ---- */
+  .page { padding: 40px 32px; max-width: 1600px; margin: 0 auto; }
+  h1 { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #9a8778; margin-bottom: 48px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 72px; }
+  .col-label {
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #b89c7a;
+    border-bottom: 1px solid #d9cec4; padding-bottom: 10px; margin-bottom: 20px;
+  }
+  .approach-tag {
+    display: inline-block; font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+    color: #fff; background: #b89c7a; border-radius: 4px; padding: 2px 8px; margin-bottom: 8px;
+  }
+  h2 { font-size: 22px; font-weight: 300; letter-spacing: .04em; margin-bottom: 6px; color: #1a1614; }
+  .desc { font-size: 13px; color: #7a6e67; line-height: 1.7; margin-bottom: 20px; }
+
+  /* ---- DEVICE FRAMES ---- */
+  .device-desktop {
+    border-radius: 10px; overflow: hidden;
+    box-shadow: 0 2px 24px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.06);
+    background: #f0ebe4;
+  }
+  .device-mobile {
+    width: 375px; border-radius: 36px; overflow: hidden;
+    box-shadow: 0 4px 32px rgba(0,0,0,.15), 0 0 0 2px #2a2420;
+    background: #f0ebe4; margin: 0 auto;
+  }
+  .device-chrome {
+    background: #e8e2db; height: 36px; display: flex; align-items: center; padding: 0 12px; gap: 6px;
+  }
+  .device-chrome span {
+    width: 10px; height: 10px; border-radius: 50%; background: #d9cec4;
+  }
+  .device-chrome .url {
+    flex: 1; background: #ddd8d1; border-radius: 4px; height: 18px; margin-left: 8px;
+    font-size: 10px; color: #9a8778; display: flex; align-items: center; padding: 0 8px;
+  }
+  .device-mobile-bar {
+    background: #f0ebe4; height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; border-bottom: 1px solid rgba(0,0,0,.06);
+  }
+
+  /* ---- TOKENS ---- */
+  :root {
+    --gold: #b89c7a;
+    --surface: #f0ebe4;
+    --content: #1a1614;
+    --content-2: #4a3f38;
+    --content-3: #7a6e67;
+    --content-4: #b0a49c;
+    --border: rgba(0,0,0,.08);
+  }
+
+  /* ========================================
+     SHARED NAVBAR (for approach A & B desktop)
+     ======================================== */
+  .pub-navbar {
+    height: 56px; background: rgba(240,235,228,.9); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 32px; gap: 0;
+    backdrop-filter: blur(12px);
+  }
+  .pub-navbar .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .pub-navbar .brand-logo {
+    width: 28px; height: 28px; background: var(--content); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pub-navbar .brand-logo svg { fill: white; }
+  .pub-navbar .brand-name { font-size: 14px; letter-spacing: .06em; color: var(--content); font-weight: 300; }
+  .pub-navbar .nav-links { display: flex; gap: 28px; margin-left: auto; margin-right: 24px; }
+  .pub-navbar .nav-links a {
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--content-3);
+    text-decoration: none; transition: color .2s;
+  }
+  .pub-navbar .nav-links a.active { color: var(--gold); }
+  .pub-navbar .theme-toggle {
+    display: flex; gap: 2px; background: rgba(0,0,0,.05); border-radius: 8px; padding: 3px;
+  }
+  .pub-navbar .theme-toggle button {
+    width: 26px; height: 26px; border: none; background: transparent; border-radius: 6px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--content-3);
+  }
+  .pub-navbar .theme-toggle button.active {
+    background: white; color: var(--gold); box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  }
+
+  /* Mobile pub navbar */
+  .pub-navbar-mobile {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 16px; justify-content: space-between;
+  }
+  .pub-navbar-mobile .brand { display: flex; align-items: center; gap: 8px; }
+  .pub-navbar-mobile .brand-logo {
+    width: 24px; height: 24px; background: var(--content); border-radius: 50%;
+  }
+  .pub-navbar-mobile .brand-name { font-size: 13px; letter-spacing: .06em; color: var(--content); font-weight: 300; }
+  .pub-navbar-mobile .hamburger { display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+  .pub-navbar-mobile .hamburger span { width: 20px; height: 1.5px; background: var(--content); display: block; }
+
+  /* ========================================
+     APPROACH A — Card floats on page
+     ======================================== */
+
+  /* A — Desktop */
+  .a-desktop-body {
+    background: var(--surface); min-height: 520px;
+    display: flex; align-items: center; justify-content: center; padding: 32px;
+  }
+  .a-card {
+    background: white; border-radius: 16px; width: 100%; max-width: 420px;
+    box-shadow: 0 4px 32px rgba(0,0,0,.08), 0 0 0 1px var(--border);
+    overflow: hidden;
+  }
+  .a-card-header {
+    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .a-card-header .back-btn {
+    width: 32px; height: 32px; border-radius: 8px; background: var(--surface);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .a-card-header .page-title { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--content-3); }
+  .a-card-header .settings-btn {
+    width: 32px; height: 32px; border-radius: 8px; background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .a-progress { display: flex; align-items: center; padding: 16px 24px; gap: 0; }
+  .a-step { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .a-step.active { background: var(--gold); color: white; }
+  .a-step.done { background: #f2ece4; color: var(--gold); }
+  .a-step.inactive { background: #eee; color: var(--content-4); }
+  .a-step-line { flex: 1; height: 1px; background: #e8e2db; }
+  .a-card-body { padding: 24px; }
+  .a-card-body .step-title { font-size: 22px; font-weight: 300; letter-spacing: .04em; color: var(--content); margin-bottom: 4px; }
+  .a-card-body .step-sub { font-size: 12px; color: var(--content-4); margin-bottom: 20px; }
+  .a-calendar { width: 100%; }
+  .a-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .a-cal-header span { font-size: 13px; color: var(--content-2); }
+  .a-cal-header button { background: none; border: none; color: var(--content-3); cursor: pointer; font-size: 16px; }
+  .a-cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .a-cal-days .day-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--content-4); padding: 4px 0; }
+  .a-cal-days .day { font-size: 13px; padding: 7px 0; border-radius: 8px; cursor: pointer; color: var(--content-2); }
+  .a-cal-days .day:hover { background: #f5f0ea; }
+  .a-cal-days .day.today { background: var(--gold); color: white; font-weight: 500; }
+  .a-cal-days .day.disabled { color: var(--content-4); cursor: default; }
+  .a-card-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .a-card-footer .btn-back { font-size: 13px; color: var(--content-3); background: none; border: none; cursor: pointer; }
+  .a-card-footer .btn-next { background: var(--gold); color: white; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 500; cursor: pointer; }
+
+  /* ========================================
+     APPROACH B — Full page multi-step
+     ======================================== */
+
+  /* B — Desktop */
+  .b-desktop-body { background: var(--surface); min-height: 520px; display: flex; }
+  .b-sidebar {
+    width: 260px; flex-shrink: 0; border-right: 1px solid var(--border);
+    padding: 36px 28px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .b-sidebar .section-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--content-4); margin-bottom: 8px; margin-top: 4px; }
+  .b-sidebar-step {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  }
+  .b-sidebar-step.active { background: rgba(184,156,122,.1); }
+  .b-sidebar-step .step-num {
+    width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; flex-shrink: 0;
+  }
+  .b-sidebar-step.active .step-num { background: var(--gold); color: white; }
+  .b-sidebar-step.done .step-num { background: #f2ece4; color: var(--gold); }
+  .b-sidebar-step.inactive .step-num { background: #eee; color: var(--content-4); }
+  .b-sidebar-step .step-info .step-name { font-size: 13px; color: var(--content); font-weight: 400; }
+  .b-sidebar-step .step-info .step-hint { font-size: 11px; color: var(--content-4); }
+  .b-sidebar-step.active .step-info .step-name { color: var(--gold); }
+  .b-content { flex: 1; padding: 40px 48px; display: flex; flex-direction: column; }
+  .b-content .step-counter { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--content-4); margin-bottom: 12px; }
+  .b-content .step-title { font-size: 36px; font-weight: 300; letter-spacing: .04em; color: var(--content); margin-bottom: 6px; }
+  .b-content .step-sub { font-size: 13px; color: var(--content-3); margin-bottom: 32px; }
+  .b-calendar { max-width: 420px; }
+  .b-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .b-cal-header span { font-size: 15px; letter-spacing: .04em; color: var(--content-2); }
+  .b-cal-header button { background: none; border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; color: var(--content-3); font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .b-cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .b-cal-days .day-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--content-4); padding: 6px 0; }
+  .b-cal-days .day { font-size: 14px; padding: 10px 0; border-radius: 10px; cursor: pointer; color: var(--content-2); transition: background .15s; }
+  .b-cal-days .day:hover { background: rgba(184,156,122,.12); }
+  .b-cal-days .day.today { background: var(--gold); color: white; font-weight: 500; }
+  .b-cal-days .day.disabled { color: var(--content-4); cursor: default; }
+  .b-footer { margin-top: auto; padding-top: 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+  .b-footer .btn-back { font-size: 13px; color: var(--content-3); background: none; border: none; cursor: pointer; letter-spacing: .06em; }
+  .b-footer .btn-next { background: var(--gold); color: white; border: none; border-radius: 12px; padding: 12px 32px; font-size: 14px; font-weight: 500; cursor: pointer; letter-spacing: .04em; }
+
+  /* ---- Mobile B ---- */
+  .b-mobile-body { background: var(--surface); }
+  .b-mobile-top-progress { padding: 14px 16px 10px; }
+  .b-mobile-steps { display: flex; align-items: center; gap: 0; margin-bottom: 12px; }
+  .b-mobile-step { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .b-mobile-step.active { background: var(--gold); color: white; }
+  .b-mobile-step.done { background: #f2ece4; color: var(--gold); }
+  .b-mobile-step.inactive { background: #e8e2db; color: var(--content-4); }
+  .b-mobile-step-line { flex: 1; height: 1px; background: #ddd8d1; }
+  .b-mobile-body .step-title { font-size: 24px; font-weight: 300; letter-spacing: .04em; color: var(--content); margin-bottom: 2px; padding: 0 16px; }
+  .b-mobile-body .step-sub { font-size: 12px; color: var(--content-4); margin-bottom: 20px; padding: 0 16px; }
+  .b-mobile-cal { padding: 0 16px; }
+  .b-mobile-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .b-mobile-cal-header span { font-size: 13px; color: var(--content-2); }
+  .b-mobile-cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .b-mobile-cal-days .day-label { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--content-4); padding: 4px 0; }
+  .b-mobile-cal-days .day { font-size: 12px; padding: 7px 0; border-radius: 8px; cursor: pointer; color: var(--content-2); }
+  .b-mobile-cal-days .day.today { background: var(--gold); color: white; font-weight: 500; }
+  .b-mobile-cal-days .day.disabled { color: var(--content-4); }
+  .b-mobile-footer { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .b-mobile-footer .btn-back { font-size: 13px; color: var(--content-3); background: none; border: none; }
+  .b-mobile-footer .btn-next { background: var(--gold); color: white; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 500; }
+
+  /* LABELS */
+  .pro-tag { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--content-4); display: flex; gap: 16px; margin-top: 8px; }
+  .pro-tag span.pro { color: #6bb56a; }
+  .pro-tag span.con { color: #c07070; }
+  .note { font-size: 11px; color: var(--content-4); background: rgba(0,0,0,.03); border-radius: 8px; padding: 10px 14px; margin-top: 12px; line-height: 1.6; }
+
+  /* section divider */
+  .section-title { font-size: 18px; font-weight: 300; letter-spacing: .06em; color: var(--content-2); margin-bottom: 6px; margin-top: 0; }
+  .section-desc { font-size: 13px; color: var(--content-3); margin-bottom: 24px; line-height: 1.7; }
+  hr { border: none; border-top: 1px solid #ddd8d1; margin: 56px 0; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 0; background: rgba(0,0,0,.04); border-radius: 10px; padding: 3px; width: fit-content; }
+  .tab { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 7px 18px; border-radius: 8px; cursor: pointer; color: var(--content-3); border: none; background: none; }
+  .tab.active { background: white; color: var(--content); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .tab-content { display: none; }
+  .tab-content.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#b89c7a;margin-bottom:48px;">Luckete Colorista — Mockups UI · Agendar Turno</p>
+
+  <!-- ================================ APPROACH A ================================ -->
+  <div style="margin-bottom:12px;">
+    <span class="approach-tag">Enfoque A</span>
+    <h2>Card flotante + navbar encima</h2>
+    <p class="desc">Se agrega una navbar pública consistente con el home. El wizard mantiene el card centrado que ya existe, pero ahora tiene contexto visual real. Cambio menor al código existente.</p>
+  </div>
+
+  <div class="tabs" id="tabs-a">
+    <button class="tab active" onclick="switchTab('a','desktop')">Desktop</button>
+    <button class="tab" onclick="switchTab('a','mobile')">Mobile</button>
+  </div>
+
+  <!-- A Desktop -->
+  <div class="tab-content visible" id="a-desktop" style="margin-top:16px;">
+    <div class="device-desktop">
+      <div class="device-chrome">
+        <span></span><span style="background:#c5b9b0"></span><span style="background:#b0a49c"></span>
+        <div class="url">localhost:3000/appointments/new</div>
+      </div>
+      <!-- Pub navbar -->
+      <div class="pub-navbar">
+        <div class="brand">
+          <div class="brand-logo">
+            <svg viewBox="0 0 20 20" width="14" height="14"><circle cx="10" cy="8" r="5"/><path d="M3 18c0-4 3.1-7 7-7s7 3 7 7"/></svg>
+          </div>
+          <span class="brand-name">Luckete Colorista</span>
+        </div>
+        <div class="nav-links">
+          <a href="#" class="active">Agendar turno</a>
+          <a href="#">Consultar turno</a>
+          <a href="#">Tienda</a>
+          <a href="#">WhatsApp</a>
+        </div>
+        <div class="theme-toggle">
+          <button>⊙</button>
+          <button class="active">☀</button>
+          <button>☾</button>
+        </div>
+      </div>
+      <!-- Page body -->
+      <div class="a-desktop-body">
+        <div class="a-card">
+          <div class="a-card-header">
+            <div class="a-card-header back-btn">←</div>
+            <span class="page-title">Nuevo Turno</span>
+            <div class="a-card-header settings-btn">⋯</div>
+          </div>
+          <div class="a-progress">
+            <div class="a-step active">1</div>
+            <div class="a-step-line"></div>
+            <div class="a-step inactive">2</div>
+            <div class="a-step-line"></div>
+            <div class="a-step inactive">3</div>
+            <div class="a-step-line"></div>
+            <div class="a-step inactive">4</div>
+            <div class="a-step-line"></div>
+            <div class="a-step inactive">5</div>
+          </div>
+          <div class="a-card-body">
+            <div class="step-title">Fecha</div>
+            <div class="step-sub">Seleccioná una fecha disponible</div>
+            <div class="a-calendar">
+              <div class="a-cal-header">
+                <button>‹</button>
+                <span>marzo 2026</span>
+                <button>›</button>
+              </div>
+              <div class="a-cal-days">
+                <div class="day-label">Lu</div><div class="day-label">Ma</div><div class="day-label">Mi</div>
+                <div class="day-label">Ju</div><div class="day-label">Vi</div><div class="day-label">Sá</div><div class="day-label">Do</div>
+                <div class="day disabled">24</div><div class="day disabled">25</div><div class="day disabled">26</div>
+                <div class="day disabled">27</div><div class="day disabled">28</div><div class="day disabled">29</div><div class="day disabled">30</div>
+                <div class="day today">31</div><div class="day">1</div><div class="day">2</div>
+                <div class="day">3</div><div class="day">4</div><div class="day">5</div><div class="day">6</div>
+                <div class="day">7</div><div class="day">8</div><div class="day">9</div>
+                <div class="day">10</div><div class="day">11</div><div class="day">12</div><div class="day">13</div>
+              </div>
+            </div>
+          </div>
+          <div class="a-card-footer">
+            <button class="btn-back">Atrás</button>
+            <button class="btn-next">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Cambios necesarios:</strong> Crear componente <code>PublicNavbar</code> compartido. Agregar un <code>layout.tsx</code> en <code>/app/(public)/</code> que incluya la navbar. El card ya existe — solo se reusa dentro del nuevo layout.
+    </div>
+    <div class="pro-tag">
+      <span class="pro">✓ Poco código nuevo</span>
+      <span class="pro">✓ No rompe el wizard existente</span>
+      <span class="con">✗ El card no aprovecha el espacio desktop</span>
+      <span class="con">✗ Fondo vacío a los lados del card</span>
+    </div>
+  </div>
+
+  <!-- A Mobile -->
+  <div class="tab-content" id="a-mobile" style="margin-top:16px;">
+    <div class="device-mobile">
+      <div class="device-mobile-bar">
+        <div style="width:60px;height:6px;background:#ddd;border-radius:3px;margin:0 auto;"></div>
+      </div>
+      <div class="pub-navbar-mobile">
+        <div class="brand">
+          <div class="brand-logo"></div>
+          <span class="brand-name">Luckete</span>
+        </div>
+        <div class="hamburger"><span></span><span></span></div>
+      </div>
+      <!-- Card-style pero full-width en mobile -->
+      <div style="background:white; margin:12px; border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07);">
+        <div class="a-progress" style="padding:14px 16px;">
+          <div class="a-step active" style="width:26px;height:26px;font-size:11px;">1</div>
+          <div class="a-step-line"></div>
+          <div class="a-step inactive" style="width:26px;height:26px;font-size:11px;">2</div>
+          <div class="a-step-line"></div>
+          <div class="a-step inactive" style="width:26px;height:26px;font-size:11px;">3</div>
+          <div class="a-step-line"></div>
+          <div class="a-step inactive" style="width:26px;height:26px;font-size:11px;">4</div>
+          <div class="a-step-line"></div>
+          <div class="a-step inactive" style="width:26px;height:26px;font-size:11px;">5</div>
+        </div>
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:20px;font-weight:300;letter-spacing:.04em;color:var(--content);margin-bottom:2px;">Fecha</div>
+          <div style="font-size:11px;color:var(--content-4);margin-bottom:16px;">Seleccioná una fecha disponible</div>
+          <div class="a-cal-header" style="margin-bottom:8px;"><button>‹</button><span style="font-size:12px;">marzo 2026</span><button>›</button></div>
+          <div class="a-cal-days">
+            <div class="day-label" style="font-size:9px;">Lu</div><div class="day-label" style="font-size:9px;">Ma</div><div class="day-label" style="font-size:9px;">Mi</div>
+            <div class="day-label" style="font-size:9px;">Ju</div><div class="day-label" style="font-size:9px;">Vi</div><div class="day-label" style="font-size:9px;">Sá</div><div class="day-label" style="font-size:9px;">Do</div>
+            <div class="day disabled" style="font-size:11px;padding:5px 0;">24</div><div class="day disabled" style="font-size:11px;padding:5px 0;">25</div><div class="day disabled" style="font-size:11px;padding:5px 0;">26</div>
+            <div class="day disabled" style="font-size:11px;padding:5px 0;">27</div><div class="day disabled" style="font-size:11px;padding:5px 0;">28</div><div class="day disabled" style="font-size:11px;padding:5px 0;">29</div><div class="day disabled" style="font-size:11px;padding:5px 0;">30</div>
+            <div class="day today" style="font-size:11px;padding:5px 0;">31</div><div class="day" style="font-size:11px;padding:5px 0;">1</div><div class="day" style="font-size:11px;padding:5px 0;">2</div>
+            <div class="day" style="font-size:11px;padding:5px 0;">3</div><div class="day" style="font-size:11px;padding:5px 0;">4</div><div class="day" style="font-size:11px;padding:5px 0;">5</div><div class="day" style="font-size:11px;padding:5px 0;">6</div>
+          </div>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <button class="btn-back" style="font-size:12px;color:var(--content-3);background:none;border:none;">Atrás</button>
+          <button class="btn-next" style="background:var(--gold);color:white;border:none;border-radius:10px;padding:9px 20px;font-size:12px;font-weight:500;">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:12px;">
+      En mobile se ve casi igual al diseño actual — el card ocupa casi todo el ancho y la navbar se agrega arriba. Mejora sutil pero real.
+    </div>
+    <div class="pro-tag">
+      <span class="pro">✓ Mobile casi sin cambios</span>
+      <span class="pro">✓ Consistente con home</span>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ================================ APPROACH B ================================ -->
+  <div style="margin-bottom:12px;">
+    <span class="approach-tag" style="background:#6b8fa3;">Enfoque B</span>
+    <h2>Full-page multi-step</h2>
+    <p class="desc">El wizard usa el ancho completo del desktop. Los pasos se muestran en una sidebar izquierda como índice visual, el contenido activo en el área derecha. Mobile sigue siendo secuencial como hoy.</p>
+  </div>
+
+  <div class="tabs" id="tabs-b">
+    <button class="tab active" onclick="switchTab('b','desktop')">Desktop</button>
+    <button class="tab" onclick="switchTab('b','mobile')">Mobile</button>
+  </div>
+
+  <!-- B Desktop -->
+  <div class="tab-content visible" id="b-desktop" style="margin-top:16px;">
+    <div class="device-desktop">
+      <div class="device-chrome">
+        <span></span><span style="background:#c5b9b0"></span><span style="background:#b0a49c"></span>
+        <div class="url">localhost:3000/appointments/new</div>
+      </div>
+      <div class="pub-navbar">
+        <div class="brand">
+          <div class="brand-logo">
+            <svg viewBox="0 0 20 20" width="14" height="14"><circle cx="10" cy="8" r="5"/><path d="M3 18c0-4 3.1-7 7-7s7 3 7 7"/></svg>
+          </div>
+          <span class="brand-name">Luckete Colorista</span>
+        </div>
+        <div class="nav-links">
+          <a href="#" class="active">Agendar turno</a>
+          <a href="#">Consultar turno</a>
+          <a href="#">Tienda</a>
+          <a href="#">WhatsApp</a>
+        </div>
+        <div class="theme-toggle">
+          <button>⊙</button>
+          <button class="active">☀</button>
+          <button>☾</button>
+        </div>
+      </div>
+      <div class="b-desktop-body">
+        <div class="b-sidebar">
+          <div class="b-sidebar-step done">
+            <div class="step-num">✓</div>
+            <div class="step-info"><div class="step-name">Fecha</div><div class="step-hint">Lun 31 de marzo</div></div>
+          </div>
+          <div class="b-sidebar-step active">
+            <div class="step-num">2</div>
+            <div class="step-info"><div class="step-name">Horario</div><div class="step-hint">Elegí tu hora</div></div>
+          </div>
+          <div class="b-sidebar-step inactive">
+            <div class="step-num">3</div>
+            <div class="step-info"><div class="step-name">Teléfono</div><div class="step-hint">—</div></div>
+          </div>
+          <div class="b-sidebar-step inactive">
+            <div class="step-num">4</div>
+            <div class="step-info"><div class="step-name">Confirmación</div><div class="step-hint">—</div></div>
+          </div>
+          <div class="b-sidebar-step inactive">
+            <div class="step-num">5</div>
+            <div class="step-info"><div class="step-name">Pago</div><div class="step-hint">—</div></div>
+          </div>
+        </div>
+        <div class="b-content">
+          <div class="step-counter">Paso 2 de 5</div>
+          <div class="step-title">Horario</div>
+          <div class="step-sub">Turnos disponibles para el lunes 31 de marzo</div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--content-4);margin-bottom:10px;">Mañana</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">09:00</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">09:30</div>
+              <div style="padding:9px 18px;border:1px solid var(--gold);border-radius:10px;font-size:13px;color:var(--gold);cursor:pointer;background:rgba(184,156,122,.08);font-weight:500;">10:00</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">10:30</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">11:00</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:#ccc;cursor:default;background:#fafafa;text-decoration:line-through;">11:30</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--content-4);margin-bottom:10px;">Tarde</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">14:00</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">14:30</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:#ccc;cursor:default;background:#fafafa;text-decoration:line-through;">15:00</div>
+              <div style="padding:9px 18px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--content-2);cursor:pointer;background:white;">15:30</div>
+            </div>
+          </div>
+          <div class="b-footer">
+            <button class="btn-back">← Atrás</button>
+            <button class="btn-next">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Cambios necesarios:</strong> Refactorizar <code>create-appointment-form.tsx</code> para usar el layout de dos columnas en desktop (sidebar + contenido). Los step components existentes no cambian — solo el wrapper. Crear <code>PublicNavbar</code> igual que en A.
+    </div>
+    <div class="pro-tag">
+      <span class="pro">✓ Excelente en desktop</span>
+      <span class="pro">✓ Sidebar muestra el progreso completo</span>
+      <span class="con">✗ Más código a modificar</span>
+      <span class="con">✗ Sidebar vacía en pasos incompletos</span>
+    </div>
+  </div>
+
+  <!-- B Mobile -->
+  <div class="tab-content" id="b-mobile" style="margin-top:16px;">
+    <div class="device-mobile">
+      <div class="device-mobile-bar">
+        <div style="width:60px;height:6px;background:#ddd;border-radius:3px;margin:0 auto;"></div>
+      </div>
+      <div class="pub-navbar-mobile">
+        <div class="brand">
+          <div class="brand-logo"></div>
+          <span class="brand-name">Luckete</span>
+        </div>
+        <div class="hamburger"><span></span><span></span></div>
+      </div>
+      <div class="b-mobile-body">
+        <div class="b-mobile-top-progress">
+          <div class="b-mobile-steps">
+            <div class="b-mobile-step done" style="font-size:10px;">✓</div>
+            <div class="b-mobile-step-line"></div>
+            <div class="b-mobile-step active">2</div>
+            <div class="b-mobile-step-line"></div>
+            <div class="b-mobile-step inactive">3</div>
+            <div class="b-mobile-step-line"></div>
+            <div class="b-mobile-step inactive">4</div>
+            <div class="b-mobile-step-line"></div>
+            <div class="b-mobile-step inactive">5</div>
+          </div>
+          <div style="font-size:10px;color:var(--content-4);letter-spacing:.1em;">Paso 2 de 5 · Horario</div>
+        </div>
+        <div class="b-mobile-body">
+          <div class="step-title" style="font-size:22px;">Horario</div>
+          <div class="step-sub">Turnos disponibles para el lunes 31</div>
+          <div style="padding:0 16px;">
+            <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--content-4);margin-bottom:8px;">Mañana</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+              <div style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--content-2);background:white;">09:00</div>
+              <div style="padding:7px 14px;border:1px solid var(--gold);border-radius:8px;font-size:12px;color:var(--gold);background:rgba(184,156,122,.08);font-weight:500;">10:00</div>
+              <div style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--content-2);background:white;">10:30</div>
+              <div style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:#ccc;background:#fafafa;text-decoration:line-through;">11:30</div>
+            </div>
+            <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--content-4);margin-bottom:8px;">Tarde</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <div style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--content-2);background:white;">14:00</div>
+              <div style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--content-2);background:white;">14:30</div>
+              <div style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:#ccc;background:#fafafa;text-decoration:line-through;">15:00</div>
+            </div>
+          </div>
+        </div>
+        <div class="b-mobile-footer" style="margin-top:24px;">
+          <button class="btn-back" style="font-size:12px;color:var(--content-3);background:none;border:none;">← Atrás</button>
+          <button class="btn-next" style="background:var(--gold);color:white;border:none;border-radius:10px;padding:10px 24px;font-size:12px;font-weight:500;">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:12px;">
+      En mobile el enfoque B es igual que A — secuencial con progress bar arriba. La sidebar solo aparece en md+ (Tailwind <code>hidden md:flex</code>).
+    </div>
+  </div>
+
+</div><!-- end page -->
+
+<script>
+function switchTab(group, tab) {
+  // Hide all content for this group
+  document.querySelectorAll(`[id^="${group}-"]`).forEach(el => {
+    if (el.classList.contains('tab-content')) {
+      el.classList.remove('visible');
+    }
+  });
+  // Deactivate tabs
+  document.querySelectorAll(`#tabs-${group} .tab`).forEach(t => t.classList.remove('active'));
+  // Show selected
+  document.getElementById(`${group}-${tab}`).classList.add('visible');
+  // Activate tab button
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
