@@ -226,7 +226,7 @@ export function ParallaxSection({
           <ChevronUp
             size={22}
             strokeWidth={1.5}
-            className={cn(dark ? "text-white/40" : "text-content/50 dark:text-gold")}
+            className={cn(dark ? "text-gold/70" : "text-content/50 dark:text-gold")}
           />
         </motion.button>
       )}
@@ -247,7 +247,7 @@ export function ParallaxSection({
           <ChevronDown
             size={22}
             strokeWidth={1.5}
-            className={cn(dark ? "text-white/40" : "text-content/50 dark:text-gold")}
+            className={cn(dark ? "text-gold/70" : "text-content/50 dark:text-gold")}
           />
         </motion.button>
       )}
