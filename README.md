@@ -746,7 +746,7 @@ CRON_SECRET=...
 - [x] **Sidebar: Configuración último** — reordenado a Turnos → Métricas → Pagos → Tienda online → Configuración
 - [x] **MercadoPago webhook P2025 fix** — manejo de error Prisma `P2025` (appointment no encontrado) sin romper el webhook; responde 200 para evitar reintentos de MP
 - [x] **`services/` pattern** — todas las actions son wrappers delgados; lógica de BD en `src/services/*.ts`; `src/services/payments.ts` y `src/services/shop.ts` creados
-- [x] Hacer funcional el checkout del shop online (MercadoPago para productos)
+- [x] Hacer funcional el checkout del shop online MercadoPago para productos
 
 ## ITEMS PENDIENTES
 
