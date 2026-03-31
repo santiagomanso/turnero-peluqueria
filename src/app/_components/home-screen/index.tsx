@@ -18,6 +18,7 @@ export function HomeScreen() {
         decoNumber="01"
         titleLine1="Agendá tu"
         titleLine2="próximo turno"
+        mobileTitle="Agendá tu turno"
         accentLine={2}
         description="Reservá online en segundos. Elegí día, hora y servicio — sin llamadas, sin esperas."
         ctaLabel="Agendar turno"

@@ -11,6 +11,7 @@ type Props = {
   counter: string;
   titleLine1: string;
   titleLine2: string;
+  mobileTitle?: string;
   accentLine?: 1 | 2;
   description: string;
   ctaLabel: string;
@@ -30,6 +31,7 @@ export function ParallaxSection({
   counter,
   titleLine1,
   titleLine2,
+  mobileTitle,
   accentLine = 2,
   description,
   ctaLabel,
@@ -126,7 +128,21 @@ export function ParallaxSection({
             dark ? "text-white" : "text-content dark:text-zinc-100",
           )}
         >
-          <span className="block overflow-hidden">
+          {/* Mobile override: single line, hidden on md+ */}
+          {mobileTitle && (
+            <span className="block overflow-hidden md:hidden">
+              <motion.span
+                className={cn("block", accentLine === 2 && "text-gold")}
+                initial={{ y: "105%" }}
+                animate={isInView ? { y: "0%" } : { y: "105%" }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
+              >
+                {mobileTitle}
+              </motion.span>
+            </span>
+          )}
+          {/* Desktop: two lines, always shown (or hidden on mobile if mobileTitle provided) */}
+          <span className={cn("block overflow-hidden", mobileTitle && "hidden md:block")}>
             <motion.span
               className={cn("block", accentLine === 1 && "text-gold")}
               initial={{ y: "105%" }}
@@ -136,7 +152,7 @@ export function ParallaxSection({
               {titleLine1}
             </motion.span>
           </span>
-          <span className="block overflow-hidden">
+          <span className={cn("block overflow-hidden", mobileTitle && "hidden md:block")}>
             <motion.span
               className={cn("block", accentLine === 2 && "text-gold")}
               initial={{ y: "105%" }}
