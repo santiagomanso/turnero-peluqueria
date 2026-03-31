@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import "./globals.css";
 
 import { PublicThemeProvider } from "@/components/public-theme-provider";
-import { PageTransition } from "@/components/page-transition";
 import { Toaster } from "@/components/ui/sonner";
 
 const archivo = Archivo({
@@ -68,9 +67,7 @@ export default async function RootLayout({
     >
       <body>
         <PublicThemeProvider defaultTheme={validTheme}>
-          <PageTransition>
-            {children}
-          </PageTransition>
+          {children}
         </PublicThemeProvider>
         <Toaster />
       </body>
