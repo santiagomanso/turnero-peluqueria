@@ -115,9 +115,8 @@ export function ParallaxSection({
               : "text-content-quaternary dark:text-zinc-500",
           )}
           initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
           {counter}
         </motion.span>
@@ -135,9 +134,8 @@ export function ParallaxSection({
               className={cn("block", accentLine === 1 && "text-gold")}
               variants={titleVariants}
               initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              custom={0}
+              animate="visible"
+              custom={0.2}
             >
               {titleLine1}
             </motion.span>
@@ -147,9 +145,8 @@ export function ParallaxSection({
               className={cn("block", accentLine === 2 && "text-gold")}
               variants={titleVariants}
               initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              custom={0.08}
+              animate="visible"
+              custom={0.3}
             >
               {titleLine2}
             </motion.span>
@@ -160,12 +157,11 @@ export function ParallaxSection({
         <motion.div
           className="h-px bg-linear-to-r from-transparent via-gold to-transparent mx-auto mt-8 mb-7"
           initial={{ width: 0 }}
-          whileInView={{ width: 80 }}
-          viewport={{ once: true, amount: 0.3 }}
+          animate={{ width: 80 }}
           transition={{
             duration: 0.8,
             ease: [0.16, 1, 0.3, 1] as const,
-            delay: 0.3,
+            delay: 0.5,
           }}
         />
 
@@ -178,9 +174,8 @@ export function ParallaxSection({
               : "text-content-secondary dark:text-zinc-400",
           )}
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.55 }}
         >
           {description}
         </motion.p>
@@ -188,9 +183,8 @@ export function ParallaxSection({
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.97 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, ease: "easeOut", delay: 0.55 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.7 }}
         >
           {external ? (
             <a
