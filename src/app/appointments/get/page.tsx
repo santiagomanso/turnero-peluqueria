@@ -1,18 +1,15 @@
-import Navbar from "@/components/navbar";
-import { Container } from "@/components/ui/container";
+import { HomeNavbar } from "@/app/_components/home-screen/home-navbar";
 import GetAppointments from "./_components/get-appointments";
 
 export default function SearchAppointmentPage() {
   return (
-    <Container.wrapper>
-      <Container.content className="max-w-2xl">
-        <div className="flex flex-col h-full">
-          <Navbar title="Mi Turno" />
-          <div className="flex-1 min-h-0 mt-3">
-            <GetAppointments />
-          </div>
+    <div className="min-h-svh flex flex-col bg-surface dark:bg-zinc-950 font-archivo">
+      <HomeNavbar position="sticky" pageTitle="Consultar Turno" />
+      <main className="flex-1 flex items-start justify-center py-8 px-4">
+        <div className="w-full max-w-2xl">
+          <GetAppointments />
         </div>
-      </Container.content>
-    </Container.wrapper>
+      </main>
+    </div>
   );
 }

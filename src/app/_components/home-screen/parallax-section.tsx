@@ -60,12 +60,9 @@ export function ParallaxSection({
   const baseCta =
     "inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-semibold transition-all group";
   const ctaClass = cn(baseCta, {
-    "bg-gold text-content hover:shadow-[0_8px_32px_rgba(201,169,110,0.45)] hover:scale-[1.04]":
-      ctaVariant === "gold",
-    "border border-content/20 dark:border-zinc-700 text-content dark:text-zinc-100 hover:border-content/50 hover:bg-black/[0.03]":
-      ctaVariant === "outline",
-    "bg-[#25D366] text-white hover:shadow-[0_8px_28px_rgba(37,211,102,0.4)] hover:scale-[1.04]":
-      ctaVariant === "whatsapp",
+    "bg-gold text-content  hover:scale-[1.04]": ctaVariant === "gold",
+    "bg-gold text-content hover:scale-[1.04]": ctaVariant === "outline",
+    "bg-[#25D366] text-white  hover:scale-[1.04]": ctaVariant === "whatsapp",
   });
 
   const ctaContent = (
@@ -135,29 +132,51 @@ export function ParallaxSection({
                 className={cn("block", accentLine === 2 && "text-gold")}
                 initial={{ y: "105%" }}
                 animate={isInView ? { y: "0%" } : { y: "105%" }}
-                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
+                transition={{
+                  duration: 0.9,
+                  ease: [0.16, 1, 0.3, 1] as const,
+                  delay: 0.1,
+                }}
               >
                 {mobileTitle}
               </motion.span>
             </span>
           )}
           {/* Desktop: two lines, always shown (or hidden on mobile if mobileTitle provided) */}
-          <span className={cn("block overflow-hidden", mobileTitle && "hidden md:block")}>
+          <span
+            className={cn(
+              "block overflow-hidden",
+              mobileTitle && "hidden md:block",
+            )}
+          >
             <motion.span
               className={cn("block", accentLine === 1 && "text-gold")}
               initial={{ y: "105%" }}
               animate={isInView ? { y: "0%" } : { y: "105%" }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
+              transition={{
+                duration: 0.9,
+                ease: [0.16, 1, 0.3, 1] as const,
+                delay: 0.1,
+              }}
             >
               {titleLine1}
             </motion.span>
           </span>
-          <span className={cn("block overflow-hidden", mobileTitle && "hidden md:block")}>
+          <span
+            className={cn(
+              "block overflow-hidden",
+              mobileTitle && "hidden md:block",
+            )}
+          >
             <motion.span
               className={cn("block", accentLine === 2 && "text-gold")}
               initial={{ y: "105%" }}
               animate={isInView ? { y: "0%" } : { y: "105%" }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
+              transition={{
+                duration: 0.9,
+                ease: [0.16, 1, 0.3, 1] as const,
+                delay: 0.2,
+              }}
             >
               {titleLine2}
             </motion.span>
@@ -169,7 +188,11 @@ export function ParallaxSection({
           className="h-px bg-linear-to-r from-transparent via-gold to-transparent mx-auto mt-8 mb-7"
           initial={{ width: 0 }}
           animate={isInView ? { width: 80 } : { width: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const, delay: 0.35 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1] as const,
+            delay: 0.35,
+          }}
         />
 
         {/* Description */}
@@ -190,7 +213,11 @@ export function ParallaxSection({
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.97 }}
-          animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
+          animate={
+            isInView
+              ? { opacity: 1, y: 0, scale: 1 }
+              : { opacity: 0, y: 16, scale: 0.97 }
+          }
           transition={{ duration: 0.5, ease: "easeOut", delay: 0.55 }}
         >
           {external ? (
@@ -226,7 +253,9 @@ export function ParallaxSection({
           <ChevronUp
             size={22}
             strokeWidth={1.5}
-            className={cn(dark ? "text-gold/70" : "text-content/50 dark:text-gold")}
+            className={cn(
+              dark ? "text-gold/70" : "text-content/50 dark:text-gold",
+            )}
           />
         </motion.button>
       )}
@@ -247,7 +276,9 @@ export function ParallaxSection({
           <ChevronDown
             size={22}
             strokeWidth={1.5}
-            className={cn(dark ? "text-gold/70" : "text-content/50 dark:text-gold")}
+            className={cn(
+              dark ? "text-gold/70" : "text-content/50 dark:text-gold",
+            )}
           />
         </motion.button>
       )}

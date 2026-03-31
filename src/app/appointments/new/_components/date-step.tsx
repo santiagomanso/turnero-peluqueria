@@ -9,11 +9,13 @@ import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appoi
 type Props = {
   appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
   allowToday?: boolean;
+  hideHeader?: boolean;
 };
 
 export default function DateStep({
   appointmentForm,
   allowToday = false,
+  hideHeader = false,
 }: Props) {
   const { daysConfig, fullDates } = appointmentForm;
 
@@ -44,34 +46,40 @@ export default function DateStep({
     return false;
   };
 
+  const firstAvailableMonth = allowToday
+    ? new Date()
+    : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d; })();
+
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-2xl font-bold text-content dark:text-zinc-100 leading-tight">
-            Fecha
-          </h2>
-          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-1">
-            Seleccionar fecha
-          </p>
-          <div className="w-8 h-px mt-2 bg-gold-gradient" />
-        </div>
-        <div className="text-right max-w-36">
-          <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
-            Paso 1 de 4
-          </p>
-          {!allowToday && (
-            <p className="text-[0.65rem] text-content-quaternary dark:text-zinc-600 leading-relaxed">
-              Turnos con{" "}
-              <strong className="text-content-secondary dark:text-zinc-400">
-                +24 hs
-              </strong>{" "}
-              de anticipación.
+    <div className="flex flex-col">
+      {!hideHeader && (
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-content dark:text-zinc-100 leading-tight">
+              Fecha
+            </h2>
+            <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-1">
+              Seleccionar fecha
             </p>
-          )}
+            <div className="w-8 h-px mt-2 bg-gold-gradient" />
+          </div>
+          <div className="text-right max-w-36">
+            <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
+              Paso 1 de 4
+            </p>
+            {!allowToday && (
+              <p className="text-[0.65rem] text-content-quaternary dark:text-zinc-600 leading-relaxed">
+                Turnos con{" "}
+                <strong className="text-content-secondary dark:text-zinc-400">
+                  +24 hs
+                </strong>{" "}
+                de anticipación.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-      <FieldGroup className="flex-1 flex flex-col">
+      )}
+      <FieldGroup className="flex flex-col">
         <Controller
           name="date"
           control={appointmentForm.form.control}
@@ -85,6 +93,11 @@ export default function DateStep({
                 }}
                 locale={es}
                 disabled={isDayDisabled}
+                defaultMonth={firstAvailableMonth}
+                showOutsideDays={false}
+                classNames={{
+                  disabled: "invisible pointer-events-none",
+                }}
                 className="w-full"
               />
               {fieldState.invalid && (

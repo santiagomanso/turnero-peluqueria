@@ -6,9 +6,12 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { Controller } from "react-hook-form";
 
-type Props = { appointmentForm: ReturnType<typeof useCreateAppointmentForm> };
+type Props = {
+  appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
+  hideHeader?: boolean;
+};
 
-export default function HourStep({ appointmentForm }: Props) {
+export default function HourStep({ appointmentForm, hideHeader = false }: Props) {
   const { availableHours, isLoadingHours } = appointmentForm;
 
   const morning = availableHours.filter((h) => {
@@ -23,29 +26,31 @@ export default function HourStep({ appointmentForm }: Props) {
 
   return (
     <div>
-      <div className="flex justify-between items-start mb-5">
-        <div>
-          <h2 className="text-2xl font-bold text-content dark:text-zinc-100 leading-tight">
-            Hora
-          </h2>
-          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-1">
-            Seleccionar hora
-          </p>
-          <div className="w-8 h-px mt-2 bg-gold-gradient" />
+      {!hideHeader && (
+        <div className="flex justify-between items-start mb-5">
+          <div>
+            <h2 className="text-2xl font-bold text-content dark:text-zinc-100 leading-tight">
+              Hora
+            </h2>
+            <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-1">
+              Seleccionar hora
+            </p>
+            <div className="w-8 h-px mt-2 bg-gold-gradient" />
+          </div>
+          <div className="text-right max-w-36">
+            <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
+              Paso 2 de 4
+            </p>
+            <p className="text-xs text-content-quaternary dark:text-zinc-600 leading-relaxed">
+              Cancelaciones con{" "}
+              <strong className="text-content-secondary dark:text-zinc-400">
+                +24 hs
+              </strong>{" "}
+              de anticipación.
+            </p>
+          </div>
         </div>
-        <div className="text-right max-w-36">
-          <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
-            Paso 2 de 4
-          </p>
-          <p className="text-xs text-content-quaternary dark:text-zinc-600 leading-relaxed">
-            Cancelaciones con{" "}
-            <strong className="text-content-secondary dark:text-zinc-400">
-              +24 hs
-            </strong>{" "}
-            de anticipación.
-          </p>
-        </div>
-      </div>
+      )}
 
       {isLoadingHours ? (
         <div className="flex flex-col items-center justify-center gap-3 py-10">
@@ -74,9 +79,9 @@ export default function HourStep({ appointmentForm }: Props) {
                           disabled={!h.available}
                           onClick={() => field.onChange(h.time)}
                           className={cn(
-                            "py-2.5 rounded-md text-sm font-semibold transition-all",
+                            "py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ease-in-out",
                             field.value === h.time
-                              ? "bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-zinc-950 dark:shadow-xl"
+                              ? "-translate-y-px bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-zinc-950 dark:shadow-xl"
                               : h.available
                                 ? "bg-muted dark:bg-zinc-700 border border-border-subtle dark:border-zinc-600 text-content dark:text-zinc-100 shadow-sm"
                                 : "bg-muted dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 text-content-quaternary dark:text-zinc-600 line-through cursor-not-allowed opacity-50",
@@ -102,9 +107,9 @@ export default function HourStep({ appointmentForm }: Props) {
                           disabled={!h.available}
                           onClick={() => field.onChange(h.time)}
                           className={cn(
-                            "py-2.5 rounded-md text-sm font-semibold transition-all",
+                            "py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ease-in-out",
                             field.value === h.time
-                              ? "bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-zinc-950 dark:shadow-xl"
+                              ? "-translate-y-px bg-gold text-white shadow-md shadow-neutral-300 dark:shadow-zinc-950 dark:shadow-xl"
                               : h.available
                                 ? "bg-muted dark:bg-zinc-700 border border-border-subtle dark:border-zinc-600 text-content dark:text-zinc-100 shadow-sm"
                                 : "bg-muted dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 text-content-quaternary dark:text-zinc-600 line-through cursor-not-allowed opacity-50",

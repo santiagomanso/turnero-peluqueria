@@ -55,12 +55,12 @@ function Calendar({
           defaultClassNames.nav,
         ),
         button_previous: cn(
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-zinc-100 transition-colors",
           defaultClassNames.button_previous,
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-content-secondary dark:text-zinc-400 flex items-center justify-center rounded-md hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-gold transition-colors",
         ),
         button_next: cn(
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-zinc-100 transition-colors",
           defaultClassNames.button_next,
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none text-content-secondary dark:text-zinc-400 flex items-center justify-center rounded-md hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-gold transition-colors",
         ),
         month_caption: cn(
           "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)",
@@ -217,14 +217,14 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal items-center justify-center rounded-md transition-colors text-sm",
+        "flex aspect-square size-auto transition-all ease-in-out duration-200 w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal items-center justify-center rounded-md text-sm",
         "[&>span]:text-xs [&>span]:opacity-70",
         "data-[range-end=true]:rounded-md data-[range-start=true]:rounded-md data-[range-middle=true]:rounded-none",
         isSelected
-          ? "font-bold"
+          ? "font-bold -translate-y-px"
           : isRangeMiddle
             ? ""
-            : "text-content dark:text-zinc-100 hover:bg-black/5 dark:hover:bg-zinc-700 hover:text-content dark:hover:text-zinc-100",
+            : "text-content font-archivo font-medium dark:text-zinc-100 bg-muted dark:bg-zinc-700 border border-border-subtle dark:border-zinc-600 shadow-sm hover:bg-black/5 dark:hover:bg-zinc-600 hover:text-content dark:hover:text-zinc-100",
         className,
       )}
       style={{ ...propsStyle, ...accentStyle }}

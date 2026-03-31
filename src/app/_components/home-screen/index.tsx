@@ -8,7 +8,7 @@ import { CalendarPlus, Search, ShoppingBag, MessageCircle } from "lucide-react";
 
 export function HomeScreen() {
   return (
-    <div className="w-full">
+    <>
       <HomeNavbar />
       <SplashSection />
 
@@ -81,6 +81,6 @@ export function HomeScreen() {
       />
 
       <HomeFooter />
-    </div>
+    </>
   );
 }
