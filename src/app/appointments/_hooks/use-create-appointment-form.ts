@@ -9,6 +9,12 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Appointment } from "@/types/appointment";
 import { createPaymentPreferenceAction } from "../_actions/mercadopago";
+import {
+  getAvailabilityAction,
+  type AvailableHour,
+} from "../_actions/get-availability";
+import type { DaysConfig } from "@/types/config";
+import { validateDiscountAction } from "../_actions/validate-discount";
 
 const formSchema = z.object({
   date: z.date({
@@ -26,22 +32,61 @@ type FormType = z.infer<typeof formSchema>;
 
 type UseAppointmentFormOptions = {
   appointment?: Appointment;
-  mode?: "create" | "update";
+  daysConfig?: DaysConfig | null;
 };
+
+const dayKeyMap: Record<number, keyof DaysConfig> = {
+  0: "sunday",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
+};
+
+function getNextAvailableDate(
+  daysConfig: DaysConfig | null | undefined,
+  fullDates: Date[] = [],
+): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  date.setHours(0, 0, 0, 0);
+
+  if (!daysConfig) return date;
+
+  for (let i = 0; i < 60; i++) {
+    const key = dayKeyMap[date.getUTCDay()];
+    const isFull = fullDates.some(
+      (d) => d.toDateString() === date.toDateString(),
+    );
+    if (daysConfig[key] && !isFull) return date;
+    date.setDate(date.getDate() + 1);
+  }
+
+  return date;
+}
 
 export default function useCreateAppointmentForm(
   options?: UseAppointmentFormOptions,
 ) {
   const [currentStep, setCurrentStep] = React.useState(1);
   const [isRedirecting, setIsRedirecting] = React.useState(false);
-  const totalSteps = 4;
+  const [availableHours, setAvailableHours] = React.useState<AvailableHour[]>(
+    [],
+  );
+  const [isLoadingHours, setIsLoadingHours] = React.useState(false);
+  const [appliedDiscount, setAppliedDiscount] = React.useState<{
+    code: string;
+    discount: number;
+  } | null>(null);
+  const [isValidatingDiscount, setIsValidatingDiscount] = React.useState(false);
+  const [fullDates, setFullDates] = React.useState<Date[]>([]);
+
+  const totalSteps = 5;
 
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
 
   const isEditing = !!options?.appointment;
 
@@ -55,7 +100,7 @@ export default function useCreateAppointmentForm(
           telephone: options.appointment!.telephone.replace(/^549/, ""),
         }
       : {
-          date: tomorrow,
+          date: getNextAvailableDate(options?.daysConfig),
           time: "",
           telephone: "",
         },
@@ -73,6 +118,32 @@ export default function useCreateAppointmentForm(
       toast.error("El pago no pudo procesarse. Intentá de nuevo.");
     }
   }, [searchParams]);
+
+  const selectedDate = form.watch("date");
+
+  React.useEffect(() => {
+    if (!selectedDate) return;
+    setIsLoadingHours(true);
+    getAvailabilityAction(selectedDate).then((res) => {
+      if (res.success && res.hours) setAvailableHours(res.hours);
+      setIsLoadingHours(false);
+    });
+  }, [selectedDate]);
+
+  const applyDiscount = async (code: string) => {
+    if (!code.trim()) return;
+    setIsValidatingDiscount(true);
+    const result = await validateDiscountAction(code);
+    if (result.success) {
+      setAppliedDiscount({ code: result.code, discount: result.discount });
+      toast.success(`Código aplicado: ${result.discount}% de descuento`);
+    } else {
+      toast.error(result.error);
+    }
+    setIsValidatingDiscount(false);
+  };
+
+  const removeDiscount = () => setAppliedDiscount(null);
 
   const handleNext = async () => {
     const stepFieldsMap: Record<number, (keyof FormType)[]> = {
@@ -126,10 +197,32 @@ export default function useCreateAppointmentForm(
       date: dateStr,
       hour: data.time,
       telephone: data.telephone,
+      discountCode: appliedDiscount?.code ?? null,
     });
 
     if (!response.success || !response.initPoint) {
       toast.error(response.error ?? "Error al iniciar el pago");
+      if ("hourFull" in response && response.hourFull) {
+        const availability = await getAvailabilityAction(data.date);
+        if (availability.success && availability.hours) {
+          setAvailableHours(availability.hours);
+          const anyAvailable = availability.hours.some((h) => h.available);
+          if (!anyAvailable) {
+            const newFullDates = [...fullDates, data.date];
+            setFullDates(newFullDates);
+            const nextDate = getNextAvailableDate(
+              options?.daysConfig,
+              newFullDates,
+            );
+            form.setValue("date", nextDate);
+            form.setValue("time", "");
+            setCurrentStep(1);
+          } else {
+            form.setValue("time", "");
+            setCurrentStep(2);
+          }
+        }
+      }
       setIsRedirecting(false);
       return;
     }
@@ -146,5 +239,13 @@ export default function useCreateAppointmentForm(
     handleBack,
     onSubmit,
     isRedirecting,
+    availableHours,
+    isLoadingHours,
+    daysConfig: options?.daysConfig ?? null,
+    appliedDiscount,
+    isValidatingDiscount,
+    applyDiscount,
+    removeDiscount,
+    fullDates,
   };
 }

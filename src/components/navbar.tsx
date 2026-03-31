@@ -1,19 +1,33 @@
-import { Home, UserRound } from "lucide-react";
+"use client";
+
+import { Home, Sun, Moon, Settings2 } from "lucide-react";
 import Link from "next/link";
-import { ThemeToggle } from "./theme-toggle";
+import { useTheme } from "./public-theme-provider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import dynamic from "next/dynamic";
+import { Button } from "./ui/button";
 
 type Props = {
   title?: string;
+  rightElement?: React.ReactNode;
+  hideSettings?: boolean;
 };
 
-export default function Navbar({ title }: Props) {
+function NavbarComponent({ title, rightElement, hideSettings = false }: Props) {
+  const { isDark, setTheme } = useTheme();
+
   return (
     <nav className="flex justify-between items-center mb-5">
-      <Link
-        href="/"
-        className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 text-content dark:text-zinc-100 transition-colors"
-      >
-        <Home strokeWidth={1.5} className="h-5 w-5" />
+      <Link href="/">
+        <Button variant="outline" size="icon">
+          <Home strokeWidth={1.5} className="h-5 w-5" />
+        </Button>
       </Link>
 
       {title && (
@@ -23,14 +37,46 @@ export default function Navbar({ title }: Props) {
       )}
 
       <div className="flex items-center gap-2">
-        <ThemeToggle />
-        <Link
-          href="/admin"
-          className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 text-content dark:text-zinc-100 transition-colors"
-        >
-          <UserRound strokeWidth={1.5} className="h-5 w-5" />
-        </Link>
+        {rightElement}
+
+        {!hideSettings && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Settings2 className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-44 dark:bg-zinc-900 dark:border-zinc-800"
+            >
+              <DropdownMenuItem
+                onClick={() => setTheme(isDark ? "light" : "dark")}
+                className="text-xs gap-2 cursor-pointer"
+              >
+                {isDark ? (
+                  <Sun className="w-3.5 h-3.5" />
+                ) : (
+                  <Moon className="w-3.5 h-3.5" />
+                )}
+                {isDark ? "Modo claro" : "Modo oscuro"}
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="dark:bg-zinc-800" />
+
+              <Link href="/admin">
+                <DropdownMenuItem className="text-xs gap-2 cursor-pointer">
+                  <Home className="w-3.5 h-3.5" />
+                  Administración
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </nav>
   );
 }
+
+const Navbar = dynamic(() => Promise.resolve(NavbarComponent), { ssr: false });
+export default Navbar;

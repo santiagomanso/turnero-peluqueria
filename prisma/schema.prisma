@@ -13,28 +13,42 @@ enum AppointmentStatus {
 }
 
 model Appointment {
-  id        String            @id @default(cuid())
-  date      DateTime
-  time      String
-  telephone String
-  price     Int               @default(0)
-  status    AppointmentStatus @default(PENDING)
-  payment   Payment?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id         String            @id @default(cuid())
+  date       DateTime
+  time       String
+  telephone  String
+  price      Int               @default(0)
+  status     AppointmentStatus @default(PENDING)
+  payerName  String?
+  payerEmail String?
+  isTest     Boolean           @default(false)
+  paymentUrl String?
+  payment    Payment?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
   @@map("appointments")
 }
 
+// ─── Unified payments ──────────────────────────────────────────────────────────
+// type:   "appointment" | "shop_order"
+// source: "mercadopago" | "cash" | "transfer"
+// Exactly one of appointmentId / orderId is set per record.
+
 model Payment {
-  id            String      @id @default(cuid())
-  appointmentId String      @unique
-  appointment   Appointment @relation(fields: [appointmentId], references: [id])
-  mercadopagoId String
+  id            String       @id @default(cuid())
+  type          String       // "appointment" | "shop_order"
+  source        String       // "mercadopago" | "cash" | "transfer"
   amount        Int
   status        String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  mercadopagoId String?      // null for cash / transfer
+  paidAt        DateTime     @default(now())
+
+  appointmentId String?      @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+
+  orderId       String?      @unique
+  order         Order?       @relation(fields: [orderId], references: [id])
 
   @@map("payments")
 }
@@ -48,4 +62,70 @@ model Config {
   updatedAt     DateTime @updatedAt
 
   @@map("config")
+}
+
+model WhatsappChatbotSession {
+  telephone     String   @id
+  step          String
+  appointmentId String?
+  newDate       String?
+  newTime       String?
+  expiresAt     DateTime
+  updatedAt     DateTime @updatedAt
+
+  @@map("whatsapp_chatbot_sessions")
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  price       Int
+  stock       Int         @default(0)
+  category    String
+  imageUrl    String?
+  active      Boolean     @default(true)
+  featured    Boolean     @default(false)
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("products")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  READY
+  PICKED_UP
+  CANCELLED
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  telephone     String
+  email         String?
+  name          String?
+  note          String?
+  status        OrderStatus @default(PENDING)
+  paymentMethod String      @default("local")
+  total         Int
+  items         OrderItem[]
+  payment       Payment?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Int
+
+  @@map("order_items")
 }

@@ -45,6 +45,8 @@ export default function ProgressBar({ appointmentForm }: Props) {
         <Step step={3} currentStep={currentStep} />
         <Line done={currentStep > 3} />
         <Step step={4} currentStep={currentStep} />
+        <Line done={currentStep > 4} />
+        <Step step={5} currentStep={currentStep} />
       </div>
     </div>
   );

@@ -4,20 +4,33 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { ALL_HOURS, Hour, HoursConfig } from "@/types/config";
+import { ALL_HOURS, HoursConfig, DayKey } from "@/types/config";
 
 interface AvailableHoursProps {
   hours: HoursConfig;
-  onToggle: (hour: Hour) => void;
-  onSetMax: (hour: Hour, value: number) => void;
+  selectedDay: DayKey;
+  onToggle: (day: DayKey, hour: string) => void;
+  onSetMax: (day: DayKey, hour: string, delta: number) => void;
 }
+
+const DAY_FULL_LABELS: Record<DayKey, string> = {
+  monday: "LUNES",
+  tuesday: "MARTES",
+  wednesday: "MIÉRCOLES",
+  thursday: "JUEVES",
+  friday: "VIERNES",
+  saturday: "SÁBADO",
+  sunday: "DOMINGO",
+};
 
 export function AvailableHours({
   hours,
+  selectedDay,
   onToggle,
   onSetMax,
 }: AvailableHoursProps) {
-  const enabledCount = Object.values(hours).filter((h) => h.enabled).length;
+  const dayHours = hours[selectedDay] ?? {};
+  const enabledCount = Object.values(dayHours).filter((h) => h.enabled).length;
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-xl max-md:rounded-none border border-border-subtle max-md:border-x-0 max-md:border-b-0 dark:border-zinc-800 shadow-sm p-5">
@@ -27,8 +40,10 @@ export function AvailableHours({
             Horarios Disponibles
           </h2>
           <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-            Selecciona las horas habilitadas para que los clientes puedan
-            reservar.
+            Mostrando horarios para{" "}
+            <span className="text-gold font-medium">
+              {DAY_FULL_LABELS[selectedDay]}
+            </span>
           </p>
         </div>
         <span className="text-xs font-medium text-content-tertiary dark:text-zinc-500 tabular-nums shrink-0 ml-4">
@@ -38,16 +53,14 @@ export function AvailableHours({
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {ALL_HOURS.map((hour) => {
-          const hourConf = hours[hour];
+          const hourConf = dayHours[hour] ?? { enabled: false, maxBookings: 1 };
           return (
             <div
               key={hour}
               onClick={(e) => {
-                if (hourConf.enabled) {
-                  const btn = (e.target as HTMLElement).closest("button");
-                  if (btn) return;
-                }
-                onToggle(hour);
+                if ((e.target as HTMLElement).closest('[data-slot="button"]'))
+                  return;
+                onToggle(selectedDay, hour);
               }}
               className={cn(
                 "flex flex-col gap-3 rounded-lg border p-3 cursor-pointer select-none",
@@ -69,8 +82,8 @@ export function AvailableHours({
                 </span>
                 <Switch
                   checked={hourConf.enabled}
-                  onCheckedChange={() => onToggle(hour)}
-                  onClick={(e) => e.stopPropagation()}
+                  onCheckedChange={() => onToggle(selectedDay, hour)}
+                  onPointerDown={(e) => e.stopPropagation()}
                   aria-label={`Activar horario ${hour}`}
                   className="scale-90 data-[state=checked]:bg-blue-500"
                 />
@@ -86,15 +99,29 @@ export function AvailableHours({
                 >
                   Reservas simultáneas
                 </Label>
-                <div className="flex items-center gap-1.5">
+                <div
+                  className="flex items-center gap-1.5"
+                  onPointerDown={(e) => {
+                    if (
+                      (e.target as HTMLElement).closest('[data-slot="button"]')
+                    ) {
+                      e.stopPropagation();
+                    }
+                  }}
+                >
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-7 w-7 shrink-0 border-border-subtle dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     disabled={!hourConf.enabled || hourConf.maxBookings <= 1}
-                    onClick={() => onSetMax(hour, hourConf.maxBookings - 1)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetMax(selectedDay, hour, -1);
+                    }}
                   >
-                    <span className="text-sm font-medium">-</span>
+                    <span className="text-sm font-medium pointer-events-none">
+                      -
+                    </span>
                   </Button>
                   <span
                     className={cn(
@@ -111,9 +138,14 @@ export function AvailableHours({
                     size="icon"
                     className="h-7 w-7 shrink-0 border-border-subtle dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     disabled={!hourConf.enabled || hourConf.maxBookings >= 10}
-                    onClick={() => onSetMax(hour, hourConf.maxBookings + 1)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetMax(selectedDay, hour, +1);
+                    }}
                   >
-                    <span className="text-sm font-medium">+</span>
+                    <span className="text-sm font-medium pointer-events-none">
+                      +
+                    </span>
                   </Button>
                 </div>
               </div>

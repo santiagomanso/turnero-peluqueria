@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ShoppingCart, Star, ChevronRight, Home } from "lucide-react";
-import Link from "next/link";
+import { ShoppingCart, Star, ChevronRight, Check } from "lucide-react";
+
+import { useCart } from "../_store/use-cart";
+import type { Product as ShopProduct } from "@/types/shop";
 
 const shampoos = [
   {
@@ -84,59 +85,77 @@ const sprays = [
 
 type Product = (typeof shampoos)[0];
 
-function ProductCard({
-  product,
-  onAdd,
-}: {
-  product: Product;
-  onAdd: (id: number) => void;
-}) {
-  const [added, setAdded] = useState(false);
+function ProductCard({ product }: { product: Product }) {
+  const added = useCart((state) =>
+    state.items.some((i) => i.id === String(product.id)),
+  );
+  const toggle = useCart((state) => state.toggle);
 
-  const handleAdd = () => {
-    setAdded(true);
-    onAdd(product.id);
-    setTimeout(() => setAdded(false), 1200);
+  // Adapt mock product to the shape toggle expects
+  const asShopProduct: ShopProduct = {
+    id: String(product.id),
+    name: product.name,
+    price: product.price,
+    description: product.desc,
+    imageUrl: null,
+    category: "Shampoo y Acondicionador",
+    stock: 10,
+    active: true,
+    featured: false,
+    createdAt: new Date(),
   };
 
   return (
-    <div className="bg-white border border-border-subtle rounded-2xl p-3 w-36 shrink-0 flex flex-col gap-2 shadow-sm">
-      <div className="bg-surface rounded-xl h-28 flex items-center justify-center relative">
+    <div
+      className={`border-2 rounded-2xl p-3 w-36 shrink-0 flex flex-col gap-2 shadow-sm transition-all duration-200 ${
+        added
+          ? "ring-2 ring-gold border-transparent bg-white dark:bg-zinc-900"
+          : "border-transparent border border-border-subtle dark:border-zinc-800 bg-white dark:bg-zinc-900"
+      }`}
+    >
+      <div className="bg-surface dark:bg-zinc-800 rounded-xl h-28 flex items-center justify-center relative">
         <span className="text-4xl">{product.emoji}</span>
-        <div className="absolute top-1.5 right-1.5 bg-gold-soft border border-gold-border rounded-md px-1.5 py-0.5">
+        <div className="absolute top-1.5 right-1.5 bg-gold-soft dark:bg-zinc-700 border border-gold-border dark:border-zinc-600 rounded-md px-1.5 py-0.5">
           <span className="text-[0.5rem] text-gold font-bold uppercase tracking-[0.08em]">
             {product.brand}
           </span>
         </div>
+        {added && (
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 bg-gold text-white text-[0.5rem] font-bold px-1.5 py-0.5 rounded-full">
+            <Check className="w-2.5 h-2.5" strokeWidth={3} />
+          </div>
+        )}
       </div>
 
       <div className="flex-1">
-        <p className="text-xs font-bold text-content mb-0.5">{product.name}</p>
-        <p className="text-[0.6rem] text-content-quaternary mb-1">
+        <p className="text-xs font-bold text-content dark:text-zinc-100 mb-0.5">
+          {product.name}
+        </p>
+        <p className="text-[0.6rem] text-content-quaternary dark:text-zinc-500 mb-1">
           {product.desc}
         </p>
         <div className="flex items-center gap-1">
           <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-          <span className="text-[0.6rem] text-content-quaternary">
+          <span className="text-[0.6rem] text-content-quaternary dark:text-zinc-500">
             {product.rating}
           </span>
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-sm font-extrabold text-content">
+        <span className="text-sm font-extrabold text-content dark:text-zinc-100">
           ${product.price.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
         </span>
         <button
-          onClick={handleAdd}
+          onClick={() => toggle(asShopProduct)}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-all text-[0.6rem] font-bold ${
             added
-              ? "bg-gold-soft text-gold border border-gold-border"
+              ? "border border-gold text-gold bg-transparent"
               : "bg-gold text-white"
           }`}
         >
-          <ShoppingCart className="w-3 h-3" />
-          {added ? "✓" : "Agregar"}
+          {added ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
+          {added ? "Quitar" : "Agregar"}
         </button>
       </div>
     </div>
@@ -147,13 +166,11 @@ function Section({
   title,
   subtitle,
   products,
-  onAdd,
   hideHeader,
 }: {
   title: string;
   subtitle: string;
   products: Product[];
-  onAdd: (id: number) => void;
   hideHeader?: boolean;
 }) {
   return (
@@ -161,10 +178,10 @@ function Section({
       {!hideHeader && (
         <div className="flex justify-between items-end mb-3">
           <div>
-            <h3 className="text-lg font-extrabold text-content leading-tight">
+            <h3 className="text-lg font-extrabold text-content dark:text-zinc-100 leading-tight">
               {title}
             </h3>
-            <p className="text-[0.6rem] text-content-quaternary uppercase tracking-widest mt-0.5">
+            <p className="text-[0.6rem] text-content-quaternary dark:text-zinc-500 uppercase tracking-widest mt-0.5">
               {subtitle}
             </p>
             <div className="w-7 h-px mt-1.5 bg-gold-gradient" />
@@ -176,7 +193,7 @@ function Section({
       )}
       <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
         {products.map((p) => (
-          <ProductCard key={p.id} product={p} onAdd={onAdd} />
+          <ProductCard key={p.id} product={p} />
         ))}
       </div>
     </div>
@@ -184,40 +201,11 @@ function Section({
 }
 
 export default function ShopContent() {
-  const [cart, setCart] = useState<number[]>([]);
-  const addToCart = (id: number) => setCart((prev) => [...prev, id]);
-
   return (
     <div>
-      {/* Navbar */}
-      <div className="flex justify-between items-center mb-5">
-        <Link
-          href="/"
-          className="p-2 rounded-xl bg-white border border-border-subtle text-content"
-        >
-          <Home strokeWidth={1.5} className="h-5 w-5" />
-        </Link>
-        <span className="text-[0.75rem] font-semibold tracking-[0.18em] uppercase text-content">
-          Tienda
-        </span>
-        <div className="relative">
-          <div className="p-2 rounded-xl bg-white border border-border-subtle text-content">
-            <ShoppingCart strokeWidth={1.5} className="h-5 w-5" />
-          </div>
-          {cart.length > 0 && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gold rounded-full flex items-center justify-center">
-              <span className="text-[0.5rem] text-white font-extrabold">
-                {cart.length}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Page header + first section label on same row */}
       <div className="flex justify-between items-end mb-4">
         <div>
-          <h2 className="text-xl font-extrabold text-content leading-tight">
+          <h2 className="text-xl font-extrabold text-content dark:text-zinc-100 leading-tight">
             Shampoos
           </h2>
           <p className="text-[0.6rem] text-gold uppercase tracking-widest mt-0.5">
@@ -226,7 +214,7 @@ export default function ShopContent() {
           <div className="w-7 h-px mt-1.5 bg-gold-gradient" />
         </div>
         <div className="text-right">
-          <h2 className="text-xl font-extrabold text-content leading-tight">
+          <h2 className="text-xl font-extrabold text-content dark:text-zinc-100 leading-tight">
             Insumos
           </h2>
           <p className="text-[0.6rem] text-gold uppercase tracking-widest mt-0.5">
@@ -235,18 +223,17 @@ export default function ShopContent() {
           <div className="w-7 h-px mt-1.5 bg-gold-gradient ml-auto" />
         </div>
       </div>
+
       <Section
         title="Shampoos"
         subtitle="Cuidado capilar"
         products={shampoos}
-        onAdd={addToCart}
         hideHeader
       />
       <Section
         title="Sprays"
         subtitle="Tratamiento y acabado"
         products={sprays}
-        onAdd={addToCart}
       />
     </div>
   );

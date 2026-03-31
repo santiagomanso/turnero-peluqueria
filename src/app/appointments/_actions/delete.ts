@@ -2,15 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import type { Appointment } from "@/types/appointment";
-import { deleteAppointmentById } from "@/services/delete";
+import { cancelAppointmentById } from "@/services/delete";
 
 export async function deleteAppointmentAction(
   id: string,
 ): Promise<{ success: boolean; data?: Appointment; error?: string }> {
   try {
-    const appointment = await deleteAppointmentById(id);
+    const appointment = await cancelAppointmentById(id);
 
-    // Revalidate the search page
     revalidatePath("/appointments/search");
 
     return {
@@ -18,7 +17,7 @@ export async function deleteAppointmentAction(
       data: appointment,
     };
   } catch (error) {
-    console.error("Error deleting appointment:", error);
+    console.error("Error cancelling appointment:", error);
     return {
       success: false,
       error: "Error al cancelar el turno. Por favor intenta nuevamente.",

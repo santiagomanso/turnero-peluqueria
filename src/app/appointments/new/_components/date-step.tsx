@@ -15,6 +15,35 @@ export default function DateStep({
   appointmentForm,
   allowToday = false,
 }: Props) {
+  const { daysConfig, fullDates } = appointmentForm;
+
+  const isDayDisabled = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (allowToday ? date < today : date <= today) return true;
+
+    if (fullDates.some((d) => d.toDateString() === date.toDateString()))
+      return true;
+
+    if (daysConfig) {
+      const jsDay = date.getUTCDay();
+      const dayKeyMap: Record<number, keyof typeof daysConfig> = {
+        0: "sunday",
+        1: "monday",
+        2: "tuesday",
+        3: "wednesday",
+        4: "thursday",
+        5: "friday",
+        6: "saturday",
+      };
+      const key = dayKeyMap[jsDay];
+      if (!daysConfig[key]) return true;
+    }
+
+    return false;
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       <div className="flex justify-between items-start mb-4">
@@ -55,11 +84,7 @@ export default function DateStep({
                   if (date) field.onChange(date);
                 }}
                 locale={es}
-                disabled={(date) => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  return allowToday ? date < today : date <= today;
-                }}
+                disabled={isDayDisabled}
                 className="w-full"
               />
               {fieldState.invalid && (

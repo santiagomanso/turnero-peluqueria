@@ -8,18 +8,24 @@ import { saveConfigAction } from "@/app/admin/_actions/save-config";
 import type {
   DayKey,
   DaysConfig,
-  Hour,
   HoursConfig,
   DiscountCode,
 } from "@/types/config";
+import { ALL_HOURS, DAYS } from "@/types/config";
 
 import { AvailableDays } from "./available-days";
 import { AvailableHours } from "./available-hours";
 import { BookingPrice } from "./booking-price";
 import { ThemeSwitcher } from "./theme-switcher";
-import { DiscountCodes } from "./discount-codes";
 import { useAdminTheme } from "@/app/admin/_components/admin-theme-provider";
 import { useConfigStore } from "../_hooks/use-config-store";
+import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
+
+import dynamic from "next/dynamic";
+const DiscountCodes = dynamic(
+  () => import("./discount-codes").then((m) => ({ default: m.DiscountCodes })),
+  { ssr: false },
+);
 
 const DEFAULT_DAYS: DaysConfig = {
   monday: true,
@@ -30,20 +36,19 @@ const DEFAULT_DAYS: DaysConfig = {
   saturday: false,
   sunday: false,
 };
-const DEFAULT_HOURS: HoursConfig = {
-  "08:00": { enabled: true, maxBookings: 1 },
-  "09:00": { enabled: true, maxBookings: 1 },
-  "10:00": { enabled: true, maxBookings: 1 },
-  "11:00": { enabled: true, maxBookings: 1 },
-  "12:00": { enabled: true, maxBookings: 1 },
-  "13:00": { enabled: true, maxBookings: 1 },
-  "14:00": { enabled: true, maxBookings: 1 },
-  "15:00": { enabled: true, maxBookings: 1 },
-  "16:00": { enabled: true, maxBookings: 1 },
-  "17:00": { enabled: true, maxBookings: 1 },
-  "18:00": { enabled: false, maxBookings: 1 },
-  "19:00": { enabled: false, maxBookings: 1 },
-};
+
+function buildDefaultHours(): HoursConfig {
+  const config = {} as HoursConfig;
+  for (const day of DAYS) {
+    config[day.key] = {};
+    for (const hour of ALL_HOURS) {
+      config[day.key][hour] = { enabled: true, maxBookings: 1 };
+    }
+  }
+  return config;
+}
+
+const DEFAULT_HOURS = buildDefaultHours();
 
 export function ConfigView({
   initialTheme,
@@ -75,15 +80,26 @@ export function ConfigView({
   const [codes, setCodes] = React.useState<DiscountCode[]>([]);
   const [savedCodes, setSavedCodes] = React.useState<DiscountCode[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [selectedDay, setSelectedDay] = React.useState<DayKey>("monday");
 
-  // Sync local state when store loads for the first time
   const didSyncRef = React.useRef(false);
   React.useEffect(() => {
     if (hasFetched && storedConfig && !didSyncRef.current) {
       didSyncRef.current = true;
       const bc = String(storedConfig.bookingCost);
-      setDays(storedConfig.days);
-      setSavedDays(storedConfig.days);
+
+      // Sincronizar days con hours: desactivar días sin horarios activos
+      const syncedDays = { ...storedConfig.days };
+      for (const day of DAYS) {
+        const dayHours = storedConfig.hours[day.key] ?? {};
+        const anyEnabled = Object.values(dayHours).some((h) => h.enabled);
+        if (!anyEnabled) {
+          syncedDays[day.key] = false;
+        }
+      }
+
+      setDays(syncedDays);
+      setSavedDays(syncedDays);
       setHours(storedConfig.hours);
       setSavedHours(storedConfig.hours);
       setBookingCost(bc);
@@ -143,20 +159,52 @@ export function ConfigView({
     toast.info("Los cambios han sido revertidos");
   };
 
-  const toggleDay = (day: DayKey) =>
-    setDays((prev) => ({ ...prev, [day]: !prev[day] }));
-  const toggleHour = (hour: Hour) =>
-    setHours((prev) => ({
-      ...prev,
-      [hour]: { ...prev[hour], enabled: !prev[hour].enabled },
-    }));
-  const setHourMaxBookings = (hour: Hour, value: number) => {
-    const clamped = Math.max(1, Math.min(10, value));
-    setHours((prev) => ({
-      ...prev,
-      [hour]: { ...prev[hour], maxBookings: clamped },
-    }));
+  const toggleHour = (day: DayKey, hour: string) => {
+    const currentlyEnabled = hours[day]?.[hour]?.enabled ?? false;
+
+    if (!currentlyEnabled && !days[day]) {
+      setDays((prev) => ({ ...prev, [day]: true }));
+    }
+
+    const newHours = {
+      ...hours,
+      [day]: {
+        ...(hours[day] ?? {}),
+        [hour]: {
+          ...(hours[day]?.[hour] ?? { enabled: false, maxBookings: 1 }),
+          enabled: !currentlyEnabled,
+        },
+      },
+    };
+
+    // Si desactivamos una hora, verificar si quedaron todas desactivadas → desactivar el día
+    if (currentlyEnabled) {
+      const anyEnabled = Object.values(newHours[day]).some((h) => h.enabled);
+      if (!anyEnabled) {
+        setDays((prev) => ({ ...prev, [day]: false }));
+      }
+    }
+
+    setHours(newHours);
   };
+
+  const setHourMaxBookings = (day: DayKey, hour: string, delta: number) => {
+    setHours((prev) => {
+      const current = prev[day]?.[hour]?.maxBookings ?? 1;
+      const clamped = Math.max(1, Math.min(10, current + delta));
+      return {
+        ...prev,
+        [day]: {
+          ...(prev[day] ?? {}),
+          [hour]: {
+            ...(prev[day]?.[hour] ?? { enabled: false, maxBookings: 1 }),
+            maxBookings: clamped,
+          },
+        },
+      };
+    });
+  };
+
   const handleAddCode = (code: DiscountCode) =>
     setCodes((prev) => [code, ...prev]);
   const handleDeleteCode = (id: string) =>
@@ -164,16 +212,10 @@ export function ConfigView({
 
   return (
     <div className="flex flex-col h-full max-md:pt-0">
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 px-7 h-19 flex items-center max-lg:hidden">
-        <div>
-          <h1 className="font-heebo text-xl font-semibold text-content dark:text-zinc-100">
-            Configuración
-          </h1>
-          <p className="text-xs text-content-tertiary dark:text-zinc-500 mt-0.5">
-            Administra los ajustes y preferencias del sistema de turnos.
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Configuración"
+        subtitle="Administrá los ajustes y preferencias del sistema de turnos."
+      />
 
       <div className="flex-1 overflow-y-auto">
         {isLoading && !hasFetched ? (
@@ -184,9 +226,14 @@ export function ConfigView({
           </div>
         ) : (
           <div className="px-7 py-5 max-md:px-0 max-md:py-0 flex flex-col gap-4 max-md:gap-0">
-            <AvailableDays days={days} onToggle={toggleDay} />
+            <AvailableDays
+              days={days}
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+            />
             <AvailableHours
               hours={hours}
+              selectedDay={selectedDay}
               onToggle={toggleHour}
               onSetMax={setHourMaxBookings}
             />

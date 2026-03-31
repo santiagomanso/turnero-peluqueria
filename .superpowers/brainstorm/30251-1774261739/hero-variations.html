@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Variantes Hero + Row</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Archivo', sans-serif;
+    background: #ece9e4;
+    color: #1a1714;
+    padding: 32px 24px;
+    min-height: 100vh;
+  }
+
+  h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { font-size: 0.8rem; color: #9c9189; margin-bottom: 28px; }
+
+  /* ─── TABS ─────────────────────────────── */
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 20px;
+    border-radius: 9999px;
+    border: 1.5px solid rgba(0,0,0,0.1);
+    background: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6b6560;
+  }
+  .tab:hover { border-color: #c9a96e; color: #c9a96e; }
+  .tab.active { background: #1a1714; border-color: #1a1714; color: #c9a96e; }
+
+  /* ─── MOCKUP WRAPPER ────────────────────── */
+  .mockup-container {
+    background: #f9fafb;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  }
+  .mockup-bar {
+    background: #f1ede8;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #28c941; }
+  .url-bar {
+    flex: 1; margin: 0 12px; background: white;
+    border-radius: 6px; padding: 4px 12px;
+    font-size: 11px; color: #9c9189;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  /* ─── SELECT OVERLAY ────────────────────── */
+  .select-bar {
+    display: flex; justify-content: center; padding: 20px;
+    gap: 12px;
+  }
+  .pick-btn {
+    padding: 10px 28px; border-radius: 9999px;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    border: 1.5px solid; transition: all 0.2s;
+  }
+  .pick-btn:hover { transform: scale(1.03); }
+  .pick-btn.gold { background: #c9a96e; border-color: #c9a96e; color: #1a1714; }
+  .pick-btn.outline { background: transparent; border-color: rgba(0,0,0,0.15); color: #6b6560; }
+
+  /* ─── VARIANT 1: Fade + slide stagger ───── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-6px); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,169,110,0.3); }
+    50%       { box-shadow: 0 0 0 12px rgba(201,169,110,0); }
+  }
+
+  /* ─── V1 ─────────────────────────────────── */
+  .v1-hero {
+    background: linear-gradient(135deg, #1a1714 0%, #2d2420 50%, #1a1714 100%);
+    padding: 48px 56px;
+    position: relative;
+    overflow: hidden;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .v1-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .v1-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(201,169,110,0.15);
+    border: 1px solid rgba(201,169,110,0.3);
+    border-radius: 9999px;
+    padding: 5px 14px;
+    font-size: 11px;
+    color: #c9a96e;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    animation: fadeIn 0.6s ease both;
+    margin-bottom: 16px;
+  }
+  .v1-title {
+    font-size: 2.8rem; font-weight: 800;
+    color: white; line-height: 1.1;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.7s ease 0.15s both;
+  }
+  .v1-title span { color: #c9a96e; }
+  .v1-sub {
+    font-size: 0.9rem; color: rgba(255,255,255,0.5);
+    margin-top: 12px; max-width: 300px; line-height: 1.6;
+    animation: fadeUp 0.7s ease 0.28s both;
+  }
+  .v1-ctas {
+    display: flex; gap: 10px; margin-top: 24px;
+    animation: fadeUp 0.7s ease 0.42s both;
+  }
+  .v1-cta-primary {
+    background: #c9a96e; color: #1a1714;
+    padding: 12px 28px; border-radius: 12px;
+    font-size: 0.85rem; font-weight: 700;
+    border: none; cursor: pointer;
+    animation: pulse-glow 2.5s ease 1s infinite;
+    transition: transform 0.15s;
+  }
+  .v1-cta-primary:hover { transform: scale(1.03); }
+  .v1-cta-secondary {
+    background: transparent; color: rgba(255,255,255,0.7);
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.85rem; font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .v1-cta-secondary:hover { border-color: rgba(255,255,255,0.4); color: white; }
+
+  .v1-stats {
+    display: flex; flex-direction: column; gap: 12px;
+    animation: fadeIn 0.8s ease 0.5s both;
+  }
+  .v1-stat {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 130px;
+    animation: float 4s ease-in-out infinite;
+  }
+  .v1-stat:nth-child(2) { animation-delay: 0.5s; }
+  .v1-stat:nth-child(3) { animation-delay: 1s; }
+  .v1-stat-num {
+    font-size: 1.6rem; font-weight: 800; color: #c9a96e;
+  }
+  .v1-stat-label {
+    font-size: 0.7rem; color: rgba(255,255,255,0.45);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;
+  }
+
+  .v1-cards {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    padding: 16px 20px;
+    background: #ece9e4;
+  }
+  .v1-card {
+    background: white; border-radius: 14px; padding: 18px;
+    border: 1px solid rgba(0,0,0,0.07);
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    animation: scaleIn 0.5s ease both;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .v1-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+  .v1-card:nth-child(1) { animation-delay: 0.55s; }
+  .v1-card:nth-child(2) { animation-delay: 0.65s; }
+  .v1-card:nth-child(3) { animation-delay: 0.75s; }
+  .v1-card:nth-child(4) { animation-delay: 0.85s; }
+  .v1-card-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .v1-card-title { font-size: 0.8rem; font-weight: 600; color: #1a1714; }
+  .v1-card-sub { font-size: 0.72rem; color: #9c9189; margin-top: 1px; }
+  .v1-card-arrow { margin-left: auto; color: #c9a96e; font-size: 0.9rem; }
+
+  /* ─── V2 ─────────────────────────────────── */
+  .v2-outer {
+    background: #ece9e4;
+    padding: 20px;
+  }
+  .v2-hero {
+    background: #1a1714;
+    border-radius: 20px;
+    padding: 44px 48px;
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .v2-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 50%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%);
+    transform: translateX(-50%);
+    border-radius: 50%;
+  }
+  .v2-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #c9a96e; margin-bottom: 14px;
+    animation: slideRight 0.5s ease both;
+  }
+  .v2-title {
+    font-size: 2.4rem; font-weight: 800; color: white; line-height: 1.15;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+  .v2-divider {
+    width: 40px; height: 2px;
+    background: linear-gradient(90deg, #c9a96e, rgba(201,169,110,0.2));
+    margin: 16px 0;
+    animation: fadeIn 0.6s ease 0.25s both;
+  }
+  .v2-desc {
+    font-size: 0.85rem; color: rgba(255,255,255,0.45); line-height: 1.7;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  .v2-cta {
+    margin-top: 20px;
+    background: #c9a96e; color: #1a1714;
+    padding: 13px 30px; border-radius: 12px;
+    font-size: 0.85rem; font-weight: 700;
+    border: none; cursor: pointer; display: inline-block;
+    animation: fadeUp 0.6s ease 0.42s both;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .v2-cta:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(201,169,110,0.35); }
+
+  .v2-info-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    animation: fadeIn 0.7s ease 0.3s both;
+  }
+  .v2-info-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 16px;
+    animation: scaleIn 0.5s ease both;
+  }
+  .v2-info-card:nth-child(1) { animation-delay: 0.35s; }
+  .v2-info-card:nth-child(2) { animation-delay: 0.45s; }
+  .v2-info-card:nth-child(3) { animation-delay: 0.55s; }
+  .v2-info-card:nth-child(4) { animation-delay: 0.65s; }
+  .v2-info-icon { font-size: 1.2rem; margin-bottom: 6px; }
+  .v2-info-label { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+  .v2-info-value { font-size: 0.85rem; font-weight: 600; color: white; margin-top: 2px; }
+
+  .v2-cards {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    padding: 12px 0 0;
+  }
+  .v2-card {
+    background: white; border-radius: 14px; padding: 16px 14px;
+    border: 1px solid rgba(0,0,0,0.07);
+    display: flex; flex-direction: column; gap: 6px;
+    cursor: pointer;
+    animation: fadeUp 0.5s ease both;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .v2-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.09); }
+  .v2-card:nth-child(1) { animation-delay: 0.6s; }
+  .v2-card:nth-child(2) { animation-delay: 0.7s; }
+  .v2-card:nth-child(3) { animation-delay: 0.8s; }
+  .v2-card:nth-child(4) { animation-delay: 0.9s; }
+  .v2-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .v2-card-emoji { font-size: 1.3rem; }
+  .v2-card-arrow { color: #c9a96e; font-size: 0.85rem; }
+  .v2-card-title { font-size: 0.8rem; font-weight: 700; color: #1a1714; }
+  .v2-card-sub { font-size: 0.72rem; color: #9c9189; }
+
+  /* ─── V3 ─────────────────────────────────── */
+  .v3-outer { background: #ece9e4; padding: 20px; }
+  .v3-top {
+    display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .v3-hero {
+    background: linear-gradient(145deg, #1e1b17, #2a2118);
+    border-radius: 20px; padding: 40px 44px;
+    position: relative; overflow: hidden;
+    min-height: 300px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .v3-hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 20%, rgba(201,169,110,0.14) 0%, transparent 60%);
+  }
+  .v3-hero-content { position: relative; z-index: 1; }
+  .v3-eyebrow {
+    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #c9a96e; margin-bottom: 10px;
+    animation: fadeIn 0.5s ease both;
+  }
+  .v3-big-title {
+    font-size: 3rem; font-weight: 900;
+    color: white; line-height: 1.0; letter-spacing: -0.03em;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+  .v3-big-title em { color: #c9a96e; font-style: normal; }
+  .v3-hero-foot {
+    display: flex; align-items: center; gap: 10px; margin-top: 20px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  .v3-hero-btn {
+    background: #c9a96e; color: #1a1714;
+    padding: 11px 24px; border-radius: 10px;
+    font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .v3-hero-btn:hover { transform: scale(1.04); }
+  .v3-hero-chip {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 0.75rem; color: rgba(255,255,255,0.55);
+  }
+
+  .v3-side {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .v3-side-card {
+    background: white; border-radius: 16px; padding: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+    animation: scaleIn 0.5s ease both;
+    transition: transform 0.2s;
+  }
+  .v3-side-card:hover { transform: scale(1.01); }
+  .v3-side-card:nth-child(1) { animation-delay: 0.25s; }
+  .v3-side-card:nth-child(2) { animation-delay: 0.4s; }
+  .v3-side-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .v3-side-emoji { font-size: 1.6rem; }
+  .v3-side-badge {
+    background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.25);
+    border-radius: 6px; padding: 3px 8px; font-size: 10px; color: #c9a96e; font-weight: 600;
+  }
+  .v3-side-title { font-size: 1rem; font-weight: 700; color: #1a1714; margin-top: 8px; }
+  .v3-side-sub { font-size: 0.75rem; color: #9c9189; margin-top: 3px; }
+  .v3-side-arrow { font-size: 0.8rem; color: #c9a96e; margin-top: 10px; font-weight: 600; }
+
+  .v3-bottom {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  .v3-bot-card {
+    background: white; border-radius: 14px; padding: 18px;
+    border: 1px solid rgba(0,0,0,0.07);
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    animation: fadeUp 0.5s ease both;
+    transition: transform 0.2s;
+  }
+  .v3-bot-card:hover { transform: translateY(-2px); }
+  .v3-bot-card:nth-child(1) { animation-delay: 0.55s; }
+  .v3-bot-card:nth-child(2) { animation-delay: 0.65s; }
+  .v3-bot-card:nth-child(3) { animation-delay: 0.75s; }
+  .v3-bot-icon {
+    width: 42px; height: 42px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .v3-bot-title { font-size: 0.82rem; font-weight: 700; color: #1a1714; }
+  .v3-bot-sub { font-size: 0.72rem; color: #9c9189; }
+  .v3-bot-arr { margin-left: auto; color: #c9a96e; }
+
+  /* ─── V4: Full bleed animated ───────────── */
+  .v4-outer { background: #ece9e4; padding: 20px; }
+  .v4-hero {
+    background: #1a1714;
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    min-height: 340px;
+    display: flex;
+  }
+  .v4-left {
+    flex: 1.2; padding: 48px 48px;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; z-index: 1;
+  }
+  .v4-right {
+    flex: 1; padding: 32px;
+    display: flex; flex-direction: column; gap: 10px;
+    justify-content: center;
+    position: relative; z-index: 1;
+  }
+  .v4-glow {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 55%;
+    background: radial-gradient(ellipse at 70% 50%, rgba(201,169,110,0.09) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .v4-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid rgba(201,169,110,0.25);
+    border-radius: 9999px; padding: 4px 12px;
+    font-size: 10px; color: #c9a96e; letter-spacing: 0.12em;
+    text-transform: uppercase; width: fit-content;
+    margin-bottom: 16px;
+    animation: fadeIn 0.5s ease both;
+  }
+  .v4-tag-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #c9a96e; animation: pulse-glow 2s ease infinite;
+  }
+  .v4-title {
+    font-size: 2.6rem; font-weight: 900; color: white;
+    line-height: 1.05; letter-spacing: -0.02em;
+    animation: fadeUp 0.6s ease 0.12s both;
+  }
+  .v4-title .gold { color: #c9a96e; }
+  .v4-body {
+    font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.7;
+    margin-top: 12px; max-width: 280px;
+    animation: fadeUp 0.6s ease 0.24s both;
+  }
+  .v4-row {
+    display: flex; gap: 10px; margin-top: 22px;
+    animation: fadeUp 0.6s ease 0.36s both;
+  }
+  .v4-btn-p {
+    background: #c9a96e; color: #1a1714; font-weight: 700;
+    font-size: 0.85rem; padding: 12px 26px; border-radius: 11px;
+    border: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    animation: pulse-glow 3s ease 1s infinite;
+  }
+  .v4-btn-p:hover { transform: scale(1.04); box-shadow: 0 6px 20px rgba(201,169,110,0.35); }
+  .v4-btn-s {
+    background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.65);
+    font-size: 0.85rem; padding: 12px 22px; border-radius: 11px;
+    border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
+    transition: background 0.15s;
+  }
+  .v4-btn-s:hover { background: rgba(255,255,255,0.11); }
+
+  .v4-action {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    animation: slideRight 0.5s ease both;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .v4-action:hover { background: rgba(255,255,255,0.1); transform: scale(1.01); }
+  .v4-action:nth-child(1) { animation-delay: 0.3s; }
+  .v4-action:nth-child(2) { animation-delay: 0.42s; }
+  .v4-action:nth-child(3) { animation-delay: 0.54s; }
+  .v4-action:nth-child(4) { animation-delay: 0.66s; }
+  .v4-action-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .v4-action-title { font-size: 0.8rem; font-weight: 600; color: white; }
+  .v4-action-sub { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+  .v4-action-arr { margin-left: auto; color: rgba(201,169,110,0.7); font-size: 0.9rem; }
+
+  /* ─── SELECTED STATE ─── */
+  .selected-label {
+    display: none; text-align: center; padding: 12px;
+    color: #c9a96e; font-size: 0.8rem; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<h1>Variantes de Hero + Row — con animaciones</h1>
+<p class="subtitle">Cada opción tiene animaciones reales de entrada. Navegá entre las variantes y decime cuál te gusta más (o qué combinarías).</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('v1', this)">V1 — Stats flotantes</div>
+  <div class="tab" onclick="show('v2', this)">V2 — Grid interior</div>
+  <div class="tab" onclick="show('v3', this)">V3 — Hero + Side cards</div>
+  <div class="tab" onclick="show('v4', this)">V4 — All dark + acciones</div>
+</div>
+
+<div class="mockup-container">
+  <div class="mockup-bar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-yellow"></div>
+    <div class="dot dot-green"></div>
+    <div class="url-bar">luckete.com</div>
+  </div>
+
+  <!-- V1 -->
+  <div class="variant active" id="v1">
+    <div class="v1-hero">
+      <div>
+        <div class="v1-badge">✦ Luckete Colorista</div>
+        <div class="v1-title">Donde el color<br>se vuelve <span>arte</span></div>
+        <div class="v1-sub">Especialistas en colorimetría, corte y tratamientos capilares en Posadas.</div>
+        <div class="v1-ctas">
+          <button class="v1-cta-primary">Agendar turno →</button>
+          <button class="v1-cta-secondary">Consultar mi turno</button>
+        </div>
+      </div>
+      <div class="v1-stats">
+        <div class="v1-stat">
+          <div class="v1-stat-num">+500</div>
+          <div class="v1-stat-label">Clientes felices</div>
+        </div>
+        <div class="v1-stat">
+          <div class="v1-stat-num">4.9★</div>
+          <div class="v1-stat-label">Calificación</div>
+        </div>
+        <div class="v1-stat">
+          <div class="v1-stat-num">8 años</div>
+          <div class="v1-stat-label">De experiencia</div>
+        </div>
+      </div>
+    </div>
+    <div class="v1-cards" style="background:#ece9e4">
+      <div class="v1-card">
+        <div class="v1-card-icon" style="background:rgba(201,169,110,0.12)">📅</div>
+        <div><div class="v1-card-title">Agendar turno</div><div class="v1-card-sub">Reservá online</div></div>
+        <div class="v1-card-arrow">→</div>
+      </div>
+      <div class="v1-card">
+        <div class="v1-card-icon" style="background:#f0ede8">📋</div>
+        <div><div class="v1-card-title">Consultar turno</div><div class="v1-card-sub">Ver mi reserva</div></div>
+        <div class="v1-card-arrow">→</div>
+      </div>
+      <div class="v1-card">
+        <div class="v1-card-icon" style="background:#f0ede8">🛍️</div>
+        <div><div class="v1-card-title">Tienda insumos</div><div class="v1-card-sub">Productos profesionales</div></div>
+        <div class="v1-card-arrow">→</div>
+      </div>
+      <div class="v1-card" style="background:#25D366">
+        <div class="v1-card-icon" style="background:rgba(255,255,255,0.2)">💬</div>
+        <div><div class="v1-card-title" style="color:white">WhatsApp</div><div class="v1-card-sub" style="color:rgba(255,255,255,0.7)">Consultas</div></div>
+        <div class="v1-card-arrow" style="color:white">→</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V2 -->
+  <div class="variant" id="v2">
+    <div class="v2-outer">
+      <div class="v2-hero">
+        <div>
+          <div class="v2-label">✦ Luckete Colorista</div>
+          <div class="v2-title">El arte<br>del color</div>
+          <div class="v2-divider"></div>
+          <div class="v2-desc">Especialistas en colorimetría, corte y tratamientos capilares. Reservá tu turno en segundos.</div>
+          <button class="v2-cta">Agendar turno →</button>
+        </div>
+        <div class="v2-info-grid">
+          <div class="v2-info-card">
+            <div class="v2-info-icon">✂️</div>
+            <div class="v2-info-label">Horario</div>
+            <div class="v2-info-value">Lun–Sáb 9–19</div>
+          </div>
+          <div class="v2-info-card">
+            <div class="v2-info-icon">📍</div>
+            <div class="v2-info-label">Ubicación</div>
+            <div class="v2-info-value">Posadas, Mis.</div>
+          </div>
+          <div class="v2-info-card">
+            <div class="v2-info-icon">⭐</div>
+            <div class="v2-info-label">Calificación</div>
+            <div class="v2-info-value">4.9 / 5</div>
+          </div>
+          <div class="v2-info-card">
+            <div class="v2-info-icon">👤</div>
+            <div class="v2-info-label">Clientes</div>
+            <div class="v2-info-value">+500</div>
+          </div>
+        </div>
+      </div>
+      <div class="v2-cards">
+        <div class="v2-card">
+          <div class="v2-card-top"><div class="v2-card-emoji">📅</div><div class="v2-card-arrow">→</div></div>
+          <div class="v2-card-title">Agendar turno</div>
+          <div class="v2-card-sub">Reservá online</div>
+        </div>
+        <div class="v2-card">
+          <div class="v2-card-top"><div class="v2-card-emoji">📋</div><div class="v2-card-arrow">→</div></div>
+          <div class="v2-card-title">Consultar turno</div>
+          <div class="v2-card-sub">Ver mi reserva</div>
+        </div>
+        <div class="v2-card">
+          <div class="v2-card-top"><div class="v2-card-emoji">🛍️</div><div class="v2-card-arrow">→</div></div>
+          <div class="v2-card-title">Tienda insumos</div>
+          <div class="v2-card-sub">Ver productos</div>
+        </div>
+        <div class="v2-card" style="background:#25D366; border-color:#25D366">
+          <div class="v2-card-top"><div class="v2-card-emoji">💬</div><div class="v2-card-arrow" style="color:white">→</div></div>
+          <div class="v2-card-title" style="color:white">WhatsApp</div>
+          <div class="v2-card-sub" style="color:rgba(255,255,255,0.7)">Consultas rápidas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V3 -->
+  <div class="variant" id="v3">
+    <div class="v3-outer">
+      <div class="v3-top">
+        <div class="v3-hero">
+          <div class="v3-hero-bg"></div>
+          <div class="v3-hero-content">
+            <div class="v3-eyebrow">✦ Luckete Colorista — Posadas</div>
+            <div class="v3-big-title">Donde el<br><em>color</em><br>es arte</div>
+            <div class="v3-hero-foot">
+              <button class="v3-hero-btn">Agendar turno →</button>
+              <div class="v3-hero-chip">Próximo: mañana 10hs</div>
+            </div>
+          </div>
+        </div>
+        <div class="v3-side">
+          <div class="v3-side-card">
+            <div class="v3-side-top">
+              <div class="v3-side-emoji">📅</div>
+              <div class="v3-side-badge">Online</div>
+            </div>
+            <div>
+              <div class="v3-side-title">Consultar turno</div>
+              <div class="v3-side-sub">Ver mi reserva activa</div>
+            </div>
+            <div class="v3-side-arrow">Ver reserva →</div>
+          </div>
+          <div class="v3-side-card">
+            <div class="v3-side-top">
+              <div class="v3-side-emoji">🛍️</div>
+              <div class="v3-side-badge">Nuevo</div>
+            </div>
+            <div>
+              <div class="v3-side-title">Tienda insumos</div>
+              <div class="v3-side-sub">Productos profesionales</div>
+            </div>
+            <div class="v3-side-arrow">Ver productos →</div>
+          </div>
+        </div>
+      </div>
+      <div class="v3-bottom">
+        <div class="v3-bot-card">
+          <div class="v3-bot-icon" style="background:rgba(201,169,110,0.12)">✂️</div>
+          <div><div class="v3-bot-title">Horarios</div><div class="v3-bot-sub">Lun–Sáb 9–19hs</div></div>
+          <div class="v3-bot-arr">→</div>
+        </div>
+        <div class="v3-bot-card" style="background:#25D366; border-color:#25D366">
+          <div class="v3-bot-icon" style="background:rgba(255,255,255,0.2)">💬</div>
+          <div><div class="v3-bot-title" style="color:white">WhatsApp</div><div class="v3-bot-sub" style="color:rgba(255,255,255,0.7)">Consultas</div></div>
+          <div class="v3-bot-arr" style="color:white">→</div>
+        </div>
+        <div class="v3-bot-card">
+          <div class="v3-bot-icon" style="background:#f0ede8">⭐</div>
+          <div><div class="v3-bot-title">4.9 estrellas</div><div class="v3-bot-sub">+500 clientes felices</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V4 -->
+  <div class="variant" id="v4">
+    <div class="v4-outer">
+      <div class="v4-hero">
+        <div class="v4-glow"></div>
+        <div class="v4-left">
+          <div class="v4-tag"><div class="v4-tag-dot"></div>Disponible para turnos</div>
+          <div class="v4-title">El color<br>que <span class="gold">te define</span></div>
+          <div class="v4-body">Colorimetría profesional, corte y tratamientos en Posadas. Reservá en segundos, sin llamadas.</div>
+          <div class="v4-row">
+            <button class="v4-btn-p">Agendar turno</button>
+            <button class="v4-btn-s">Ver disponibilidad</button>
+          </div>
+        </div>
+        <div class="v4-right">
+          <div class="v4-action">
+            <div class="v4-action-icon" style="background:rgba(201,169,110,0.15)">📅</div>
+            <div><div class="v4-action-title">Agendar turno</div><div class="v4-action-sub">Reservá online</div></div>
+            <div class="v4-action-arr">→</div>
+          </div>
+          <div class="v4-action">
+            <div class="v4-action-icon" style="background:rgba(255,255,255,0.07)">📋</div>
+            <div><div class="v4-action-title">Consultar turno</div><div class="v4-action-sub">Ver mi reserva</div></div>
+            <div class="v4-action-arr">→</div>
+          </div>
+          <div class="v4-action">
+            <div class="v4-action-icon" style="background:rgba(255,255,255,0.07)">🛍️</div>
+            <div><div class="v4-action-title">Tienda insumos</div><div class="v4-action-sub">Productos profesionales</div></div>
+            <div class="v4-action-arr">→</div>
+          </div>
+          <div class="v4-action" style="background:rgba(37,211,102,0.15); border-color:rgba(37,211,102,0.25)">
+            <div class="v4-action-icon" style="background:rgba(37,211,102,0.2)">💬</div>
+            <div><div class="v4-action-title">WhatsApp</div><div class="v4-action-sub">Consultas rápidas</div></div>
+            <div class="v4-action-arr" style="color:#25D366">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="select-bar">
+  <button class="pick-btn gold" onclick="selectVariant()">Este me gusta ✓</button>
+  <button class="pick-btn outline" onclick="alert('Contame qué combinación te gustaría en el terminal')">Quiero combinar...</button>
+</div>
+
+<script>
+  let current = 'v1';
+  function show(id, tab) {
+    document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    // restart animations
+    const el = document.getElementById(id);
+    el.classList.add('active');
+    tab.classList.add('active');
+    current = id;
+    // re-trigger animations by cloning
+    el.style.animation = 'none';
+    el.querySelectorAll('[style*="animation"]').forEach(a => {
+      a.style.animationPlayState = 'running';
+    });
+    const clone = el.cloneNode(true);
+    el.parentNode.replaceChild(clone, el);
+    clone.classList.add('active');
+    clone.id = id;
+    // re-attach event (not needed, we use onclick in markup)
+  }
+  function selectVariant() {
+    const names = { v1: 'V1 — Stats flotantes', v2: 'V2 — Grid interior', v3: 'V3 — Hero + Side cards', v4: 'V4 — All dark + acciones' };
+    if (window.recordChoice) window.recordChoice(current, names[current]);
+    alert('Seleccionado: ' + names[current] + '\nContame en el terminal si querés ajustes.');
+  }
+</script>
+
+</body>
+</html>

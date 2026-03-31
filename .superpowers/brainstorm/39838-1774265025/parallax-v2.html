@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luckete — Parallax v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Archivo', sans-serif;
+    background: #ece9e4;
+    color: #1a1714;
+    overflow-x: hidden;
+  }
+
+  /* ─────────────────────────────────────
+     SPLASH
+  ───────────────────────────────────── */
+  .splash {
+    height: 100vh;
+    background: #ece9e4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* The animated circle */
+  .splash-ring-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .splash-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.7);
+    animation:
+      ringExpand 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+      ringRotate 8s linear infinite;
+    opacity: 0;
+  }
+
+  /* Dashed rotating outer ring */
+  .splash-ring-outer {
+    position: absolute;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 1px dashed rgba(201,169,110,0.35);
+    animation:
+      ringExpandOuter 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards,
+      ringRotateReverse 12s linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes ringExpand {
+    0%   { opacity: 0; width: 60px; height: 60px; }
+    20%  { opacity: 1; }
+    100% { opacity: 0.25; width: min(70vw, 500px); height: min(70vw, 500px); }
+  }
+  @keyframes ringExpandOuter {
+    0%   { opacity: 0; width: 60px; height: 60px; }
+    20%  { opacity: 0.6; }
+    100% { opacity: 0.12; width: min(90vw, 680px); height: min(90vw, 680px); }
+  }
+  @keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes ringRotateReverse {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(-360deg); }
+  }
+
+  /* Content fades in AFTER ring starts expanding */
+  .splash-inner {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+    opacity: 0;
+    animation: splashContentIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+  }
+
+  @keyframes splashContentIn {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .splash-title {
+    font-family: 'Heebo', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 300; letter-spacing: 0.06em;
+    color: #1a1714; text-align: center;
+  }
+  .splash-tagline {
+    font-size: 9.5px; letter-spacing: 0.24em;
+    text-transform: uppercase; color: #c9a96e;
+    text-align: center; margin-top: 2px;
+  }
+
+  .splash-scroll {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0;
+    animation: fadeIn 0.8s ease 1.8s forwards;
+    cursor: pointer;
+  }
+  .splash-scroll span { font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #b8a898; }
+  .scroll-line {
+    width: 1px; height: 36px;
+    background: linear-gradient(to bottom, #c9a96e, transparent);
+    animation: scrollPulse 2s ease 2.2s infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  /* ─────────────────────────────────────
+     STICKY NAV
+  ───────────────────────────────────── */
+  .sticky-nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 200;
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  .sticky-nav.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .sticky-nav::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(236,233,228,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .sn-logo {
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px; font-weight: 400; letter-spacing: 0.06em;
+    color: #1a1714; position: relative; z-index: 1;
+  }
+  .sn-links {
+    display: flex; gap: 4px; position: relative; z-index: 1;
+  }
+  .sn-link {
+    padding: 6px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 500; color: #6b6560;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .sn-link:hover { background: rgba(201,169,110,0.1); color: #1a1714; }
+
+  /* ─────────────────────────────────────
+     PARALLAX SECTIONS
+  ───────────────────────────────────── */
+  .p-section {
+    height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+
+  .p-section:nth-child(odd) .p-bg  { background: #ece9e4; }
+  .p-section:nth-child(even) .p-bg { background: #e5e1db; }
+
+  .p-section.dark { background: #1a1714; }
+
+  /* decorative large number — parallaxes */
+  .p-deco {
+    position: absolute;
+    font-family: 'Heebo', sans-serif;
+    font-size: 32vw; font-weight: 900;
+    color: rgba(201,169,110,0.055);
+    line-height: 0.85; pointer-events: none; user-select: none;
+    letter-spacing: -0.05em;
+    will-change: transform;
+    bottom: -4vw;
+    right: -2vw;
+  }
+  .p-section.dark .p-deco { color: rgba(255,255,255,0.025); }
+
+  /* ── CONTENT REVEAL — más impactante ── */
+  .p-content {
+    position: relative; z-index: 1;
+    max-width: 680px; width: 90%;
+    text-align: center;
+  }
+
+  .p-number {
+    display: block;
+    font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #b8a898;
+    margin-bottom: 24px;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .p-section.dark .p-number { color: rgba(255,255,255,0.28); }
+
+  .p-title {
+    font-family: 'Heebo', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 300; letter-spacing: 0.03em;
+    color: #1a1714; line-height: 1.05;
+    overflow: hidden;
+  }
+  .p-title-inner {
+    display: block;
+    transform: translateY(100%);
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .p-title-inner.line2 { transition-delay: 0.08s; }
+  .p-section.dark .p-title { color: white; }
+  .p-title .accent { color: #c9a96e; }
+
+  .p-divider {
+    width: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #c9a96e, transparent);
+    margin: 28px auto;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+  }
+
+  .p-desc {
+    font-size: 0.92rem; color: #9c9189; line-height: 1.85;
+    max-width: 400px; margin: 0 auto 36px;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s;
+  }
+  .p-section.dark .p-desc { color: rgba(255,255,255,0.38); }
+
+  .p-link-wrap {
+    opacity: 0; transform: translateY(16px) scale(0.97);
+    transition: opacity 0.5s ease 0.55s, transform 0.5s ease 0.55s;
+  }
+
+  /* When section is in view */
+  .p-content.revealed .p-number {
+    opacity: 1; transform: translateY(0);
+    transition-delay: 0s;
+  }
+  .p-content.revealed .p-title-inner {
+    transform: translateY(0);
+  }
+  .p-content.revealed .p-divider {
+    width: 80px;
+  }
+  .p-content.revealed .p-desc {
+    opacity: 1; transform: translateY(0);
+  }
+  .p-content.revealed .p-link-wrap {
+    opacity: 1; transform: translateY(0) scale(1);
+  }
+
+  .p-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 36px; border-radius: 12px;
+    font-size: 0.9rem; font-weight: 600;
+    text-decoration: none; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+  }
+  .p-link:hover { transform: scale(1.04); }
+  .p-link.gold {
+    background: #c9a96e; color: #1a1714;
+    box-shadow: 0 4px 20px rgba(201,169,110,0.3);
+  }
+  .p-link.gold:hover { box-shadow: 0 8px 32px rgba(201,169,110,0.5); }
+  .p-link.outline {
+    background: transparent; color: #1a1714;
+    border: 1.5px solid rgba(26,23,20,0.18);
+  }
+  .p-link.outline:hover { border-color: rgba(26,23,20,0.5); background: rgba(0,0,0,0.03); }
+  .p-link.outline-light {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 1.5px solid rgba(255,255,255,0.14);
+  }
+  .p-link.outline-light:hover { background: rgba(255,255,255,0.14); }
+  .p-link.wa { background: #25D366; color: white; box-shadow: 0 4px 20px rgba(37,211,102,0.25); }
+  .p-link.wa:hover { box-shadow: 0 8px 28px rgba(37,211,102,0.4); }
+
+  /* ─── misc ── */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (max-width: 640px) {
+    .sn-links { display: none; }
+    .p-title { font-size: clamp(2.2rem, 10vw, 3rem); }
+    .p-deco { font-size: 50vw; }
+    .splash-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SPLASH ═══════════ -->
+<section class="splash" id="splash">
+
+  <!-- Animated rings -->
+  <div class="splash-ring-wrap">
+    <div class="splash-ring-outer"></div>
+    <div class="splash-ring"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="splash-inner">
+    <svg width="44" height="48" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px">
+      <circle cx="22" cy="7" r="5" fill="#1a1714"/>
+      <line x1="22" y1="12" x2="22" y2="30" stroke="#1a1714" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="19" x2="10" y2="27" stroke="#1a1714" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="19" x2="34" y2="27" stroke="#1a1714" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="30" x2="14" y2="44" stroke="#1a1714" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="30" x2="30" y2="44" stroke="#1a1714" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <h1 class="splash-title">Luckete Colorista</h1>
+    <p class="splash-tagline">Donde el color se vuelve arte</p>
+  </div>
+
+  <div class="splash-scroll" onclick="document.getElementById('s1').scrollIntoView({behavior:'smooth'})">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════ STICKY NAV ═══════════ -->
+<nav class="sticky-nav" id="stickyNav">
+  <span class="sn-logo">Luckete Colorista</span>
+  <div class="sn-links">
+    <div class="sn-link">Agendar turno</div>
+    <div class="sn-link">Consultar turno</div>
+    <div class="sn-link">Tienda</div>
+    <div class="sn-link">WhatsApp</div>
+  </div>
+</nav>
+
+<!-- ═══════════ PARALLAX SECTIONS ═══════════ -->
+
+<!-- 01 -->
+<section class="p-section" id="s1" style="background:#ece9e4">
+  <div class="p-deco">01</div>
+  <div class="p-content" data-reveal>
+    <span class="p-number">01 — 04</span>
+    <h2 class="p-title">
+      <span class="p-title-inner">Agendá tu</span>
+      <span class="p-title-inner line2"><span class="accent">próximo turno</span></span>
+    </h2>
+    <div class="p-divider"></div>
+    <p class="p-desc">Reservá online en segundos. Elegí día, hora y servicio — sin llamadas, sin esperas.</p>
+    <div class="p-link-wrap">
+      <button class="p-link gold">Agendar turno →</button>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="p-section" id="s2" style="background:#e5e1db">
+  <div class="p-deco">02</div>
+  <div class="p-content" data-reveal>
+    <span class="p-number">02 — 04</span>
+    <h2 class="p-title">
+      <span class="p-title-inner">Consultá</span>
+      <span class="p-title-inner line2"><span class="accent">tu reserva</span></span>
+    </h2>
+    <div class="p-divider"></div>
+    <p class="p-desc">¿Ya tenés turno? Revisá fecha, hora y estado de tu reserva en cualquier momento.</p>
+    <div class="p-link-wrap">
+      <button class="p-link outline">Ver mi turno →</button>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="p-section" id="s3" style="background:#ece9e4">
+  <div class="p-deco">03</div>
+  <div class="p-content" data-reveal>
+    <span class="p-number">03 — 04</span>
+    <h2 class="p-title">
+      <span class="p-title-inner">Tienda de</span>
+      <span class="p-title-inner line2"><span class="accent">insumos</span></span>
+    </h2>
+    <div class="p-divider"></div>
+    <p class="p-desc">Productos profesionales para el cuidado del cabello. Envío a toda la provincia.</p>
+    <div class="p-link-wrap">
+      <button class="p-link outline">Ver productos →</button>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="p-section dark" id="s4">
+  <div class="p-deco">04</div>
+  <div class="p-content" data-reveal>
+    <span class="p-number">04 — 04</span>
+    <h2 class="p-title" style="color:white">
+      <span class="p-title-inner">Hablá con</span>
+      <span class="p-title-inner line2"><span class="accent">nosotros</span></span>
+    </h2>
+    <div class="p-divider"></div>
+    <p class="p-desc">Precios, disponibilidad, dudas. Escribinos por WhatsApp y respondemos rápido.</p>
+    <div class="p-link-wrap">
+      <button class="p-link wa">Escribir por WhatsApp →</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ── Sticky nav after splash ──
+  const splashEl = document.getElementById('splash');
+  const nav = document.getElementById('stickyNav');
+  new IntersectionObserver(([e]) => {
+    nav.classList.toggle('visible', !e.isIntersecting);
+  }, { threshold: 0.05 }).observe(splashEl);
+
+  // ── Scroll reveal ──
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('revealed');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.25 });
+
+  document.querySelectorAll('[data-reveal]').forEach(el => revealObs.observe(el));
+
+  // ── Parallax deco numbers ──
+  window.addEventListener('scroll', () => {
+    document.querySelectorAll('.p-deco').forEach(el => {
+      const rect = el.parentElement.getBoundingClientRect();
+      const progress = -rect.top / window.innerHeight;
+      el.style.transform = `translateY(${progress * 80}px)`;
+    });
+  }, { passive: true });
+</script>
+
+</body>
+</html>

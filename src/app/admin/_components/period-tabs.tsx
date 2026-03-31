@@ -14,12 +14,12 @@ export default function PeriodTabs() {
   const { period, setPeriod } = usePeriod();
 
   return (
-    <div className="relative flex gap-1 bg-surface dark:bg-zinc-800 rounded-lg p-0.5 border border-border-subtle dark:border-zinc-700">
+    <div className="relative flex gap-1 bg-surface dark:bg-zinc-800 rounded-md p-0.5 border border-border-subtle dark:border-zinc-700 h-9 items-center">
       {PERIODS.map(({ id, label }) => (
         <button
           key={id}
           onClick={() => setPeriod(id)}
-          className="relative px-3 py-1.5 rounded-md text-xs font-medium z-10"
+          className="relative px-3 py-1 rounded-md text-xs font-medium z-10 h-full"
         >
           {period === id && (
             <motion.span

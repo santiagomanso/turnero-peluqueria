@@ -99,3 +99,150 @@ export async function sendAppointmentReminder({
     },
   });
 }
+
+export async function sendOwnerClientContact({
+  ownerPhone,
+  clientName,
+  clientPhone,
+}: {
+  ownerPhone: string;
+  clientName: string;
+  clientPhone: string;
+}) {
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: ownerPhone,
+    type: "template",
+    template: {
+      name: "owner_client_contact_2",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: clientName }, // {{1}} Nombre
+            { type: "text", text: clientPhone }, // {{2}} Teléfono
+          ],
+        },
+      ],
+    },
+  });
+}
+
+export async function sendOwnerClientMessage({
+  ownerPhone,
+  clientName,
+  clientPhone,
+  message,
+}: {
+  ownerPhone: string;
+  clientName: string;
+  clientPhone: string;
+  message: string;
+}) {
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: ownerPhone,
+    type: "template",
+    template: {
+      name: "owner_client_message_1",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: clientName }, // {{1}} Nombre
+            { type: "text", text: clientPhone }, // {{2}} Teléfono
+            { type: "text", text: message }, // {{3}} Mensaje
+          ],
+        },
+      ],
+    },
+  });
+}
+
+export async function sendOrderReadyNotification({
+  telephone,
+  orderId,
+  customerName,
+}: {
+  telephone: string;
+  orderId: string;
+  customerName: string;
+}): Promise<void> {
+  const orderRef = `#${orderId.slice(-6).toUpperCase()}`;
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: formatArgentinianPhone(telephone),
+    type: "template",
+    template: {
+      name: "order_pick_up_1",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: customerName }, // {{1}}
+            { type: "text", text: orderRef }, // {{2}}
+          ],
+        },
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [
+            { type: "text", text: orderId }, // URL suffix → /shop/pedido/<orderId>
+          ],
+        },
+      ],
+    },
+  });
+}
+
+export async function sendTextMessage(to: string, text: string): Promise<void> {
+  await sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to,
+    type: "text",
+    text: { body: text },
+  });
+  console.log(`✅ Mensaje enviado a ${to}`);
+}
+
+export async function sendOrderConfirmation({
+  telephone,
+  customerName,
+  orderId,
+}: {
+  telephone: string;
+  customerName: string;
+  orderId: string;
+}): Promise<void> {
+  const orderRef = `#${orderId.slice(-8).toUpperCase()}`;
+  return sendWhatsAppMessage({
+    messaging_product: "whatsapp",
+    to: formatArgentinianPhone(telephone),
+    type: "template",
+    template: {
+      name: "order_confirmation_2",
+      language: { code: "es" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: customerName }, // {{1}} nombre
+            { type: "text", text: orderRef }, // {{2}} número de pedido
+          ],
+        },
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [
+            { type: "text", text: orderId }, // sufijo URL → /shop/order/<orderId>
+          ],
+        },
+      ],
+    },
+  });
+}

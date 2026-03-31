@@ -1,6 +1,8 @@
+"use client";
+
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
-import { format } from "date-fns";
-import { Calendar, Clock, CreditCard, DollarSign, Phone } from "lucide-react";
+import { formatDateNumericFromISO } from "@/lib/format-date";
+import { Calendar, Clock, DollarSign, Phone } from "lucide-react";
 
 type Props = {
   appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
@@ -31,12 +33,17 @@ function InfoCard({
   );
 }
 
+function formatPhone(telephone: string): string {
+  const digits = telephone.replace(/\D/g, "").slice(-10);
+  return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+}
+
 export default function ConfirmationStep({
   appointmentForm,
   bookingCost,
 }: Props) {
   const formData = appointmentForm.form.getValues();
-  const formattedPrice = `$${bookingCost.toLocaleString("es-AR")}`;
+  const formattedBase = `$${bookingCost.toLocaleString("es-AR")}`;
 
   return (
     <div>
@@ -52,7 +59,7 @@ export default function ConfirmationStep({
         </div>
         <div className="text-right max-w-42">
           <p className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mb-1.5">
-            Paso 4 de 4
+            Paso 4 de 5
           </p>
           <p className="text-xs text-content-quaternary dark:text-zinc-600 leading-relaxed">
             Verificá que todo sea{" "}
@@ -63,29 +70,20 @@ export default function ConfirmationStep({
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <InfoCard
           icon={Calendar}
           label="Fecha"
-          value={format(formData.date, "dd/MM/yy")}
+          value={formatDateNumericFromISO(formData.date)}
         />
         <InfoCard icon={Clock} label="Hora" value={formData.time} />
         <InfoCard
           icon={Phone}
           label="Teléfono"
-          value={`..${formData.telephone.slice(4)}`}
+          value={formatPhone(formData.telephone)}
         />
-        <InfoCard icon={DollarSign} label="Precio" value={formattedPrice} />
-        <div className="col-span-2 flex items-center gap-3 p-4 rounded-md bg-[#009ee3]/8 border border-[#009ee3]/20">
-          <CreditCard className="w-4 h-4 shrink-0 text-[#009ee3]" />
-          <p className="text-xs text-content-tertiary dark:text-zinc-400 leading-relaxed">
-            El pago se procesará de forma segura a través de{" "}
-            <strong className="text-content-secondary dark:text-zinc-300">
-              Mercado Pago
-            </strong>
-            . Serás redirigido al checkout al confirmar.
-          </p>
-        </div>
+        <InfoCard icon={DollarSign} label="Precio" value={formattedBase} />
       </div>
     </div>
   );

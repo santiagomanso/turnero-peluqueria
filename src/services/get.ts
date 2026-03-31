@@ -4,9 +4,24 @@ import type { Appointment } from "@/types/appointment";
 export async function getAppointmentsByPhone(
   telephone: string,
 ): Promise<Appointment[]> {
+  const now = new Date();
+  const todayUTC = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      0,
+      0,
+      0,
+      0,
+    ),
+  );
+
   return db.appointment.findMany({
     where: {
       telephone,
+      status: { not: "CANCELLED" },
+      date: { gte: todayUTC },
     },
     orderBy: {
       date: "asc",
@@ -62,24 +77,44 @@ export async function getPastAppointments(): Promise<Appointment[]> {
 
 export async function getAppointmentsByDate(
   date: Date,
+  includeCancelled = false,
 ): Promise<Appointment[]> {
-  // Las fechas se guardan como UTC midnight (ej: 2026-02-27T00:00:00Z)
-  // así que el rango UTC 00:00 → 23:59 del mismo día es correcto
-  const start = new Date(date);
-  start.setUTCHours(0, 0, 0, 0);
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth();
+  const d = date.getUTCDate();
 
-  const end = new Date(date);
-  end.setUTCHours(23, 59, 59, 999);
+  const start = new Date(Date.UTC(y, m, d, 0, 0, 0, 0));
+  const end = new Date(Date.UTC(y, m, d, 23, 59, 59, 999));
 
   return db.appointment.findMany({
     where: {
-      date: {
-        gte: start,
-        lte: end,
-      },
+      date: { gte: start, lte: end },
+      ...(!includeCancelled && { status: { not: "CANCELLED" as const } }),
     },
-    orderBy: {
-      time: "asc",
-    },
+    orderBy: { time: "asc" },
   });
+}
+
+export async function getMonthlyAppointmentCounts(
+  year: number,
+  month: number,
+): Promise<Record<string, number>> {
+  const start = new Date(Date.UTC(year, month, 1));
+  const end = new Date(Date.UTC(year, month + 1, 1));
+
+  const appointments = await db.appointment.findMany({
+    where: {
+      date: { gte: start, lt: end },
+      status: { not: "CANCELLED" },
+    },
+    select: { date: true },
+  });
+
+  const counts: Record<string, number> = {};
+  for (const a of appointments) {
+    const key = a.date.toISOString().split("T")[0];
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+
+  return counts;
 }

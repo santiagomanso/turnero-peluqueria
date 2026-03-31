@@ -2,6 +2,7 @@ import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appoi
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Controller } from "react-hook-form";
+import { formatPhoneAsYouType } from "@/lib/format-phone";
 
 type Props = { appointmentForm: ReturnType<typeof useCreateAppointmentForm> };
 
@@ -38,10 +39,15 @@ export default function TelephoneStep({ appointmentForm }: Props) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <Input
-                {...field}
                 id="telephone"
                 type="tel"
-                placeholder="Ej: 3794123456"
+                placeholder="Ej: 3794 123-456"
+                value={formatPhoneAsYouType(field.value)}
+                onChange={(e) => {
+                  // Guardar solo dígitos en el form
+                  const digits = e.target.value.replace(/\D/g, "");
+                  field.onChange(digits);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();

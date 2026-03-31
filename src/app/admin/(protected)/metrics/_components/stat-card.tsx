@@ -1,4 +1,11 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
+import type { Period } from "@/types/metrics";
+
+const periodLabel: Record<Period, string> = {
+  week: "semana pasada",
+  month: "mes pasado",
+  year: "año pasado",
+};
 
 interface StatCardProps {
   icon: React.ElementType;
@@ -6,6 +13,7 @@ interface StatCardProps {
   labelMobile?: string;
   value: string;
   delta: number;
+  period: Period;
 }
 
 export function StatCard({
@@ -14,6 +22,7 @@ export function StatCard({
   labelMobile,
   value,
   delta,
+  period,
 }: StatCardProps) {
   const isPositive = delta >= 0;
   return (
@@ -31,7 +40,7 @@ export function StatCard({
               label
             )}
           </p>
-          <Icon className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 shrink-0" />
+          <Icon className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
         </div>
         <p className="font-heebo text-2xl font-semibold text-content dark:text-zinc-100 leading-none">
           {value}
@@ -43,7 +52,7 @@ export function StatCard({
             <TrendingDown className="w-3 h-3 text-red-500 shrink-0" />
           )}
           {isPositive ? "+" : ""}
-          {delta}% vs período anterior
+          {delta}% vs {periodLabel[period]}
         </div>
       </div>
     </div>

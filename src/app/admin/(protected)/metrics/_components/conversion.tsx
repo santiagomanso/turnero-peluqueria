@@ -51,7 +51,7 @@ export function ConversionCard({
           <p className="font-heebo text-2xl font-semibold text-content dark:text-zinc-100">
             {conversionRate}%
           </p>
-          <p className="text-[0.65rem] text-content-quaternary dark:text-zinc-600 mt-0.5">
+          <p className="text-[0.65rem] text-content-quaternary dark:text-zinc-500 mt-0.5">
             tasa de conversión
           </p>
         </div>
