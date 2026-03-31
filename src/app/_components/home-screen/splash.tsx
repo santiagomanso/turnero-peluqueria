@@ -40,15 +40,15 @@ export function SplashSection() {
         <Image
           src="/logo.png"
           alt="Luckete Colorista"
-          width={44}
-          height={44}
-          className="mb-2 object-contain dark:brightness-0 dark:invert"
+          width={96}
+          height={96}
+          className="mb-4 object-contain dark:brightness-0 dark:invert w-11 h-11 lg:w-24 lg:h-24"
           priority
         />
-        <h1 className="font-heebo font-light text-4xl lg:text-5xl tracking-[0.06em] text-content dark:text-zinc-100">
+        <h1 className="font-heebo font-light text-4xl lg:text-8xl tracking-[0.06em] text-content dark:text-zinc-100">
           Luckete Colorista
         </h1>
-        <p className="font-archivo text-micro tracking-[0.24em] uppercase text-gold mt-1">
+        <p className="font-archivo text-micro lg:text-xs tracking-[0.24em] uppercase text-gold mt-1 lg:mt-3">
           Donde el color se vuelve arte
         </p>
       </motion.div>
