@@ -96,7 +96,7 @@ export function ParallaxSection({
         style={{ y: decoY }}
         className={cn(
           "absolute pointer-events-none select-none font-heebo font-black text-[32vw] leading-none bottom-[-4vw] right-[-2vw] tracking-tighter",
-          dark ? "text-white/[0.025]" : "text-gold/[0.055]",
+          dark ? "text-white/2.5" : "text-gold/5.5",
         )}
         aria-hidden
       >
@@ -104,7 +104,7 @@ export function ParallaxSection({
       </motion.span>
 
       {/* Main content */}
-      <div className="relative z-10 max-w-[720px] w-[90%] text-center mx-auto">
+      <div className="relative z-10 max-w-180 w-[90%] text-center mx-auto">
         {/* Counter */}
         <motion.span
           className={cn(
@@ -123,7 +123,7 @@ export function ParallaxSection({
         {/* Title — clip reveal */}
         <h2
           className={cn(
-            "font-heebo font-light leading-[1.0] tracking-[0.06em] mb-0",
+            "font-heebo font-light leading-none tracking-[0.06em] mb-0",
             "text-[clamp(3rem,8vw,6rem)]",
             dark ? "text-white" : "text-content dark:text-zinc-100",
           )}
@@ -175,7 +175,7 @@ export function ParallaxSection({
         {/* Description */}
         <motion.p
           className={cn(
-            "text-sm leading-[1.85] max-w-[400px] mx-auto mb-9",
+            "text-sm leading-[1.85] max-w-100 mx-auto mb-9",
             dark
               ? "text-white/40"
               : "text-content-secondary dark:text-zinc-400",

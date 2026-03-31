@@ -19,16 +19,23 @@ import type { DayButton } from "react-day-picker";
 
 function getDayColor(count: number): string | undefined {
   if (count === 0) return undefined;
-  if (count <= 4)
-    return "bg-green-500/20 !text-green-700 dark:!text-green-400";
+  if (count <= 4) return "bg-green-500/20 !text-green-700 dark:!text-green-400";
   if (count <= 10)
     return "bg-amber-500/20 !text-amber-700 dark:!text-amber-400";
   return "bg-red-500/20 !text-red-700 dark:!text-red-400";
 }
 
 const LEGEND = [
-  { label: "1–4 turnos", color: "bg-green-500/20", border: "border-green-500/40" },
-  { label: "5–10 turnos", color: "bg-amber-500/20", border: "border-amber-500/40" },
+  {
+    label: "1-4 turnos",
+    color: "bg-green-500/20",
+    border: "border-green-500/40",
+  },
+  {
+    label: "5-10 turnos",
+    color: "bg-amber-500/20",
+    border: "border-amber-500/40",
+  },
   { label: "11+ turnos", color: "bg-red-500/20", border: "border-red-500/40" },
 ];
 
@@ -51,10 +58,8 @@ export function AppointmentCalendarBody({
   const [displayMonth, setDisplayMonth] = useState(vm.selectedDate);
 
   useEffect(() => {
-    vm.fetchMonthlyCounts(
-      displayMonth.getFullYear(),
-      displayMonth.getMonth(),
-    );
+    vm.fetchMonthlyCounts(displayMonth.getFullYear(), displayMonth.getMonth());
+    //eslint-disable-next-line
   }, [displayMonth]);
 
   const ColoredDayButton = (props: React.ComponentProps<typeof DayButton>) => {
@@ -114,7 +119,9 @@ interface AppointmentCalendarProps {
  * Standalone popover calendar with a "Hoy" / date button.
  * Used in the desktop appointment controls.
  */
-export function AppointmentCalendar({ cellSize = "3.5rem" }: AppointmentCalendarProps) {
+export function AppointmentCalendar({
+  cellSize = "3.5rem",
+}: AppointmentCalendarProps) {
   const vm = useAdminAppointments();
   const [isOpen, setIsOpen] = useState(false);
 
