@@ -1,8 +1,49 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+
+const SUBTITLE = "Donde el color se vuelve arte";
+const CHAR_DELAY_MS = 55;
+// Content block finishes at delay:0.6 + duration:1 = 1.6s → start typing at 1.8s
+const TYPEWRITER_START_MS = 1800;
+
+function TypewriterSubtitle() {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    let charIndex = 0;
+    const startTimeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        charIndex++;
+        setDisplayed(SUBTITLE.slice(0, charIndex));
+        if (charIndex >= SUBTITLE.length) {
+          clearInterval(interval);
+          setDone(true);
+        }
+      }, CHAR_DELAY_MS);
+      return () => clearInterval(interval);
+    }, TYPEWRITER_START_MS);
+
+    return () => clearTimeout(startTimeout);
+  }, []);
+
+  return (
+    <p className="font-archivo text-micro lg:text-xs tracking-[0.24em] uppercase text-gold mt-1 lg:mt-3 h-4">
+      {displayed}
+      {!done && (
+        <motion.span
+          className="inline-block w-px h-[1em] bg-gold align-middle ml-px"
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+        />
+      )}
+    </p>
+  );
+}
 
 export function SplashSection() {
   return (
@@ -48,9 +89,7 @@ export function SplashSection() {
         <h1 className="font-heebo font-light text-4xl lg:text-8xl tracking-[0.06em] text-content dark:text-zinc-100">
           Luckete Colorista
         </h1>
-        <p className="font-archivo text-micro lg:text-xs tracking-[0.24em] uppercase text-gold mt-1 lg:mt-3">
-          Donde el color se vuelve arte
-        </p>
+        <TypewriterSubtitle />
       </motion.div>
 
       {/* Scroll indicator — arrow */}
