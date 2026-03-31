@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,14 +23,6 @@ type Props = {
   bgClass?: string;
   nextSectionId?: string;
   prevSectionId?: string;
-};
-
-const titleVariants = {
-  hidden: { y: "105%" },
-  visible: (delay: number) => ({
-    y: "0%",
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay },
-  }),
 };
 
 export function ParallaxSection({
@@ -57,6 +49,11 @@ export function ParallaxSection({
     offset: ["start end", "end start"],
   });
   const decoY = useTransform(scrollYProgress, [0, 1], ["0px", "80px"]);
+
+  // Trigger reveal when section reaches 25% visibility in viewport.
+  // useInView targets sectionRef (always in-position, no transform), so
+  // intersection fires reliably — unlike whileInView on translated children.
+  const isInView = useInView(sectionRef, { once: true, amount: 0.25 });
 
   const baseCta =
     "inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-semibold transition-all group";
@@ -115,13 +112,13 @@ export function ParallaxSection({
               : "text-content-quaternary dark:text-zinc-500",
           )}
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          transition={{ duration: 0.5 }}
         >
           {counter}
         </motion.span>
 
-        {/* Title — clip reveal, impactful like splash */}
+        {/* Title — clip reveal */}
         <h2
           className={cn(
             "font-heebo font-light leading-[1.0] tracking-[0.06em] mb-0",
@@ -132,10 +129,9 @@ export function ParallaxSection({
           <span className="block overflow-hidden">
             <motion.span
               className={cn("block", accentLine === 1 && "text-gold")}
-              variants={titleVariants}
-              initial="hidden"
-              animate="visible"
-              custom={0.2}
+              initial={{ y: "105%" }}
+              animate={isInView ? { y: "0%" } : { y: "105%" }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
             >
               {titleLine1}
             </motion.span>
@@ -143,10 +139,9 @@ export function ParallaxSection({
           <span className="block overflow-hidden">
             <motion.span
               className={cn("block", accentLine === 2 && "text-gold")}
-              variants={titleVariants}
-              initial="hidden"
-              animate="visible"
-              custom={0.3}
+              initial={{ y: "105%" }}
+              animate={isInView ? { y: "0%" } : { y: "105%" }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
             >
               {titleLine2}
             </motion.span>
@@ -157,12 +152,8 @@ export function ParallaxSection({
         <motion.div
           className="h-px bg-linear-to-r from-transparent via-gold to-transparent mx-auto mt-8 mb-7"
           initial={{ width: 0 }}
-          animate={{ width: 80 }}
-          transition={{
-            duration: 0.8,
-            ease: [0.16, 1, 0.3, 1] as const,
-            delay: 0.5,
-          }}
+          animate={isInView ? { width: 80 } : { width: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const, delay: 0.35 }}
         />
 
         {/* Description */}
@@ -174,8 +165,8 @@ export function ParallaxSection({
               : "text-content-secondary dark:text-zinc-400",
           )}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.55 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.45 }}
         >
           {description}
         </motion.p>
@@ -183,8 +174,8 @@ export function ParallaxSection({
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut", delay: 0.7 }}
+          animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.55 }}
         >
           {external ? (
             <a
@@ -208,8 +199,8 @@ export function ParallaxSection({
         <motion.button
           className="absolute top-5 left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
           onClick={() =>
             document
               .getElementById(prevSectionId)
@@ -233,8 +224,8 @@ export function ParallaxSection({
         <motion.button
           className="absolute bottom-20 left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
           onClick={() =>
             document
               .getElementById(nextSectionId)
