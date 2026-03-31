@@ -53,7 +53,7 @@ export function ParallaxSection({
   // Trigger reveal when section reaches 25% visibility in viewport.
   // useInView targets sectionRef (always in-position, no transform), so
   // intersection fires reliably — unlike whileInView on translated children.
-  const isInView = useInView(sectionRef, { once: true, amount: 0.25 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.5 });
 
   const baseCta =
     "inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-semibold transition-all group";
