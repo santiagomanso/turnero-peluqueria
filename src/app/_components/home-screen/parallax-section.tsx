@@ -34,9 +34,22 @@ const titleVariants = {
 };
 
 export function ParallaxSection({
-  id, counter, titleLine1, titleLine2, accentLine = 2,
-  description, ctaLabel, ctaHref, ctaVariant, ctaIcon: CtaIcon,
-  dark = false, external = false, decoNumber, bgClass, nextSectionId, prevSectionId,
+  id,
+  counter,
+  titleLine1,
+  titleLine2,
+  accentLine = 2,
+  description,
+  ctaLabel,
+  ctaHref,
+  ctaVariant,
+  ctaIcon: CtaIcon,
+  dark = false,
+  external = false,
+  decoNumber,
+  bgClass,
+  nextSectionId,
+  prevSectionId,
 }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -45,7 +58,8 @@ export function ParallaxSection({
   });
   const decoY = useTransform(scrollYProgress, [0, 1], ["0px", "80px"]);
 
-  const baseCta = "inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-semibold transition-all group";
+  const baseCta =
+    "inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-semibold transition-all group";
   const ctaClass = cn(baseCta, {
     "bg-gold text-content hover:shadow-[0_8px_32px_rgba(201,169,110,0.45)] hover:scale-[1.04]":
       ctaVariant === "gold",
@@ -73,7 +87,9 @@ export function ParallaxSection({
       id={id}
       className={cn(
         "relative h-svh flex items-center justify-center overflow-hidden scroll-mt-14",
-        bgClass ?? "bg-surface"
+        bgClass ?? "bg-surface",
+        prevSectionId && "pt-16",
+        nextSectionId && "pb-24",
       )}
     >
       {/* Parallax decorative number */}
@@ -81,7 +97,7 @@ export function ParallaxSection({
         style={{ y: decoY }}
         className={cn(
           "absolute pointer-events-none select-none font-heebo font-black text-[32vw] leading-none bottom-[-4vw] right-[-2vw] tracking-tighter",
-          dark ? "text-white/[0.025]" : "text-gold/[0.055]"
+          dark ? "text-white/[0.025]" : "text-gold/[0.055]",
         )}
         aria-hidden
       >
@@ -90,12 +106,13 @@ export function ParallaxSection({
 
       {/* Main content */}
       <div className="relative z-10 max-w-[720px] w-[90%] text-center mx-auto">
-
         {/* Counter */}
         <motion.span
           className={cn(
             "block text-tiny tracking-[0.22em] uppercase mb-8",
-            dark ? "text-white/30" : "text-content-quaternary dark:text-zinc-500"
+            dark
+              ? "text-white/30"
+              : "text-content-quaternary dark:text-zinc-500",
           )}
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -106,11 +123,13 @@ export function ParallaxSection({
         </motion.span>
 
         {/* Title — clip reveal, impactful like splash */}
-        <h2 className={cn(
-          "font-heebo font-light leading-[1.0] tracking-[0.06em] mb-0",
-          "text-[clamp(3rem,8vw,6rem)]",
-          dark ? "text-white" : "text-content dark:text-zinc-100"
-        )}>
+        <h2
+          className={cn(
+            "font-heebo font-light leading-[1.0] tracking-[0.06em] mb-0",
+            "text-[clamp(3rem,8vw,6rem)]",
+            dark ? "text-white" : "text-content dark:text-zinc-100",
+          )}
+        >
           <span className="block overflow-hidden">
             <motion.span
               className={cn("block", accentLine === 1 && "text-gold")}
@@ -143,14 +162,20 @@ export function ParallaxSection({
           initial={{ width: 0 }}
           whileInView={{ width: 80 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const, delay: 0.3 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1] as const,
+            delay: 0.3,
+          }}
         />
 
         {/* Description */}
         <motion.p
           className={cn(
             "text-sm leading-[1.85] max-w-[400px] mx-auto mb-9",
-            dark ? "text-white/40" : "text-content-secondary dark:text-zinc-400"
+            dark
+              ? "text-white/40"
+              : "text-content-secondary dark:text-zinc-400",
           )}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -168,7 +193,12 @@ export function ParallaxSection({
           transition={{ duration: 0.5, ease: "easeOut", delay: 0.55 }}
         >
           {external ? (
-            <a href={ctaHref} target="_blank" rel="noreferrer" className={ctaClass}>
+            <a
+              href={ctaHref}
+              target="_blank"
+              rel="noreferrer"
+              className={ctaClass}
+            >
               {ctaContent}
             </a>
           ) : (
@@ -177,17 +207,20 @@ export function ParallaxSection({
             </Link>
           )}
         </motion.div>
-
       </div>
 
       {/* Up arrow — just below navbar */}
       {prevSectionId && (
         <motion.button
-          className="absolute top-[6px] left-1/2 -translate-x-1/2 cursor-pointer group"
+          className="absolute top-5 left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          onClick={() => document.getElementById(prevSectionId)?.scrollIntoView({ behavior: "smooth" })}
+          onClick={() =>
+            document
+              .getElementById(prevSectionId)
+              ?.scrollIntoView({ behavior: "smooth" })
+          }
           aria-label="Ir a la sección anterior"
         >
           <ChevronUp
@@ -195,7 +228,7 @@ export function ParallaxSection({
             strokeWidth={1.5}
             className={cn(
               "group-hover:-translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-gold"
+              dark ? "text-white/40" : "text-gold",
             )}
           />
         </motion.button>
@@ -204,11 +237,15 @@ export function ParallaxSection({
       {/* Down arrow — above bottom edge */}
       {nextSectionId && (
         <motion.button
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer group"
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 cursor-pointer group"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          onClick={() => document.getElementById(nextSectionId)?.scrollIntoView({ behavior: "smooth" })}
+          onClick={() =>
+            document
+              .getElementById(nextSectionId)
+              ?.scrollIntoView({ behavior: "smooth" })
+          }
           aria-label="Ir a la siguiente sección"
         >
           <ChevronDown
@@ -216,7 +253,7 @@ export function ParallaxSection({
             strokeWidth={1.5}
             className={cn(
               "group-hover:translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-gold"
+              dark ? "text-white/40" : "text-gold",
             )}
           />
         </motion.button>
