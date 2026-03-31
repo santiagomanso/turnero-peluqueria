@@ -7,20 +7,11 @@ type Props = {
   bookingCost?: number;
 };
 
-export default function BottomNavigationButtons({
-  appointmentForm,
-  bookingCost = 0,
-}: Props) {
+export default function BottomNavigationButtons({ appointmentForm }: Props) {
   const isLastStep = appointmentForm.currentStep === appointmentForm.totalSteps;
   const { isSubmitted, isSubmitting } = appointmentForm.form.formState;
 
-  const finalPrice = appointmentForm.appliedDiscount
-    ? Math.round(bookingCost * (1 - appointmentForm.appliedDiscount.discount / 100))
-    : bookingCost;
-
-  const submitLabel = appointmentForm.isEditing
-    ? "Confirmar"
-    : "Pagar con MercadoPago";
+  const submitLabel = appointmentForm.isEditing ? "Confirmar" : "Pagar";
 
   return (
     <div className="flex justify-between items-center gap-4 pt-4 border-t border-border-subtle dark:border-zinc-800">
@@ -33,7 +24,7 @@ export default function BottomNavigationButtons({
           isSubmitted ||
           appointmentForm.isRedirecting
         }
-        className="px-6 py-3 rounded-xl font-semibold text-sm bg-white! dark:bg-zinc-800! border border-border-subtle dark:border-zinc-700 text-content-secondary dark:text-zinc-400 shadow-none hover:bg-black/5! dark:hover:bg-zinc-700! transition-all"
+        className="px-6 py-3 rounded-md font-semibold text-sm bg-white! dark:bg-zinc-800! border border-border-subtle dark:border-zinc-700 text-content-secondary dark:text-zinc-400 shadow-none hover:bg-black/5! dark:hover:bg-zinc-700! transition-all"
       >
         Atrás
       </Button>
@@ -44,7 +35,7 @@ export default function BottomNavigationButtons({
           type="button"
           onClick={appointmentForm.handleNext}
           disabled={appointmentForm.isRedirecting}
-          className="px-6 py-3 rounded-xl font-bold text-sm bg-gold text-white hover:bg-gold/90 transition-all"
+          className="px-6 py-3 rounded-md font-bold text-sm bg-gold text-white hover:bg-gold/90 transition-all"
         >
           Siguiente
         </Button>
@@ -58,12 +49,14 @@ export default function BottomNavigationButtons({
             appointmentForm.isRedirecting ||
             appointmentForm.isValidatingDiscount
           }
-          className="px-5 py-3 rounded-xl font-bold text-sm bg-gold text-white hover:bg-gold/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-5 py-3 rounded-md font-bold text-sm bg-gold text-white hover:bg-gold/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting || appointmentForm.isRedirecting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              {appointmentForm.isRedirecting ? "Redirigiendo..." : "Guardando..."}
+              {appointmentForm.isRedirecting
+                ? "Redirigiendo..."
+                : "Guardando..."}
             </>
           ) : (
             submitLabel

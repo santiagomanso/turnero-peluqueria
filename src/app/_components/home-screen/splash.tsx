@@ -8,11 +8,11 @@ import { ChevronDown } from "lucide-react";
 const SUBTITLE = "Donde el color se vuelve arte";
 
 // Timing constants
-const CONTENT_APPEAR_MS = 1800;  // wait for splash content fade-in to finish
-const CURSOR_WAIT_MS    = 3000;  // cursor blinks (no text) before/after typing
-const TYPE_CHAR_MS      = 55;    // ms per character while typing
-const DELETE_CHAR_MS    = 22;    // ms per character while deleting (fast)
-const HOLD_FULL_MS      = 6000;  // pause after full text before deleting
+const CONTENT_APPEAR_MS = 1800; // wait for splash content fade-in to finish
+const CURSOR_WAIT_MS = 850; // cursor blinks (no text) before/after typing
+const TYPE_CHAR_MS = 55; // ms per character while typing
+const DELETE_CHAR_MS = 38; // ms per character while deleting (fast)
+const HOLD_FULL_MS = 4000; // pause after full text before deleting
 
 type Phase = "idle" | "waiting" | "typing" | "full" | "deleting";
 
@@ -67,7 +67,8 @@ function TypewriterSubtitle() {
     }
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const showCursor = phase === "waiting" || phase === "typing" || phase === "deleting";
+  const showCursor =
+    phase === "waiting" || phase === "typing" || phase === "deleting";
 
   return (
     <p className="font-archivo text-micro lg:text-xs tracking-[0.24em] uppercase text-gold mt-1 lg:mt-3 h-4">
@@ -76,7 +77,11 @@ function TypewriterSubtitle() {
         <motion.span
           className="inline-block w-px h-[1em] bg-gold align-middle ml-px"
           animate={{ opacity: [1, 0] }}
-          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          transition={{
+            duration: 0.5,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
         />
       )}
     </p>
@@ -136,7 +141,12 @@ export function SplashSection() {
       <motion.button
         className="absolute bottom-6 left-1/2 -translate-x-1/2 cursor-pointer"
         animate={{ y: [0, 5, 0], scale: [1, 1.12, 1] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        transition={{
+          duration: 1.8,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2,
+        }}
         onClick={() => {
           document
             .getElementById("section-01")

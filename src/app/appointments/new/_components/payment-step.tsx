@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 type Props = {
   appointmentForm: ReturnType<typeof useCreateAppointmentForm>;
   bookingCost: number;
+  hideHeader?: boolean;
 };
 
-export default function PaymentStep({ appointmentForm, bookingCost }: Props) {
+export default function PaymentStep({ appointmentForm, bookingCost, hideHeader = false }: Props) {
   const [discountInput, setDiscountInput] = useState("");
   const { appliedDiscount, isValidatingDiscount, applyDiscount, removeDiscount } =
     appointmentForm;
@@ -26,17 +27,19 @@ export default function PaymentStep({ appointmentForm, bookingCost }: Props) {
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-xl font-bold text-content dark:text-zinc-100 leading-tight">
-            Método de pago
-          </h2>
-          <div className="w-8 h-px mt-2 bg-gold-gradient" />
+      {!hideHeader && (
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-xl font-bold text-content dark:text-zinc-100 leading-tight">
+              Método de pago
+            </h2>
+            <div className="w-8 h-px mt-2 bg-gold-gradient" />
+          </div>
+          <span className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mt-1">
+            Paso 5 de 5
+          </span>
         </div>
-        <span className="text-[0.6rem] uppercase tracking-[0.15em] text-gold font-semibold mt-1">
-          Paso 5 de 5
-        </span>
-      </div>
+      )}
 
       {/* Código de descuento */}
       {appliedDiscount ? (
