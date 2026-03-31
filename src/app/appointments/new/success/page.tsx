@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Container } from "@/components/ui/container";
-import Navbar from "@/components/navbar";
+import { HomeNavbar } from "@/app/_components/home-screen/home-navbar";
 import { Home, CalendarCheck } from "lucide-react";
 
 function AnimatedCheck() {
@@ -51,11 +50,10 @@ function AnimatedCheck() {
 
 export default function AppointmentSuccessPage() {
   return (
-    <Container.wrapper>
-      <Container.content>
-        <Navbar title="Turno confirmado" />
-
-        <div className="flex flex-col items-center justify-center gap-6 py-12 text-center px-4">
+    <div className="min-h-svh flex flex-col bg-surface dark:bg-zinc-950 font-archivo">
+      <HomeNavbar position="sticky" pageTitle="Turno Reservado" />
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="flex flex-col items-center gap-6 text-center max-w-sm">
           {/* Animated check */}
           <div className="w-24 h-24 rounded-full bg-gold/10 dark:bg-gold/10 flex items-center justify-center">
             <AnimatedCheck />
@@ -91,7 +89,7 @@ export default function AppointmentSuccessPage() {
             Volver al inicio
           </Link>
         </div>
-      </Container.content>
-    </Container.wrapper>
+      </main>
+    </div>
   );
 }

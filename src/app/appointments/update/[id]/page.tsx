@@ -1,5 +1,4 @@
-import { Container } from "@/components/ui/container";
-import Navbar from "@/components/navbar";
+import { HomeNavbar } from "@/app/_components/home-screen/home-navbar";
 import UpdateAppointmentView from "../_components/update-appointment-view";
 
 type Props = {
@@ -8,13 +7,9 @@ type Props = {
 
 export default function UpdateAppointmentPage({ params }: Props) {
   return (
-    <Container.wrapper>
-      <Container.content className="max-w-2xl">
-        <Navbar title="Modificar Turno" />
-        <div className="mt-3">
-          <UpdateAppointmentView params={params} />
-        </div>
-      </Container.content>
-    </Container.wrapper>
+    <div className="min-h-svh flex flex-col bg-surface dark:bg-zinc-950 font-archivo">
+      <HomeNavbar position="sticky" pageTitle="Editar Turno" />
+      <UpdateAppointmentView params={params} />
+    </div>
   );
 }

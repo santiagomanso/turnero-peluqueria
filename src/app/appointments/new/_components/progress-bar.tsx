@@ -36,18 +36,16 @@ function Line({ done }: { done: boolean }) {
 export default function ProgressBar({ appointmentForm }: Props) {
   const { currentStep } = appointmentForm;
   return (
-    <div className="w-full mb-5">
-      <div className="flex flex-row items-center w-full">
-        <Step step={1} currentStep={currentStep} />
-        <Line done={currentStep > 1} />
-        <Step step={2} currentStep={currentStep} />
-        <Line done={currentStep > 2} />
-        <Step step={3} currentStep={currentStep} />
-        <Line done={currentStep > 3} />
-        <Step step={4} currentStep={currentStep} />
-        <Line done={currentStep > 4} />
-        <Step step={5} currentStep={currentStep} />
-      </div>
+    <div className="flex flex-row items-center w-full">
+      <Step step={1} currentStep={currentStep} />
+      <Line done={currentStep > 1} />
+      <Step step={2} currentStep={currentStep} />
+      <Line done={currentStep > 2} />
+      <Step step={3} currentStep={currentStep} />
+      <Line done={currentStep > 3} />
+      <Step step={4} currentStep={currentStep} />
+      <Line done={currentStep > 4} />
+      <Step step={5} currentStep={currentStep} />
     </div>
   );
 }

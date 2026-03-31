@@ -3,9 +3,8 @@ import { Instagram } from "lucide-react";
 
 export function HomeFooter() {
   return (
-    <footer className="bg-[#0e0d0b] border-t border-white/[0.06] py-10 px-6">
+    <footer className="bg-[#0e0d0b] border-t border-white/6 py-10 px-6">
       <div className="max-w-4xl mx-auto flex flex-col items-center gap-6 text-center">
-
         {/* Brand */}
         <div>
           <p className="font-heebo font-light text-sm tracking-[0.06em] text-zinc-300">
@@ -56,12 +55,12 @@ export function HomeFooter() {
           <span>
             Desarrollado por{" "}
             <a
-              href="https://santimanso.com"
+              href="https://santiago-manso.vercel.app/"
               target="_blank"
               rel="noreferrer"
               className="text-zinc-500 hover:text-zinc-300 transition-colors underline underline-offset-2"
             >
-              santimanso.com
+              santiago manso
             </a>
           </span>
           <span className="hidden sm:block text-zinc-700">·</span>
@@ -75,7 +74,6 @@ export function HomeFooter() {
             @santiago_manso
           </a>
         </div>
-
       </div>
     </footer>
   );
