@@ -30,7 +30,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           className={cn(
             "flex items-center justify-center w-7 h-7 rounded-md transition-all",
             theme === value
-              ? "bg-white dark:bg-zinc-800 text-gold shadow-sm"
+              ? "dark:bg-zinc-800 text-gold shadow-sm"
               : "text-content-secondary dark:text-zinc-300 hover:text-content dark:hover:text-zinc-100"
           )}
         >
