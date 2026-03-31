@@ -746,6 +746,7 @@ CRON_SECRET=...
 - [x] **Sidebar: Configuración último** — reordenado a Turnos → Métricas → Pagos → Tienda online → Configuración
 - [x] **MercadoPago webhook P2025 fix** — manejo de error Prisma `P2025` (appointment no encontrado) sin romper el webhook; responde 200 para evitar reintentos de MP
 - [x] **`services/` pattern** — todas las actions son wrappers delgados; lógica de BD en `src/services/*.ts`; `src/services/payments.ts` y `src/services/shop.ts` creados
+- [x] Hacer funcional el checkout del shop online (MercadoPago para productos)
 
 ## ITEMS PENDIENTES
 
@@ -1459,5 +1460,5 @@ Esto toma los últimos 10 dígitos y busca coincidencia por el final, tolerando 
 ## Items pendientes (chatbot)
 
 - [x] ~~Implementar notificaciones a la dueña usando templates aprobados~~ ✅ `sendOwnerClientContact` / `sendOwnerClientMessage` implementados
-- [ ] Hacer funcional el checkout del shop online (MercadoPago para productos)
+
 - [ ] Agregar seguridad al FRONT y BACK end (captcha, rate limiting)
