@@ -213,10 +213,9 @@ export function ParallaxSection({
       {/* Up arrow — just below navbar */}
       {prevSectionId && (
         <motion.button
-          className="absolute top-5 left-1/2 -translate-x-1/2 cursor-pointer group"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          className="absolute top-5 left-1/2 -translate-x-1/2 cursor-pointer"
+          animate={{ y: [0, -5, 0], scale: [1, 1.12, 1] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           onClick={() =>
             document
               .getElementById(prevSectionId)
@@ -227,10 +226,7 @@ export function ParallaxSection({
           <ChevronUp
             size={22}
             strokeWidth={1.5}
-            className={cn(
-              "group-hover:-translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-content/50 dark:text-gold",
-            )}
+            className={cn(dark ? "text-white/40" : "text-content/50 dark:text-gold")}
           />
         </motion.button>
       )}
@@ -238,10 +234,9 @@ export function ParallaxSection({
       {/* Down arrow — above bottom edge */}
       {nextSectionId && (
         <motion.button
-          className="absolute bottom-20 left-1/2 -translate-x-1/2 cursor-pointer group"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 cursor-pointer"
+          animate={{ y: [0, 5, 0], scale: [1, 1.12, 1] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           onClick={() =>
             document
               .getElementById(nextSectionId)
@@ -252,10 +247,7 @@ export function ParallaxSection({
           <ChevronDown
             size={22}
             strokeWidth={1.5}
-            className={cn(
-              "group-hover:translate-y-1 transition-transform duration-300",
-              dark ? "text-white/40" : "text-content/50 dark:text-gold",
-            )}
+            className={cn(dark ? "text-white/40" : "text-content/50 dark:text-gold")}
           />
         </motion.button>
       )}

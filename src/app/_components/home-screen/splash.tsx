@@ -134,10 +134,9 @@ export function SplashSection() {
 
       {/* Scroll indicator — arrow */}
       <motion.button
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 cursor-pointer group"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 0.8 }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 cursor-pointer"
+        animate={{ y: [0, 5, 0], scale: [1, 1.12, 1] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         onClick={() => {
           document
             .getElementById("section-01")
@@ -148,8 +147,7 @@ export function SplashSection() {
         <ChevronDown
           size={22}
           strokeWidth={1.5}
-          className="text-content/50 dark:text-gold group-hover:translate-y-1 transition-transform duration-300"
-          style={{ animation: "scroll-pulse 2s ease 2.2s infinite" }}
+          className="text-content/50 dark:text-gold"
         />
       </motion.button>
     </section>
