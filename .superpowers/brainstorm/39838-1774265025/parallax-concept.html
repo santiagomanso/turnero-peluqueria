@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luckete — Parallax Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Archivo', sans-serif;
+    background: #ece9e4;
+    color: #1a1714;
+    overflow-x: hidden;
+  }
+
+  /* ─── SPLASH ─────────────────────────── */
+  .splash {
+    height: 100vh;
+    background: #ece9e4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .splash-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: splashIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .splash-logo {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    margin-bottom: 6px;
+    filter: brightness(0); /* make it dark like in reference */
+  }
+
+  .splash-logo-placeholder {
+    /* SVG-like figure, simulating the logo */
+    width: 52px; height: 52px;
+    margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .splash-title {
+    font-family: 'Heebo', serif;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 300;
+    letter-spacing: 0.06em;
+    color: #1a1714;
+    text-align: center;
+  }
+
+  .splash-tagline {
+    font-family: 'Archivo', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c9a96e;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  .splash-scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 1s ease 1.5s both;
+    cursor: pointer;
+  }
+
+  .splash-scroll span {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b8a898;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, #c9a96e, transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+
+  /* ─── PARALLAX CONTAINER ─────────────── */
+  .parallax-wrap {
+    position: relative;
+  }
+
+  /* Sticky title that fades as you scroll through sections */
+  .section-nav {
+    position: fixed;
+    top: 24px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex; align-items: center; gap: 6px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .section-nav.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .section-nav-logo {
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px; font-weight: 400;
+    color: #1a1714; letter-spacing: 0.06em;
+  }
+
+  /* Each parallax section */
+  .p-section {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Parallax background layer */
+  .p-section::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    will-change: transform;
+  }
+
+  .p-section:nth-child(odd) { background: #ece9e4; }
+  .p-section:nth-child(even) { background: #e5e1db; }
+
+  /* Dark section for the last one */
+  .p-section.dark { background: #1a1714; }
+
+  /* Content that floats in from the side */
+  .p-content {
+    position: relative; z-index: 1;
+    max-width: 640px; width: 90%;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .p-content.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .p-number {
+    font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #b8a898;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .p-section.dark .p-number { color: rgba(255,255,255,0.3); }
+
+  .p-title {
+    font-family: 'Heebo', sans-serif;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 300; letter-spacing: 0.04em;
+    color: #1a1714; line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .p-section.dark .p-title { color: white; }
+  .p-title .accent { color: #c9a96e; font-weight: 400; }
+
+  .p-desc {
+    font-size: 0.9rem; color: #9c9189; line-height: 1.8;
+    max-width: 380px; margin: 0 auto 32px;
+  }
+  .p-section.dark .p-desc { color: rgba(255,255,255,0.4); }
+
+  .p-divider {
+    width: 40px; height: 1px;
+    background: linear-gradient(90deg, #c9a96e, rgba(201,169,110,0.2));
+    margin: 0 auto 28px;
+  }
+
+  .p-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 32px; border-radius: 12px;
+    font-size: 0.88rem; font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .p-link:hover { transform: scale(1.04); }
+
+  .p-link.gold {
+    background: #c9a96e; color: #1a1714;
+    box-shadow: 0 4px 20px rgba(201,169,110,0.3);
+  }
+  .p-link.gold:hover { box-shadow: 0 8px 28px rgba(201,169,110,0.45); }
+
+  .p-link.outline-dark {
+    background: transparent; color: #1a1714;
+    border: 1.5px solid rgba(26,23,20,0.2);
+  }
+  .p-link.outline-dark:hover { border-color: rgba(26,23,20,0.5); }
+
+  .p-link.outline-light {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+  .p-link.outline-light:hover { background: rgba(255,255,255,0.13); }
+
+  .p-link.wa {
+    background: #25D366; color: white;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.25);
+  }
+
+  /* Large decorative number */
+  .p-deco {
+    position: absolute;
+    font-family: 'Heebo', sans-serif;
+    font-size: 20vw; font-weight: 900;
+    color: rgba(201,169,110,0.05);
+    line-height: 1; pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.05em;
+  }
+  .p-section.dark .p-deco { color: rgba(255,255,255,0.03); }
+
+  /* ─── ANIMATIONS ── */
+  @keyframes splashIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+    50%       { opacity: 0.4; }
+  }
+
+  /* ─── MOBILE ── */
+  @media (max-width: 640px) {
+    .splash-title { font-size: 2rem; }
+    .p-title { font-size: 2.2rem; }
+    .p-deco { font-size: 30vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SPLASH ── -->
+<section class="splash" id="splash">
+  <div class="splash-inner">
+    <!-- Logo placeholder — in real app uses /logo.png -->
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:8px">
+      <!-- Simplified human figure like the logo -->
+      <circle cx="24" cy="10" r="4" fill="#1a1714"/>
+      <line x1="24" y1="14" x2="24" y2="30" stroke="#1a1714" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="24" y1="20" x2="14" y2="27" stroke="#1a1714" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="24" y1="20" x2="34" y2="27" stroke="#1a1714" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="24" y1="30" x2="17" y2="42" stroke="#1a1714" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="24" y1="30" x2="31" y2="42" stroke="#1a1714" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+
+    <h1 class="splash-title">Luckete Colorista</h1>
+    <p class="splash-tagline">Donde el color se vuelve arte</p>
+  </div>
+
+  <div class="splash-scroll" onclick="document.getElementById('s1').scrollIntoView({behavior:'smooth'})">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ── STICKY NAV (aparece al salir del splash) ── -->
+<div class="section-nav" id="stickyNav">
+  <span class="section-nav-logo">Luckete Colorista</span>
+</div>
+
+<!-- ── PARALLAX SECTIONS ── -->
+<div class="parallax-wrap">
+
+  <!-- 1. Agendar turno -->
+  <section class="p-section" id="s1">
+    <div class="p-deco">01</div>
+    <div class="p-content" data-scroll>
+      <span class="p-number">01 / 04</span>
+      <h2 class="p-title">Agendá tu<br><span class="accent">próximo turno</span></h2>
+      <div class="p-divider"></div>
+      <p class="p-desc">Reservá online en segundos. Elegí día, hora y servicio sin llamadas.</p>
+      <a class="p-link gold">Agendar turno →</a>
+    </div>
+  </section>
+
+  <!-- 2. Consultar turno -->
+  <section class="p-section" id="s2">
+    <div class="p-deco">02</div>
+    <div class="p-content" data-scroll>
+      <span class="p-number">02 / 04</span>
+      <h2 class="p-title">Consultá<br><span class="accent">tu reserva</span></h2>
+      <div class="p-divider"></div>
+      <p class="p-desc">¿Ya tenés un turno? Revisá los detalles, horario y estado de tu reserva.</p>
+      <a class="p-link outline-dark">Ver mi turno →</a>
+    </div>
+  </section>
+
+  <!-- 3. Tienda -->
+  <section class="p-section" id="s3">
+    <div class="p-deco">03</div>
+    <div class="p-content" data-scroll>
+      <span class="p-number">03 / 04</span>
+      <h2 class="p-title">Tienda de<br><span class="accent">insumos</span></h2>
+      <div class="p-divider"></div>
+      <p class="p-desc">Productos profesionales para el cuidado del cabello. Envío a toda la provincia.</p>
+      <a class="p-link outline-dark">Ver productos →</a>
+    </div>
+  </section>
+
+  <!-- 4. WhatsApp -->
+  <section class="p-section dark" id="s4">
+    <div class="p-deco">04</div>
+    <div class="p-content" data-scroll>
+      <span class="p-number">04 / 04</span>
+      <h2 class="p-title" style="color:white">Hablá con<br><span class="accent">nosotros</span></h2>
+      <div class="p-divider"></div>
+      <p class="p-desc">Consultá precios, disponibilidad o lo que necesites. Respondemos rápido.</p>
+      <a class="p-link wa">Escribir por WhatsApp →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Intersection observer for scroll-in animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('[data-scroll]').forEach(el => observer.observe(el));
+
+  // Sticky nav appears after splash
+  const splashObs = new IntersectionObserver((entries) => {
+    const nav = document.getElementById('stickyNav');
+    if (!entries[0].isIntersecting) {
+      nav.classList.add('visible');
+    } else {
+      nav.classList.remove('visible');
+    }
+  }, { threshold: 0.1 });
+
+  splashObs.observe(document.getElementById('splash'));
+
+  // Subtle parallax on deco numbers
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    document.querySelectorAll('.p-deco').forEach((el, i) => {
+      const section = el.parentElement;
+      const rect = section.getBoundingClientRect();
+      const progress = -rect.top / window.innerHeight;
+      el.style.transform = `translateY(${progress * 60}px)`;
+    });
+  }, { passive: true });
+</script>
+
+</body>
+</html>

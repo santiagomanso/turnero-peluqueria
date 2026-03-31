@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero solo — sin botones</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Archivo', sans-serif;
+    background: #ece9e4;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; padding: 24px 16px;
+  }
+  .page-label { font-size: 10px; color: #9c9189; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; text-align: center; }
+
+  .browser {
+    width: 100%; max-width: 1024px; background: #ece9e4;
+    border-radius: 16px; border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.12); overflow: hidden;
+  }
+  .browser-bar {
+    background: #f0ede8; padding: 10px 14px;
+    display: flex; align-items: center; gap: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c941; }
+  .url-bar { flex: 1; margin: 0 10px; background: white; border-radius: 6px; padding: 4px 12px; font-size: 11px; color: #9c9189; border: 1px solid rgba(0,0,0,0.07); }
+
+  .app-bg { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* NAVBAR */
+  .navbar { display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.4s ease both; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo-box { width: 34px; height: 34px; background: white; border-radius: 9px; border: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .nav-name { font-size: 13px; font-weight: 700; color: #1a1714; }
+  .nav-tag { font-size: 9px; color: #c9a96e; letter-spacing: 0.1em; text-transform: uppercase; }
+  .nav-right { display: flex; gap: 8px; }
+  .nav-btn { width: 32px; height: 32px; background: white; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+  /* HERO — más alto ahora que es el protagonista */
+  .hero {
+    background: linear-gradient(135deg, #1e1b17 0%, #2a2118 55%, #1a1714 100%);
+    border-radius: 20px; padding: 56px 48px;
+    position: relative; overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.4fr 0.75fr 0.85fr;
+    gap: 32px; align-items: center;
+    min-height: 320px;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -80px; right: 30%;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(201,169,110,0.09) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+  }
+
+  /* Left — title only, no buttons */
+  .hero-left { position: relative; z-index: 1; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid rgba(201,169,110,0.25); border-radius: 9999px;
+    padding: 4px 12px; font-size: 10px; color: #c9a96e;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 18px;
+    animation: fadeIn 0.5s ease both;
+  }
+  .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: #c9a96e; animation: blink 2s ease infinite; }
+  .hero-title {
+    font-size: 2.8rem; font-weight: 900; color: white;
+    line-height: 1.0; letter-spacing: -0.03em;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+  .hero-title .gold { color: #c9a96e; }
+  .hero-desc {
+    font-size: 0.85rem; color: rgba(255,255,255,0.38);
+    line-height: 1.75; margin-top: 16px; max-width: 280px;
+    animation: fadeUp 0.6s ease 0.22s both;
+  }
+
+  /* Stats */
+  .hero-stats { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+  .stat-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 16px 18px; text-align: center;
+    animation: fadeUp 0.5s ease both;
+  }
+  .stat-card:nth-child(1) { animation-delay: 0.3s; }
+  .stat-card:nth-child(2) { animation-delay: 0.42s; }
+  .stat-card:nth-child(3) { animation-delay: 0.54s; }
+  .stat-num { font-size: 1.6rem; font-weight: 800; color: #c9a96e; letter-spacing: -0.02em; }
+  .stat-label { font-size: 9px; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+
+  /* Actions */
+  .hero-actions { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+  .action {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 13px 14px;
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    animation: slideLeft 0.5s ease both;
+    transition: background 0.18s, transform 0.15s;
+  }
+  .action:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
+  .action:nth-child(1) { animation-delay: 0.35s; }
+  .action:nth-child(2) { animation-delay: 0.46s; }
+  .action:nth-child(3) { animation-delay: 0.57s; }
+  .action:nth-child(4) { animation-delay: 0.68s; }
+  .action.wa { background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.2); }
+  .action.wa:hover { background: rgba(37,211,102,0.18); }
+  .action-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .action-title { font-size: 0.8rem; font-weight: 600; color: white; }
+  .action-sub { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+  .action-arr { margin-left: auto; color: rgba(201,169,110,0.6); font-size: 0.9rem; }
+  .action.wa .action-arr { color: #25D366; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideLeft { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
+</head>
+<body>
+<div class="page-label">Hero sin botones de CTA — acciones a la derecha</div>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+    <div class="url-bar">luckete.com</div>
+  </div>
+  <div class="app-bg">
+
+    <div class="navbar">
+      <div class="nav-logo">
+        <div class="nav-logo-box">💇</div>
+        <div><div class="nav-name">Luckete Colorista</div><div class="nav-tag">Donde el color se vuelve arte</div></div>
+      </div>
+      <div class="nav-right"><div class="nav-btn">🏠</div><div class="nav-btn">⚙️</div></div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-left">
+        <div class="hero-tag"><div class="tag-dot"></div>Disponible para turnos</div>
+        <div class="hero-title">Donde el color<br>se vuelve <span class="gold">arte</span></div>
+        <div class="hero-desc">Colorimetría profesional, corte y tratamientos capilares en Posadas, Misiones.</div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card"><div class="stat-num">+500</div><div class="stat-label">Clientes felices</div></div>
+        <div class="stat-card"><div class="stat-num">4.9 ★</div><div class="stat-label">Calificación</div></div>
+        <div class="stat-card"><div class="stat-num">8 años</div><div class="stat-label">De experiencia</div></div>
+      </div>
+
+      <div class="hero-actions">
+        <div class="action">
+          <div class="action-icon" style="background:rgba(201,169,110,0.15)">📅</div>
+          <div><div class="action-title">Agendar turno</div><div class="action-sub">Reservá online</div></div>
+          <div class="action-arr">→</div>
+        </div>
+        <div class="action">
+          <div class="action-icon" style="background:rgba(255,255,255,0.07)">📋</div>
+          <div><div class="action-title">Consultar turno</div><div class="action-sub">Ver mi reserva</div></div>
+          <div class="action-arr">→</div>
+        </div>
+        <div class="action">
+          <div class="action-icon" style="background:rgba(255,255,255,0.07)">🛍️</div>
+          <div><div class="action-title">Tienda insumos</div><div class="action-sub">Productos</div></div>
+          <div class="action-arr">→</div>
+        </div>
+        <div class="action wa">
+          <div class="action-icon" style="background:rgba(37,211,102,0.2)">💬</div>
+          <div><div class="action-title">WhatsApp</div><div class="action-sub">Consultas rápidas</div></div>
+          <div class="action-arr">→</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
