@@ -10,6 +10,8 @@ import {
   SHOP_CREATE_EVENT,
   SHOP_REFRESH_EVENT,
 } from "@/app/admin/_components/shop-mobile-controls";
+import { useProducts } from "../_hooks/use-products";
+import { useOrders } from "../_hooks/use-orders";
 import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
 import dynamic from "next/dynamic";
 
@@ -26,7 +28,9 @@ type Tab = "ordenes" | "productos";
 export function ShopView() {
   const [activeTab, setActiveTab] = useState<Tab>("ordenes");
   const openCreateRef = useRef<(() => void) | null>(null);
-  const refreshOrdersRef = useRef<(() => void) | null>(null);
+  const { refreshProducts } = useProducts();
+  const { refreshOrders } = useOrders();
+
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     {
@@ -48,9 +52,11 @@ export function ShopView() {
 
   const handleRefresh = useCallback(() => {
     if (activeTab === "ordenes") {
-      refreshOrdersRef.current?.();
+      refreshOrders();
+    } else {
+      refreshProducts();
     }
-  }, [activeTab]);
+  }, [activeTab, refreshOrders, refreshProducts]);
 
   useEffect(() => {
     window.addEventListener(SHOP_CREATE_EVENT, handleOpenCreate);
@@ -105,11 +111,7 @@ export function ShopView() {
         <div className="flex-1 min-h-0">
           {activeTab === "ordenes" ? (
             <div className="h-full flex flex-col">
-              <OrdersTab
-                registerRefresh={(fn) => {
-                  refreshOrdersRef.current = fn;
-                }}
-              />
+              <OrdersTab />
             </div>
           ) : (
             <ProductosTab
