@@ -191,20 +191,27 @@ function AppointmentFormInner({
   daysConfig,
 }: Props) {
   const appointmentForm = useCreateAppointmentForm({ appointment, daysConfig });
-  const { currentStep, totalSteps } = appointmentForm;
+  const { currentStep, totalSteps, isEditing } = appointmentForm;
 
   const selectedDate = appointmentForm.form.watch("date");
   const selectedTime = appointmentForm.form.watch("time");
+  const selectedTelephone = appointmentForm.form.watch("telephone");
+
+  const formattedTelephone = selectedTelephone
+    ? selectedTelephone.replace(/(\d{4})(\d{3})(\d{3,4})/, "$1-$2-$3")
+    : "—";
 
   const sidebarSubtitles = [
     selectedDate
       ? format(selectedDate, "EEE dd 'de' MMMM", { locale: es })
       : "Elegí una fecha",
     selectedTime || "Elegí tu hora",
-    "—",
+    formattedTelephone,
     "—",
     "—",
   ];
+
+  const visibleStepNames = STEP_NAMES.slice(0, totalSteps);
 
   const currentHeading = STEP_HEADINGS[currentStep - 1];
 
@@ -218,7 +225,7 @@ function AppointmentFormInner({
       <div className="flex flex-1 min-h-0">
         {/* ── Desktop sidebar ── */}
         <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-border-subtle dark:border-zinc-800 py-8 px-4 gap-1">
-          {STEP_NAMES.map((name, i) => (
+          {visibleStepNames.map((name, i) => (
             <SidebarStep
               key={i}
               stepNumber={i + 1}
@@ -258,7 +265,7 @@ function AppointmentFormInner({
             {/* Step content — constrained width, no card wrapper */}
             <div className="lg:max-w-lg">
               {currentStep === 1 && (
-                <DateStep appointmentForm={appointmentForm} hideHeader />
+                <DateStep appointmentForm={appointmentForm} hideHeader allowToday={isEditing} />
               )}
               {currentStep === 2 && (
                 <HourStep appointmentForm={appointmentForm} hideHeader />
@@ -273,7 +280,7 @@ function AppointmentFormInner({
                   hideHeader
                 />
               )}
-              {currentStep === 5 && (
+              {currentStep === 5 && !isEditing && (
                 <PaymentStep
                   appointmentForm={appointmentForm}
                   bookingCost={bookingCost}
