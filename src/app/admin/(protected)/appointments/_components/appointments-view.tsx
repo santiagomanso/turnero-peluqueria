@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
 import { useAdminAppointments } from "../_hooks/use-appointments";
@@ -19,8 +20,17 @@ const AppointmentsMobileDropdown = dynamic(
 
 export default function AdminAppointments() {
   const vm = useAdminAppointments();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const dateParam = searchParams.get("date");
+    if (dateParam) {
+      const parsed = new Date(dateParam + "T12:00:00.000Z");
+      if (!isNaN(parsed.getTime())) {
+        vm.handleDateSelect(parsed);
+        return;
+      }
+    }
     if (!vm.hasFetched) {
       vm.fetchAppointments(vm.selectedDate);
     }
