@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -26,10 +26,8 @@ import {
   isTodayFromISO,
 } from "@/lib/format-date";
 import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
-import {
-  getUnifiedPaymentsAction,
-  type UnifiedPaymentRow,
-} from "@/app/admin/_actions/get-payments";
+import { type UnifiedPaymentRow } from "@/app/admin/_actions/get-payments";
+import { usePayments } from "../_hooks/use-payments";
 import { getOrderByIdAction } from "@/app/admin/(protected)/shop/_actions/get-orders";
 import { getAppointmentByIdAction } from "@/app/appointments/_actions/get-by-id";
 import { OrderDetailPanel } from "@/app/admin/(protected)/shop/_components/order-detail-panel";
@@ -479,34 +477,26 @@ export function PaymentsView() {
   const [specificDate, setSpecificDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd"),
   );
-  const [payments, setPayments] = useState<UnifiedPaymentRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { cache, isLoading, fetchPayments, refreshPayments } = usePayments();
+  const payments: UnifiedPaymentRow[] = cache[specificDate] ?? [];
 
   // Detail panel state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [loadingPaymentId, setLoadingPaymentId] = useState<string | null>(null);
 
-  const loadPayments = useCallback(async (date: string) => {
-    setIsLoading(true);
-    const result = await getUnifiedPaymentsAction(date);
-    if (result.success) setPayments(result.data);
-    setIsLoading(false);
-  }, []);
-
-  // Load on mount
   useEffect(() => {
-    loadPayments(specificDate);
+    fetchPayments(specificDate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleDateChange(date: string) {
     setSpecificDate(date);
-    loadPayments(date);
+    fetchPayments(date);
   }
 
   function handleRefresh() {
-    loadPayments(specificDate);
+    refreshPayments(specificDate);
   }
 
   async function handleViewDetail(payment: UnifiedPaymentRow) {
