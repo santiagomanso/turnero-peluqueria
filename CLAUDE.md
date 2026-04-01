@@ -138,6 +138,24 @@ All admin pages pass the same dropdown component to both `desktopControls` and `
 
 ## COMPONENT CONVENTIONS
 
+### NEVER define components inside other components
+
+Components defined inside a render function are recreated on every render, causing state resets and ESLint `react-hooks/static-components` errors. Always declare them at module level and pass dependencies as props.
+
+```tsx
+// ❌ WRONG — defined inside ProductosTab
+function ProductosTab() {
+  function ProductGrid({ items }) { ... } // recreated every render
+  return <ProductGrid items={filtered} />;
+}
+
+// ✅ CORRECT — defined at module level
+function ProductGrid({ items, onEdit, ... }) { ... }
+function ProductosTab() {
+  return <ProductGrid items={filtered} onEdit={handleEdit} ... />;
+}
+```
+
 ### Break large components into smaller focused ones
 
 - If a component is > ~150 lines, consider extracting sub-components

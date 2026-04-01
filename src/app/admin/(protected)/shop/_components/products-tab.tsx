@@ -10,10 +10,12 @@ import {
   ChevronDown,
   ChevronRight,
   Star,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,15 +33,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { getProductsAction } from "../_actions/get-products";
 import { deleteProductAction } from "../_actions/delete-product";
 import { toggleProductActiveAction } from "../_actions/update-product";
 import { SHOP_CATEGORIES, type Product } from "@/types/shop";
 import { ProductModal } from "./product-modal";
-import { useAsyncData } from "../_hooks/use-async-data";
+import { useProducts } from "../_hooks/use-products";
 import {
   SHOP_ACTIVE_CATEGORY_EVENT,
   SHOP_SELECT_CATEGORY_EVENT,
+  SHOP_FILTER_STATUS_EVENT,
+  type StatusFilter,
 } from "@/app/admin/_components/shop-mobile-controls";
 import Image from "next/image";
 import ShopCategoriesBento from "@/app/shop/_components/shop-categories-bento";
@@ -95,7 +98,7 @@ function AdminProductCard({
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-contain"
           />
         ) : (
           <Package
@@ -126,29 +129,30 @@ function AdminProductCard({
         </span>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 pt-1.5 border-t border-border-subtle dark:border-zinc-800">
+        <div className="flex items-center gap-1.5 pt-1.5 border-t border-border-subtle dark:border-zinc-800">
+          <div className="flex items-center gap-1.5 flex-1">
+            <Switch
+              size="sm"
+              checked={product.active}
+              onCheckedChange={() => onToggleActive(product)}
+              className="data-[state=checked]:bg-blue-500"
+            />
+            <span className="text-[0.6rem] font-medium text-content-secondary dark:text-zinc-400">
+              {product.active ? "Activo" : "Inactivo"}
+            </span>
+          </div>
           <button
-            onClick={() => onToggleActive(product)}
-            className="flex-1 text-[0.6rem] font-medium py-1 rounded-lg text-content-secondary dark:text-zinc-400 hover:bg-surface dark:hover:bg-zinc-800 transition-colors"
-          >
-            {product.active ? "Desactivar" : "Activar"}
-          </button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100"
             onClick={() => onEdit(product)}
+            className="flex items-center justify-center h-7 w-7 rounded-md border border-border-subtle dark:border-zinc-700 text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100 hover:bg-surface dark:hover:bg-zinc-800 transition-colors"
           >
-            <Pencil size={12} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="text-content-tertiary dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400"
+            <Pencil size={13} />
+          </button>
+          <button
             onClick={() => onDelete(product)}
+            className="flex items-center justify-center h-7 w-7 rounded-md border border-border-subtle dark:border-zinc-700 text-content-tertiary dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
           >
-            <Trash2 size={12} />
-          </Button>
+            <Trash2 size={13} />
+          </button>
         </div>
       </div>
     </div>
@@ -195,16 +199,125 @@ function CategoryFilter({
   );
 }
 
+// ─── Search bar ─────────────────────────────────────────────────────────────
+
+function SearchBar({
+  search,
+  onSearch,
+  className,
+}: {
+  search: string;
+  onSearch: (v: string) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-lg px-3 py-2 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900",
+        className,
+      )}
+    >
+      <Search size={15} className="text-content-tertiary dark:text-zinc-500 shrink-0" />
+      <input
+        className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
+        placeholder="Buscar producto..."
+        value={search}
+        onChange={(e) => onSearch(e.target.value)}
+      />
+      {search.trim().length > 0 && (
+        <button onClick={() => onSearch("")}>
+          <X size={14} className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-300 transition-colors" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Product grid ───────────────────────────────────────────────────────────
+
+function ProductGrid({
+  items,
+  totalProducts,
+  onToggleActive,
+  onEdit,
+  onDelete,
+  onOpenCreate,
+}: {
+  items: Product[];
+  totalProducts: number;
+  onToggleActive: (p: Product) => void;
+  onEdit: (p: Product) => void;
+  onDelete: (p: Product) => void;
+  onOpenCreate: () => void;
+}) {
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 gap-3">
+        <Package
+          size={36}
+          className="text-content-quaternary dark:text-zinc-600 opacity-25"
+        />
+        <p className="text-sm text-content-tertiary dark:text-zinc-500 text-center">
+          {totalProducts === 0
+            ? "Todavía no hay productos. ¡Creá el primero!"
+            : "No se encontraron productos"}
+        </p>
+        {totalProducts === 0 && (
+          <Button
+            className="bg-gold text-white hover:bg-gold/90"
+            size="sm"
+            onClick={onOpenCreate}
+          >
+            <Plus size={15} />
+            Crear producto
+          </Button>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="flex-1 overflow-y-auto pb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {items.map((product) => (
+          <AdminProductCard
+            key={product.id}
+            product={product}
+            onToggleActive={onToggleActive}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Counter ─────────────────────────────────────────────────────────────────
+
+function Counter({
+  count,
+  statusFilter,
+}: {
+  count: number;
+  statusFilter: StatusFilter;
+}) {
+  return (
+    <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest">
+      {count} producto{count !== 1 ? "s" : ""}
+      {statusFilter !== "todos" && (
+        <span className="ml-1.5 normal-case">· {statusFilter}</span>
+      )}
+    </p>
+  );
+}
+
 // ─── Main component ─────────────────────────────────────────────────────────
 
 export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
-  const {
-    data: products,
-    setData: setProducts,
-    isLoading,
-  } = useAsyncData<Product>(getProductsAction, "products");
+  const { products, setProducts, isLoading, fetchProducts } = useProducts();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [modalProduct, setModalProduct] = useState<Product | undefined>(
     undefined,
   );
@@ -226,6 +339,10 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   );
 
   useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
     registerOpenCreate?.(() => {
       setModalProduct(undefined);
       setIsModalOpen(true);
@@ -235,10 +352,14 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent(SHOP_ACTIVE_CATEGORY_EVENT, {
-        detail: { category: selectedCategory, gestorActive: true },
+        detail: {
+          category: selectedCategory,
+          gestorActive: true,
+          statusFilter,
+        },
       }),
     );
-  }, [selectedCategory]);
+  }, [selectedCategory, statusFilter]);
 
   useEffect(() => {
     return () => {
@@ -261,13 +382,38 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     return () => window.removeEventListener(SHOP_SELECT_CATEGORY_EVENT, handle);
   }, []);
 
+  useEffect(() => {
+    function handle(e: Event) {
+      const { statusFilter } = (
+        e as CustomEvent<{ statusFilter: StatusFilter }>
+      ).detail;
+      setStatusFilter(statusFilter);
+    }
+    window.addEventListener(SHOP_FILTER_STATUS_EVENT, handle);
+    return () => window.removeEventListener(SHOP_FILTER_STATUS_EVENT, handle);
+  }, []);
+
+  const isSearching = search.trim().length > 0;
+
+  const applyStatusFilter = (p: Product) =>
+    statusFilter === "todos" ||
+    (statusFilter === "activos" ? p.active : !p.active);
+
+  const globalResults = isSearching
+    ? products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(search.toLowerCase()) &&
+          applyStatusFilter(p),
+      )
+    : [];
+
   const filtered =
     selectedCategory === null
       ? []
       : products.filter(
           (p) =>
             (selectedCategory === "todas" || p.category === selectedCategory) &&
-            p.name.toLowerCase().includes(search.toLowerCase()),
+            applyStatusFilter(p),
         );
 
   function handleOpenCreate() {
@@ -289,8 +435,18 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   }
 
   async function handleToggleActive(product: Product) {
+    // Optimistic update — flip immediately so the switch feels instant
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, active: !p.active } : p)),
+    );
     const result = await toggleProductActiveAction(product.id);
     if (!result.success || !result.product) {
+      // Revert on error
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, active: product.active } : p,
+        ),
+      );
       toast.error(result.error ?? "Error al cambiar el estado");
       return;
     }
@@ -336,11 +492,50 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {selectedCategory === null ? (
-        /* ── Categories bento view ───────────────────────────────── */
+    <div className="h-full flex flex-col gap-3">
+
+      {/* ── Controles — siempre visibles ── */}
+      <div className="shrink-0">
+        {/* Desktop: una sola fila */}
+        <div className="hidden sm:flex gap-2 items-center">
+          <SearchBar search={search} onSearch={setSearch} className="flex-1" />
+          <CategoryFilter
+            value={selectedCategory ?? "todas"}
+            onChange={handleDropdownCategory}
+          />
+          <Button
+            className="bg-gold text-white hover:bg-gold/90 shrink-0"
+            onClick={handleOpenCreate}
+          >
+            <Plus size={15} />
+            Nuevo producto
+          </Button>
+        </div>
+        {/* Mobile: solo search */}
+        <div className="sm:hidden">
+          <SearchBar search={search} onSearch={setSearch} />
+        </div>
+      </div>
+
+      {/* ── Contenido ── */}
+      {isSearching ? (
+        /* Resultados de búsqueda global */
+        <>
+          <Counter count={globalResults.length} statusFilter={statusFilter} />
+          <div className="flex-1 flex flex-col min-h-0">
+            <ProductGrid
+              items={globalResults}
+              totalProducts={products.length}
+              onToggleActive={handleToggleActive}
+              onEdit={handleOpenEdit}
+              onDelete={handleDelete}
+              onOpenCreate={handleOpenCreate}
+            />
+          </div>
+        </>
+      ) : selectedCategory === null ? (
+        /* Bento de categorías */
         <div className="flex-1 overflow-y-auto pb-6">
-          {/* Todos los productos */}
           <button
             onClick={() => handleDropdownCategory("todas")}
             className="w-full col-span-2 rounded-2xl px-5 py-4 mb-3 text-left flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700 active:scale-[0.98] transition-transform"
@@ -357,26 +552,18 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
               {products.length}
             </span>
           </button>
-
           <ShopCategoriesBento
             categoryCounts={categoryCounts}
-            onSelect={(cat) => {
-              setSelectedCategory(cat);
-              setSearch("");
-            }}
+            onSelect={(cat) => setSelectedCategory(cat)}
           />
         </div>
       ) : (
-        /* ── Product grid for selected category ─────────────────── */
+        /* Grid de productos de la categoría seleccionada */
         <>
-          <div className="shrink-0 space-y-3 mb-3">
-            {/* Breadcrumb */}
+          <div className="shrink-0 space-y-1">
             <div className="flex items-center gap-1.5 text-[0.65rem] text-content-tertiary dark:text-zinc-500">
               <button
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setSearch("");
-                }}
+                onClick={() => setSelectedCategory(null)}
                 className="hover:text-gold transition-colors"
               >
                 Productos
@@ -388,78 +575,16 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
                   : selectedCategory}
               </span>
             </div>
-
-            {/* Search + category dropdown + nuevo producto */}
-            <div className="flex gap-2">
-              <div className="flex items-center gap-2 flex-1 rounded-md px-3 h-9 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
-                <Search
-                  size={15}
-                  className="text-content-tertiary dark:text-zinc-500 shrink-0"
-                />
-                <input
-                  className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
-                  placeholder="Buscar producto..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <div className="hidden sm:flex gap-2">
-                <CategoryFilter
-                  value={selectedCategory}
-                  onChange={handleDropdownCategory}
-                />
-                <Button
-                  className="bg-gold text-white hover:bg-gold/90 shrink-0"
-                  onClick={handleOpenCreate}
-                >
-                  <Plus size={15} />
-                  Nuevo producto
-                </Button>
-              </div>
-            </div>
-
-            <p className="text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest">
-              {filtered.length} producto{filtered.length !== 1 ? "s" : ""}
-            </p>
+            <Counter count={filtered.length} statusFilter={statusFilter} />
           </div>
-
-          {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 gap-3">
-              <Package
-                size={36}
-                className="text-content-quaternary dark:text-zinc-600 opacity-25"
-              />
-              <p className="text-sm text-content-tertiary dark:text-zinc-500 text-center">
-                {products.length === 0
-                  ? "Todavía no hay productos. ¡Creá el primero!"
-                  : "No se encontraron productos"}
-              </p>
-              {products.length === 0 && (
-                <Button
-                  className="bg-gold text-white hover:bg-gold/90"
-                  size="sm"
-                  onClick={handleOpenCreate}
-                >
-                  <Plus size={15} />
-                  Crear producto
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto pb-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {filtered.map((product) => (
-                  <AdminProductCard
-                    key={product.id}
-                    product={product}
-                    onToggleActive={handleToggleActive}
-                    onEdit={handleOpenEdit}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          <ProductGrid
+            items={filtered}
+            totalProducts={products.length}
+            onToggleActive={handleToggleActive}
+            onEdit={handleOpenEdit}
+            onDelete={handleDelete}
+            onOpenCreate={handleOpenCreate}
+          />
         </>
       )}
 
