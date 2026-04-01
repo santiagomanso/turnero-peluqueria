@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Card Redesigns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #b8943f;
+    --gold-light: #d4aa5a;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --subtle: #a8a8a8;
+    --border: #e5e5e5;
+    --surface: #f7f7f5;
+    --white: #ffffff;
+  }
+
+  body {
+    background: #f0ede8;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    padding: 48px 24px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .page-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .page-header p {
+    color: var(--muted);
+    margin-top: 8px;
+    font-size: 0.95rem;
+  }
+
+  .section {
+    max-width: 900px;
+    margin: 0 auto 72px;
+  }
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .section-label .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(184,148,63,0.1);
+    border: 1px solid rgba(184,148,63,0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .section-label h2 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .grid-1 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ─────────────────────────────────────────────
+     OPCIÓN A — "Polaroid clean"
+     Imagen cuadrada, fondo blanco puro, sombra suave
+  ───────────────────────────────────────────── */
+  .card-a {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .card-a:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.1); }
+  .card-a .img-wrap {
+    position: relative;
+    aspect-ratio: 1;
+    background: #f5f4f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-a .img-wrap img { width: 75%; height: 75%; object-fit: contain; }
+  .card-a .badge-inactive {
+    position: absolute; top: 10px; left: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.6rem; font-weight: 500;
+    padding: 3px 8px; border-radius: 100px;
+    background: rgba(0,0,0,0.65); color: #fff;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    backdrop-filter: blur(4px);
+  }
+  .card-a .badge-stock {
+    position: absolute; bottom: 10px; right: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.85); color: var(--muted);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+  .card-a .body { padding: 14px 16px 16px; }
+  .card-a .name {
+    font-size: 0.875rem; font-weight: 600;
+    color: var(--ink); line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .card-a .desc {
+    font-size: 0.75rem; color: var(--subtle);
+    line-height: 1.4; margin-bottom: 10px;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-a .price {
+    font-size: 1rem; font-weight: 700;
+    color: var(--ink); margin-bottom: 12px;
+  }
+  .card-a .actions {
+    display: flex; align-items: center; gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .card-a .btn-primary {
+    flex: 1; font-size: 0.72rem; font-weight: 600;
+    padding: 7px 12px; border-radius: 8px;
+    background: var(--gold); color: #fff; border: none;
+    cursor: pointer; letter-spacing: 0.01em;
+    transition: background 0.15s;
+  }
+  .card-a .btn-primary:hover { background: var(--gold-light); }
+  .card-a .btn-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+  }
+  .card-a .btn-icon:hover { background: var(--surface); color: var(--ink); }
+  .card-a .btn-icon.danger:hover { background: #fff0f0; color: #e03; border-color: #fcc; }
+
+  /* ─────────────────────────────────────────────
+     OPCIÓN B — "Horizontal strip"
+     Imagen a la izquierda, info a la derecha
+  ───────────────────────────────────────────── */
+  .card-b {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    display: flex;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .card-b:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .card-b .img-wrap {
+    width: 100px; flex-shrink: 0;
+    background: #f5f4f1;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-b .img-wrap img { width: 70%; height: 70%; object-fit: contain; }
+  .card-b .badge-inactive {
+    position: absolute; top: 6px; left: 6px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.55rem; font-weight: 500;
+    padding: 2px 6px; border-radius: 100px;
+    background: rgba(0,0,0,0.65); color: #fff;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .card-b .body {
+    flex: 1; padding: 12px 14px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+  .card-b .top .name {
+    font-size: 0.82rem; font-weight: 600; color: var(--ink);
+    line-height: 1.3; margin-bottom: 3px;
+  }
+  .card-b .top .desc {
+    font-size: 0.7rem; color: var(--subtle);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-b .bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px;
+  }
+  .card-b .price { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+  .card-b .meta {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-b .stock-pill {
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.6rem; color: var(--subtle);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 7px;
+  }
+  .card-b .btn-activate {
+    font-size: 0.68rem; font-weight: 600;
+    padding: 5px 10px; border-radius: 7px;
+    background: rgba(184,148,63,0.1); color: var(--gold);
+    border: 1px solid rgba(184,148,63,0.25); cursor: pointer;
+    transition: background 0.15s;
+  }
+  .card-b .btn-activate:hover { background: rgba(184,148,63,0.18); }
+  .card-b .btn-icon {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1px solid var(--border); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); font-size: 12px;
+    transition: background 0.15s;
+  }
+  .card-b .btn-icon:hover { background: var(--surface); }
+
+  /* ─────────────────────────────────────────────
+     OPCIÓN C — "Dark & Premium"
+     Fondo oscuro, acentos dorados
+  ───────────────────────────────────────────── */
+  .card-c {
+    background: #18181b;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #2a2a2e;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card-c:hover { border-color: rgba(184,148,63,0.4); transform: translateY(-1px); }
+  .card-c .img-wrap {
+    position: relative; aspect-ratio: 4/3;
+    background: #111;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-c .img-wrap img { width: 65%; height: 65%; object-fit: contain; }
+  .card-c .badge-inactive {
+    position: absolute; top: 10px; left: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.58rem; font-weight: 500;
+    padding: 3px 8px; border-radius: 100px;
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .card-c .badge-stock {
+    position: absolute; bottom: 10px; right: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .card-c .body { padding: 14px 16px 16px; }
+  .card-c .name { font-size: 0.85rem; font-weight: 600; color: #f4f4f5; line-height: 1.3; margin-bottom: 3px; }
+  .card-c .desc { font-size: 0.72rem; color: #71717a; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-c .price { font-size: 1rem; font-weight: 700; color: var(--gold-light); margin-bottom: 12px; }
+  .card-c .actions { display: flex; align-items: center; gap: 6px; padding-top: 10px; border-top: 1px solid #2a2a2e; }
+  .card-c .btn-primary {
+    flex: 1; font-size: 0.72rem; font-weight: 600;
+    padding: 7px 12px; border-radius: 8px;
+    background: rgba(184,148,63,0.15); color: var(--gold-light);
+    border: 1px solid rgba(184,148,63,0.3); cursor: pointer;
+    transition: background 0.15s;
+  }
+  .card-c .btn-primary:hover { background: rgba(184,148,63,0.25); }
+  .card-c .btn-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid #2a2a2e; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #71717a; font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .card-c .btn-icon:hover { background: #222; color: #a1a1aa; }
+
+  /* ─────────────────────────────────────────────
+     OPCIÓN D — "Imagen grande / visual first"
+     Imagen cuadrada ocupa todo el ancho
+     Texto en capa frosted glass superpuesto
+  ───────────────────────────────────────────── */
+  .card-d {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 3/4;
+    cursor: pointer;
+    background: #f0ede6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.25s;
+  }
+  .card-d:hover { transform: scale(1.015); }
+  .card-d img { width: 100%; height: 100%; object-fit: contain; padding: 16px; }
+  .card-d .overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 14px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 60%, transparent 100%);
+  }
+  .card-d .badge-inactive {
+    position: absolute; top: 10px; left: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.58rem; font-weight: 500;
+    padding: 3px 8px; border-radius: 100px;
+    background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.8);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    backdrop-filter: blur(6px);
+  }
+  .card-d .badge-stock {
+    position: absolute; top: 10px; right: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);
+    backdrop-filter: blur(6px);
+  }
+  .card-d .name { font-size: 0.82rem; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 2px; }
+  .card-d .price { font-size: 0.95rem; font-weight: 700; color: var(--gold-light); margin-bottom: 10px; }
+  .card-d .actions { display: flex; gap: 6px; }
+  .card-d .btn-primary {
+    flex: 1; font-size: 0.68rem; font-weight: 600;
+    padding: 7px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(255,255,255,0.25); cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.15s;
+  }
+  .card-d .btn-primary:hover { background: rgba(255,255,255,0.25); }
+  .card-d .btn-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: rgba(255,255,255,0.6); font-size: 12px;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ─────────────────────────────────────────────
+     OPCIÓN E — "Editorial / Syne"
+     Tipografía Syne, borde izquierdo de color según estado
+     Minimalista con mucho peso tipográfico
+  ───────────────────────────────────────────── */
+  .card-e {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    border: 1px solid var(--border);
+    border-left: 3px solid #e5e5e5;
+    cursor: pointer;
+    transition: border-left-color 0.2s, box-shadow 0.2s;
+  }
+  .card-e.inactive { border-left-color: #f59e0b; }
+  .card-e.active { border-left-color: #10b981; }
+  .card-e:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+  .card-e .img-wrap {
+    width: 90px; flex-shrink: 0;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-e .img-wrap img { width: 72%; height: 72%; object-fit: contain; }
+  .card-e .body {
+    flex: 1; padding: 13px 14px; min-width: 0;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .card-e .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-e .name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--ink); line-height: 1.25;
+  }
+  .card-e .status-pill {
+    font-size: 0.6rem; font-weight: 600;
+    padding: 2px 7px; border-radius: 100px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .card-e .status-pill.inactive { background: #fef3c7; color: #92400e; }
+  .card-e .status-pill.active { background: #d1fae5; color: #065f46; }
+  .card-e .desc { font-size: 0.7rem; color: var(--subtle); line-height: 1.4; }
+  .card-e .bottom-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 6px;
+  }
+  .card-e .price {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem; font-weight: 800; color: var(--ink);
+  }
+  .card-e .right-actions { display: flex; align-items: center; gap: 5px; }
+  .card-e .btn-activate {
+    font-size: 0.65rem; font-weight: 600; padding: 4px 9px; border-radius: 6px;
+    background: rgba(184,148,63,0.1); color: var(--gold); border: 1px solid rgba(184,148,63,0.2);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .card-e .btn-activate:hover { background: rgba(184,148,63,0.2); }
+  .card-e .btn-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    border: 1px solid var(--border); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); font-size: 11px;
+  }
+  .card-e .btn-icon:hover { background: var(--surface); }
+  .card-e .stock-tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.6rem; color: var(--subtle); margin-left: 8px;
+  }
+
+  /* ─────────────────────────────────────────────
+     OPCIÓN F — "Compact 3-col"
+     3 columnas, muy compactas, imagen arriba
+     Enfocado en densidad de info
+  ───────────────────────────────────────────── */
+  .card-f {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+  .card-f:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .card-f .img-wrap {
+    aspect-ratio: 1; background: #f5f4f1; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-f .img-wrap img { width: 75%; height: 75%; object-fit: contain; }
+  .card-f .dot-inactive {
+    position: absolute; top: 7px; left: 7px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245,158,11,0.2);
+  }
+  .card-f .dot-active {
+    position: absolute; top: 7px; left: 7px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #10b981;
+  }
+  .card-f .badge-stock {
+    position: absolute; bottom: 6px; right: 6px;
+    font-family: 'Geist Mono', monospace; font-size: 0.55rem;
+    padding: 2px 6px; border-radius: 5px;
+    background: rgba(255,255,255,0.85); color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px);
+  }
+  .card-f .body { padding: 10px; }
+  .card-f .name { font-size: 0.75rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 2px; }
+  .card-f .desc { font-size: 0.65rem; color: var(--subtle); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-f .price { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .card-f .actions { display: flex; gap: 4px; }
+  .card-f .btn-primary {
+    flex: 1; font-size: 0.62rem; font-weight: 600;
+    padding: 5px 8px; border-radius: 6px;
+    background: rgba(184,148,63,0.1); color: var(--gold);
+    border: 1px solid rgba(184,148,63,0.2); cursor: pointer;
+  }
+  .card-f .btn-icon {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1px solid var(--border); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); font-size: 11px;
+  }
+
+  /* ─────────────────────────────────────────────
+     SVG Icons
+  ───────────────────────────────────────────── */
+  .icon { display: inline-flex; align-items: center; justify-content: center; }
+
+  /* Section context note */
+  .note {
+    font-size: 0.75rem; color: var(--subtle);
+    margin-top: 8px; line-height: 1.5;
+  }
+  .note strong { color: var(--muted); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Product Card — Opciones de diseño</h1>
+  <p>6 propuestas para el gestor de productos · Mismos datos, distintos enfoques</p>
+</div>
+
+<!-- ─── OPCIÓN A ─────────────────────────────── -->
+<div class="section">
+  <div class="section-label">
+    <span class="num">A</span>
+    <h2>Polaroid Clean — cuadrada, sombra suave, imagen grande</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid-2">
+
+    <!-- Inactive -->
+    <div class="card-a">
+      <div class="img-wrap">
+        <img src="https://via.placeholder.com/300x300/f0ede6/b8943f?text=🧴" alt="producto" onerror="this.style.display='none'">
+        <svg style="width:56px;height:56px;opacity:0.2" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        <span class="badge-inactive">Inactivo</span>
+        <span class="badge-stock">Stock: 3</span>
+      </div>
+      <div class="body">
+        <div class="name">Kit Shampoo y Acondicionador almendras y argán</div>
+        <div class="desc">Ideal cabellos resecos y sin brillo · 250ml</div>
+        <div class="price">$12.000</div>
+        <div class="actions">
+          <button class="btn-primary">Activar</button>
+          <button class="btn-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon danger">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active -->
+    <div class="card-a">
+      <div class="img-wrap">
+        <svg style="width:60px;height:60px;opacity:0.15" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M6 21v-1a6 6 0 0 1 12 0v1"/></svg>
+        <span class="badge-stock">Stock: 6</span>
+      </div>
+      <div class="body">
+        <div class="name">Baño de crema 240gr</div>
+        <div class="desc">Coco y Keratina · Nutre y da brillo al instante</div>
+        <div class="price">$5.900</div>
+        <div class="actions">
+          <button class="btn-primary" style="background:transparent;color:#71717a;border:1px solid #e5e5e5;">Desactivar</button>
+          <button class="btn-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon danger">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note"><strong>Enfoque:</strong> Imagen cuadrada → las botellas tienen espacio vertical real. Sombra suave, sin borde visible. Compacto pero con buena jerarquía tipográfica. Botón de acción prominente en dorado.</p>
+</div>
+
+<!-- ─── OPCIÓN B ─────────────────────────────── -->
+<div class="section">
+  <div class="section-label">
+    <span class="num">B</span>
+    <h2>Horizontal Strip — imagen izquierda, info derecha</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid-1">
+
+    <div class="card-b">
+      <div class="img-wrap">
+        <svg style="width:44px;height:44px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        <span class="badge-inactive">INACTIVO</span>
+      </div>
+      <div class="body">
+        <div class="top">
+          <div class="name">Kit Shampoo y Acondicionador almendras y argán</div>
+          <div class="desc">Ideal cabellos resecos y sin brillo · 250ml</div>
+        </div>
+        <div class="bottom">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="price">$12.000</span>
+            <span class="stock-pill">Stock 3</span>
+          </div>
+          <div class="meta">
+            <button class="btn-activate">Activar</button>
+            <button class="btn-icon">✏️</button>
+            <button class="btn-icon">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-b">
+      <div class="img-wrap">
+        <svg style="width:44px;height:44px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        <span class="badge-inactive">INACTIVO</span>
+      </div>
+      <div class="body">
+        <div class="top">
+          <div class="name">Kit Shampoo y Acondicionador pH ácido</div>
+          <div class="desc">Ideal para el cuidado del cabello teñido o alisado · 250ml</div>
+        </div>
+        <div class="bottom">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="price">$12.000</span>
+            <span class="stock-pill">Stock 3</span>
+          </div>
+          <div class="meta">
+            <button class="btn-activate">Activar</button>
+            <button class="btn-icon">✏️</button>
+            <button class="btn-icon">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-b" style="border-left:3px solid #10b981;">
+      <div class="img-wrap">
+        <svg style="width:44px;height:44px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="body">
+        <div class="top">
+          <div class="name">Baño de crema 240gr</div>
+          <div class="desc">Coco y Keratina · Nutre y da brillo al instante</div>
+        </div>
+        <div class="bottom">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="price">$5.900</span>
+            <span class="stock-pill">Stock 6</span>
+          </div>
+          <div class="meta">
+            <button class="btn-activate" style="color:#065f46;background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.2);">Desactivar</button>
+            <button class="btn-icon">✏️</button>
+            <button class="btn-icon">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p class="note"><strong>Enfoque:</strong> Máxima densidad. Se pueden ver 8-10 productos sin hacer scroll. Borde izquierdo verde/amarillo para indicar estado de un vistazo. Ideal si hay muchos productos (64+).</p>
+</div>
+
+<!-- ─── OPCIÓN C ─────────────────────────────── -->
+<div class="section">
+  <div class="section-label">
+    <span class="num">C</span>
+    <h2>Dark & Premium — oscuro con acentos dorados</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid-2">
+    <div class="card-c">
+      <div class="img-wrap">
+        <svg style="width:56px;height:56px;opacity:0.12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        <span class="badge-inactive">Inactivo</span>
+        <span class="badge-stock">Stock: 3</span>
+      </div>
+      <div class="body">
+        <div class="name">Kit Shampoo y Acondicionador almendras y argán</div>
+        <div class="desc">Ideal cabellos resecos y sin brillo · 250ml</div>
+        <div class="price">$12.000</div>
+        <div class="actions">
+          <button class="btn-primary">Activar</button>
+          <button class="btn-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-c">
+      <div class="img-wrap">
+        <svg style="width:56px;height:56px;opacity:0.12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="badge-stock">Stock: 6</span>
+      </div>
+      <div class="body">
+        <div class="name">Baño de crema 240gr</div>
+        <div class="desc">Coco y Keratina · Nutre y da brillo al instante</div>
+        <div class="price">$5.900</div>
+        <div class="actions">
+          <button class="btn-primary" style="color:#a1a1aa;background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);">Desactivar</button>
+          <button class="btn-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note"><strong>Enfoque:</strong> Consistente con el dark mode que ya tiene el admin. Precio en dorado visible. Se integra naturalmente si el admin está en modo oscuro.</p>
+</div>
+
+<!-- ─── OPCIÓN D ─────────────────────────────── -->
+<div class="section">
+  <div class="section-label">
+    <span class="num">D</span>
+    <h2>Visual First — imagen 3/4, texto superpuesto frosted</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid-2">
+    <div class="card-d">
+      <svg style="width:40%;height:40%;opacity:0.15;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+      <span class="badge-inactive">Inactivo</span>
+      <span class="badge-stock">Stock: 3</span>
+      <div class="overlay">
+        <div class="name">Kit Shampoo y Acondicionador almendras y argán</div>
+        <div class="price">$12.000</div>
+        <div class="actions">
+          <button class="btn-primary">Activar</button>
+          <button class="btn-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-d" style="background:#e8e4de;">
+      <svg style="width:40%;height:40%;opacity:0.12;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="badge-stock">Stock: 6</span>
+      <div class="overlay">
+        <div class="name">Baño de crema 240gr</div>
+        <div class="price">$5.900</div>
+        <div class="actions">
+          <button class="btn-primary" style="color:rgba(255,255,255,0.7);">Desactivar</button>
+          <button class="btn-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note"><strong>Enfoque:</strong> La imagen domina completamente. Muy visual, ideal para productos fotogénicos. Aspecto ratio 3:4 da espacio real a las botellas. Los controles aparecen como overlay sobre la foto.</p>
+</div>
+
+<!-- ─── OPCIÓN E ─────────────────────────────── -->
+<div class="section">
+  <div class="section-label">
+    <span class="num">E</span>
+    <h2>Editorial — borde color por estado, tipografía Syne bold</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid-1">
+    <div class="card-e inactive">
+      <div class="img-wrap" style="width:90px;">
+        <svg style="width:44px;height:44px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+      </div>
+      <div class="body">
+        <div class="top-row">
+          <div class="name">Kit Shampoo y Acondicionador almendras y argán</div>
+          <span class="status-pill inactive">Inactivo</span>
+        </div>
+        <div class="desc">Ideal cabellos resecos y sin brillo · 250ml</div>
+        <div class="bottom-row">
+          <div style="display:flex;align-items:center;">
+            <span class="price">$12.000</span>
+            <span class="stock-tag">· Stock 3</span>
+          </div>
+          <div class="right-actions">
+            <button class="btn-activate">Activar</button>
+            <button class="btn-icon">✏️</button>
+            <button class="btn-icon">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-e inactive">
+      <div class="img-wrap" style="width:90px;">
+        <svg style="width:44px;height:44px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+      </div>
+      <div class="body">
+        <div class="top-row">
+          <div class="name">Kit Shampoo y Acondicionador pH ácido</div>
+          <span class="status-pill inactive">Inactivo</span>
+        </div>
+        <div class="desc">Ideal para el cuidado del cabello teñido o alisado · 250ml</div>
+        <div class="bottom-row">
+          <div style="display:flex;align-items:center;">
+            <span class="price">$12.000</span>
+            <span class="stock-tag">· Stock 3</span>
+          </div>
+          <div class="right-actions">
+            <button class="btn-activate">Activar</button>
+            <button class="btn-icon">✏️</button>
+            <button class="btn-icon">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-e active">
+      <div class="img-wrap" style="width:90px;">
+        <svg style="width:44px;height:44px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="body">
+        <div class="top-row">
+          <div class="name">Baño de crema 240gr</div>
+          <span class="status-pill active">Activo</span>
+        </div>
+        <div class="desc">Coco y Keratina · Nutre y da brillo al instante</div>
+        <div class="bottom-row">
+          <div style="display:flex;align-items:center;">
+            <span class="price">$5.900</span>
+            <span class="stock-tag">· Stock 6</span>
+          </div>
+          <div class="right-actions">
+            <button class="btn-activate" style="color:#065f46;background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.15);">Desactivar</button>
+            <button class="btn-icon">✏️</button>
+            <button class="btn-icon">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note"><strong>Enfoque:</strong> Lista editorial. El borde izquierdo de color (amarillo = inactivo, verde = activo) da contexto de estado instantáneo. Tipografía Syne extra-bold para el precio. Muy escaneable para gestión masiva.</p>
+</div>
+
+<!-- ─── OPCIÓN F ─────────────────────────────── -->
+<div class="section">
+  <div class="section-label">
+    <span class="num">F</span>
+    <h2>Compact 3-col — máxima densidad, 3 columnas</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid-3">
+    <div class="card-f">
+      <div class="img-wrap">
+        <svg style="width:48px;height:48px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        <span class="dot-inactive"></span>
+        <span class="badge-stock">Stock: 3</span>
+      </div>
+      <div class="body">
+        <div class="name">Kit Shampoo almendras y argán</div>
+        <div class="desc">250ml · cabellos resecos</div>
+        <div class="price">$12.000</div>
+        <div class="actions">
+          <button class="btn-primary">Activar</button>
+          <button class="btn-icon">✏️</button>
+          <button class="btn-icon">🗑</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-f">
+      <div class="img-wrap">
+        <svg style="width:48px;height:48px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        <span class="dot-inactive"></span>
+        <span class="badge-stock">Stock: 3</span>
+      </div>
+      <div class="body">
+        <div class="name">Kit Shampoo pH ácido</div>
+        <div class="desc">250ml · cabello teñido</div>
+        <div class="price">$12.000</div>
+        <div class="actions">
+          <button class="btn-primary">Activar</button>
+          <button class="btn-icon">✏️</button>
+          <button class="btn-icon">🗑</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-f">
+      <div class="img-wrap">
+        <svg style="width:48px;height:48px;opacity:0.18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="dot-active"></span>
+        <span class="badge-stock">Stock: 6</span>
+      </div>
+      <div class="body">
+        <div class="name">Baño de crema 240gr</div>
+        <div class="desc">Coco y Keratina</div>
+        <div class="price">$5.900</div>
+        <div class="actions">
+          <button class="btn-primary" style="color:#71717a;background:transparent;border:1px solid #e5e5e5;">Desact.</button>
+          <button class="btn-icon">✏️</button>
+          <button class="btn-icon">🗑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note"><strong>Enfoque:</strong> 3 columnas → se ven 18-24 productos por pantalla. El punto de color (verde/amarillo) arriba a la izquierda indica estado sin ocupar espacio. Pensado para gestión masiva desde desktop.</p>
+</div>
+
+</body>
+</html>

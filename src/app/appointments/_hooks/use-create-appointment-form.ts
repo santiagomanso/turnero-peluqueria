@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateAppointmentAction } from "../_actions/update";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { formatInTimeZone } from "date-fns-tz";
 import type { Appointment } from "@/types/appointment";
 import { createPaymentPreferenceAction } from "../_actions/mercadopago";
 import {
@@ -83,12 +84,11 @@ export default function useCreateAppointmentForm(
   const [isValidatingDiscount, setIsValidatingDiscount] = React.useState(false);
   const [fullDates, setFullDates] = React.useState<Date[]>([]);
 
-  const totalSteps = 5;
-
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const isEditing = !!options?.appointment;
+  const totalSteps = isEditing ? 4 : 5;
 
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
@@ -180,7 +180,8 @@ export default function useCreateAppointmentForm(
 
         if (response.success) {
           toast.success("Turno actualizado correctamente 🎉");
-          router.push("/appointments/get");
+          const dateStr = formatInTimeZone(data.date, "America/Argentina/Buenos_Aires", "yyyy-MM-dd");
+          router.push(`/admin/appointments?date=${dateStr}`);
         } else {
           toast.error(response.error ?? "Error al actualizar el turno");
         }

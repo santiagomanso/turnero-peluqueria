@@ -50,6 +50,7 @@ export default function DateStep({
     ? new Date()
     : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d; })();
 
+
   return (
     <div className="flex flex-col">
       {!hideHeader && (
@@ -93,7 +94,7 @@ export default function DateStep({
                 }}
                 locale={es}
                 disabled={isDayDisabled}
-                defaultMonth={firstAvailableMonth}
+                defaultMonth={field.value ?? firstAvailableMonth}
                 showOutsideDays={false}
                 classNames={{
                   disabled: "invisible pointer-events-none",

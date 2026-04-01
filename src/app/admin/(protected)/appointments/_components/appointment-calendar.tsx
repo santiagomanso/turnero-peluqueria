@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
 import { es } from "date-fns/locale";
+import { useRouter } from "next/navigation";
+import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -55,6 +57,7 @@ export function AppointmentCalendarBody({
   onAfterSelect,
 }: CalendarBodyProps) {
   const vm = useAdminAppointments();
+  const router = useRouter();
   const [displayMonth, setDisplayMonth] = useState(vm.selectedDate);
 
   useEffect(() => {
@@ -82,6 +85,10 @@ export function AppointmentCalendarBody({
         mode="single"
         selected={vm.selectedDate}
         onSelect={(date) => {
+          if (date) {
+            const dateStr = formatInTimeZone(date, "America/Argentina/Buenos_Aires", "yyyy-MM-dd");
+            router.replace(`/admin/appointments?date=${dateStr}`, { scroll: false });
+          }
           vm.handleDateSelect(date);
           onAfterSelect?.();
         }}

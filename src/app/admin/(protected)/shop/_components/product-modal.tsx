@@ -1,6 +1,6 @@
 "use client";
 
-import { ImagePlus, Loader2, Trash2, ChevronDown } from "lucide-react";
+import { ImagePlus, Loader2, Trash2, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,10 +75,22 @@ export function ProductModal({
         showCloseButton={false}
         className="sm:max-w-lg max-h-[92svh] p-0 gap-0 overflow-hidden flex flex-col"
       >
-        <DialogHeader className="px-5 py-4 border-b border-[#e8e4df] dark:border-zinc-800">
-          <DialogTitle>
-            {isEditing ? "Editar producto" : "Nuevo producto"}
-          </DialogTitle>
+        <DialogHeader className="px-5 py-2 border-b border-[#e8e4df] dark:border-zinc-800">
+          <div className="flex items-center justify-between">
+            <div className="w-8" />
+            <DialogTitle>
+              {isEditing ? "Editar producto" : "Nuevo producto"}
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100"
+              onClick={onClose}
+              aria-label="Cerrar"
+            >
+              <X size={18} />
+            </Button>
+          </div>
         </DialogHeader>
 
         {/* Body */}

@@ -21,6 +21,7 @@ export async function updateAppointmentAction(
     // Revalidate paths
     revalidatePath("/appointments/search");
     revalidatePath(`/appointments/${data.id}`);
+    revalidatePath("/admin/appointments");
 
     return {
       success: true,

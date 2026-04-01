@@ -174,7 +174,11 @@ export default function AppointmentCard({
     }
 
     const message = encodeURIComponent(
-      `Hola! Te escribimos desde *Luckete Colorista*\n\nAcá tenés el link para pagar tu turno ${dateLabel} a las ${appointment.time} hs:\n${url}`,
+      "Hola! Te escribimos desde *Luckete Colorista* 💇‍♀️\n\n" +
+        "Te enviamos el link para abonar tu *seña*, la cual será descontada del total del trabajo.\n\n" +
+        `Turno: ${dateLabel}\n` +
+        `Hora: ${appointment.time} hs\n\n` +
+        `Podés pagar desde acá:\n${url}`,
     );
     window.open(
       `https://wa.me/${appointment.telephone}?text=${message}`,

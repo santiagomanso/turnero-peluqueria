@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { getOrdersAction } from "../_actions/get-orders";
+import { useOrders } from "../_hooks/use-orders";
 import { OrderDetailPanel } from "./order-detail-panel";
 import { formatDateDayMonth } from "@/lib/format-date";
 import {
@@ -120,64 +120,19 @@ const STATS = [
   },
 ];
 
-// ─── Fetch function (outside component to avoid linter issues) ─────────────────
-
-type SetOrders = React.Dispatch<React.SetStateAction<Order[]>>;
-type SetCursor = React.Dispatch<React.SetStateAction<string | null>>;
-type SetBool = React.Dispatch<React.SetStateAction<boolean>>;
-
-async function fetchOrders(
-  setOrders: SetOrders,
-  setNextCursor: SetCursor,
-  setIsLoading: SetBool,
-) {
-  setIsLoading(true);
-  const result = await getOrdersAction();
-  if (result.success && result.orders) {
-    setOrders(result.orders);
-    setNextCursor(result.nextCursor ?? null);
-  }
-  setIsLoading(false);
-}
-
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-interface OrdersTabProps {
-  registerRefresh?: (fn: () => void) => void;
-}
-
-export function OrdersTab({ registerRefresh }: OrdersTabProps) {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+export function OrdersTab() {
+  const { orders, isLoading, isLoadingMore, nextCursor, fetchOrders, loadMore, updateOrderStatus } = useOrders();
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<OrderStatus | "todos">(
-    "todos",
-  );
+  const [filterStatus, setFilterStatus] = useState<OrderStatus | "todos">("todos");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const refresh = useCallback(() => {
-    fetchOrders(setOrders, setNextCursor, setIsLoading);
-  }, []);
-
   useEffect(() => {
-    refresh();
-    registerRefresh?.(refresh);
+    fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const loadMore = useCallback(async () => {
-    if (!nextCursor || isLoadingMore) return;
-    setIsLoadingMore(true);
-    const result = await getOrdersAction(nextCursor);
-    if (result.success && result.orders) {
-      setOrders((prev) => [...prev, ...result.orders!]);
-      setNextCursor(result.nextCursor ?? null);
-    }
-    setIsLoadingMore(false);
-  }, [nextCursor, isLoadingMore]);
 
   const filtered = orders.filter((o) => {
     const matchSearch =
@@ -188,7 +143,7 @@ export function OrdersTab({ registerRefresh }: OrdersTabProps) {
   });
 
   function handleUpdateStatus(id: string, status: OrderStatus) {
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    updateOrderStatus(id, status);
     setSelectedOrder((prev) => (prev?.id === id ? { ...prev, status } : prev));
   }
 
