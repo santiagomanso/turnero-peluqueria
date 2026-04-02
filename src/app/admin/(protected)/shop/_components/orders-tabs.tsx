@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useOrders } from "../_hooks/use-orders";
 import { OrderDetailPanel } from "./order-detail-panel";
 import { formatDateDayMonth } from "@/lib/format-date";
@@ -122,17 +127,31 @@ const STATS = [
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
+const LS_KEY = "orders-controls-collapsed";
+
 export function OrdersTab() {
   const { orders, isLoading, isLoadingMore, nextCursor, fetchOrders, loadMore, updateOrderStatus } = useOrders();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "todos">("todos");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [controlsCollapsed, setControlsCollapsed] = useState(false);
+
+  useEffect(() => {
+    setControlsCollapsed(localStorage.getItem(LS_KEY) === "true");
+  }, []);
 
   useEffect(() => {
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function toggleControls() {
+    setControlsCollapsed((prev) => {
+      localStorage.setItem(LS_KEY, String(!prev));
+      return !prev;
+    });
+  }
 
   const filtered = orders.filter((o) => {
     const matchSearch =
@@ -160,8 +179,8 @@ export function OrdersTab() {
   return (
     <>
       <div className="flex flex-col h-full gap-5">
-        {/* Stats */}
-        <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Stats always visible on desktop — collapsible on mobile */}
+        <div className="hidden md:grid shrink-0 grid-cols-4 gap-3">
           {STATS.map((s) => {
             const count = orders.filter((o) => o.status === s.key).length;
             return (
@@ -169,24 +188,13 @@ export function OrdersTab() {
                 key={s.key}
                 className={cn(
                   "rounded-xl p-3 sm:p-4 flex flex-col gap-1 border",
-                  s.lightBg,
-                  s.lightBorder,
-                  s.darkBg,
-                  s.darkBorder,
+                  s.lightBg, s.lightBorder, s.darkBg, s.darkBorder,
                 )}
               >
-                <span
-                  className={cn(
-                    "text-xs font-medium leading-tight",
-                    s.lightText,
-                    s.darkText,
-                  )}
-                >
+                <span className={cn("text-xs font-medium leading-tight", s.lightText, s.darkText)}>
                   {s.label}
                 </span>
-                <span
-                  className={cn("text-2xl font-bold", s.lightText, s.darkText)}
-                >
+                <span className={cn("text-2xl font-bold", s.lightText, s.darkText)}>
                   {count}
                 </span>
               </div>
@@ -194,13 +202,83 @@ export function OrdersTab() {
           })}
         </div>
 
-        {/* Filters */}
-        <div className="shrink-0 flex flex-col sm:flex-row gap-2">
-          <div className="flex items-center gap-2 flex-1 rounded-lg px-3 py-2 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
-            <Search
-              size={15}
-              className="text-content-tertiary dark:text-zinc-500 shrink-0"
+        {/* Mobile collapsible (stats + filters) */}
+        <Collapsible
+          open={!controlsCollapsed}
+          onOpenChange={(open) => {
+            setControlsCollapsed(!open);
+            localStorage.setItem(LS_KEY, String(!open));
+          }}
+          className="md:hidden shrink-0 flex flex-col gap-3"
+        >
+          <CollapsibleTrigger className="flex items-center justify-between w-full text-xs text-content-tertiary dark:text-zinc-500 py-0.5 group">
+            <span className="font-medium group-data-[state=open]:text-content-secondary dark:group-data-[state=open]:text-zinc-400 transition-colors">
+              {controlsCollapsed ? "Mostrar filtros" : "Ocultar filtros"}
+            </span>
+            <ChevronDown
+              size={14}
+              className="transition-transform duration-300 group-data-[state=open]:rotate-180"
             />
+          </CollapsibleTrigger>
+
+          <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+            <div className="flex flex-col gap-3 pt-1 pb-1">
+              {/* Stats mobile */}
+              <div className="grid grid-cols-2 gap-3">
+                {STATS.map((s) => {
+                  const count = orders.filter((o) => o.status === s.key).length;
+                  return (
+                    <div
+                      key={s.key}
+                      className={cn(
+                        "rounded-xl p-3 flex flex-col gap-1 border",
+                        s.lightBg, s.lightBorder, s.darkBg, s.darkBorder,
+                      )}
+                    >
+                      <span className={cn("text-xs font-medium leading-tight", s.lightText, s.darkText)}>
+                        {s.label}
+                      </span>
+                      <span className={cn("text-2xl font-bold", s.lightText, s.darkText)}>
+                        {count}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Search + dropdown mobile */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 flex-1 rounded-lg px-3 py-2 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                  <Search size={15} className="text-content-tertiary dark:text-zinc-500 shrink-0" />
+                  <input
+                    className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
+                    placeholder="Buscar por cliente o N° de orden..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <div className="relative">
+                  <select
+                    className="appearance-none w-full rounded-lg border border-border-subtle dark:border-zinc-700 px-3 py-2 pr-8 text-sm cursor-pointer outline-none bg-white dark:bg-zinc-900 text-content dark:text-zinc-100"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value as OrderStatus | "todos")}
+                  >
+                    <option value="todos">Todos los estados</option>
+                    {Object.entries(ORDER_STATUS_CONFIG).map(([k, v]) => (
+                      <option key={k} value={k}>{v.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-content-tertiary dark:text-zinc-500" />
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Filters — desktop only (always visible) */}
+        <div className="hidden md:flex shrink-0 flex-row gap-2">
+          <div className="flex items-center gap-2 flex-1 rounded-lg px-3 py-2 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
+            <Search size={15} className="text-content-tertiary dark:text-zinc-500 shrink-0" />
             <input
               className="flex-1 bg-transparent text-sm outline-none text-content dark:text-zinc-100 placeholder:text-content-tertiary dark:placeholder:text-zinc-500"
               placeholder="Buscar por cliente o N° de orden..."
@@ -212,21 +290,14 @@ export function OrdersTab() {
             <select
               className="appearance-none w-full sm:w-auto rounded-lg border border-border-subtle dark:border-zinc-700 px-3 py-2 pr-8 text-sm cursor-pointer outline-none bg-white dark:bg-zinc-900 text-content dark:text-zinc-100"
               value={filterStatus}
-              onChange={(e) =>
-                setFilterStatus(e.target.value as OrderStatus | "todos")
-              }
+              onChange={(e) => setFilterStatus(e.target.value as OrderStatus | "todos")}
             >
               <option value="todos">Todos los estados</option>
               {Object.entries(ORDER_STATUS_CONFIG).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v.label}
-                </option>
+                <option key={k} value={k}>{v.label}</option>
               ))}
             </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-content-tertiary dark:text-zinc-500"
-            />
+            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-content-tertiary dark:text-zinc-500" />
           </div>
         </div>
 
