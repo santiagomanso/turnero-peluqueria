@@ -136,9 +136,11 @@ export function OrdersTab() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [controlsCollapsed, setControlsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setControlsCollapsed(localStorage.getItem(LS_KEY) === "true");
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -204,7 +206,7 @@ export function OrdersTab() {
 
         {/* Mobile collapsible (stats + filters) */}
         <Collapsible
-          open={!controlsCollapsed}
+          open={!mounted || !controlsCollapsed}
           onOpenChange={(open) => {
             setControlsCollapsed(!open);
             localStorage.setItem(LS_KEY, String(!open));
