@@ -56,7 +56,7 @@ function CartItemRow({ item }: { item: CartItem }) {
           <img
             src={item.imageUrl}
             alt={item.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         ) : (
           <span className="text-2xl select-none">
