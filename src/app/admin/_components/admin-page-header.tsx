@@ -14,6 +14,8 @@ interface AdminPageHeaderProps {
   badge?: number;
   /** Controls rendered to the right of the title — desktop only */
   desktopControls?: React.ReactNode;
+  /** When true, desktopControls container stretches to fill remaining header width */
+  desktopControlsExpand?: boolean;
   /** Dropdown or button rendered on the right side of the mobile topbar */
   mobileControls?: React.ReactNode;
 }
@@ -23,6 +25,7 @@ export function AdminPageHeader({
   subtitle,
   badge,
   desktopControls,
+  desktopControlsExpand = false,
   mobileControls,
 }: AdminPageHeaderProps) {
   const router = useRouter();
@@ -35,7 +38,7 @@ export function AdminPageHeader({
   return (
     <>
       {/* ── Mobile topbar ── */}
-      <div className="hidden max-lg:flex fixed top-0 left-0 right-0 z-30 bg-gray-100 dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 h-14 items-center justify-between px-4">
+      <div className="hidden max-lg:flex fixed top-0 left-0 right-0 z-30 bg-white dark:bg-zinc-900 border-b border-border-subtle dark:border-zinc-800 h-14 items-center justify-between px-4">
         <MobileSheet onLogout={handleLogout} />
 
         <div className="relative flex items-center">
@@ -73,7 +76,13 @@ export function AdminPageHeader({
         </div>
 
         {desktopControls && (
-          <div className="ml-auto flex items-center gap-2">
+          <div
+            className={
+              desktopControlsExpand
+                ? "flex-1 ml-4 flex items-center gap-2"
+                : "ml-auto flex items-center gap-2"
+            }
+          >
             {desktopControls}
           </div>
         )}
