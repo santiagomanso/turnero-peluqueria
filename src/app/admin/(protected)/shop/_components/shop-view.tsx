@@ -23,6 +23,14 @@ const ShopMobileDropdown = dynamic(
   { ssr: false },
 );
 
+const ShopDesktopToolbar = dynamic(
+  () =>
+    import("./shop-desktop-toolbar").then((m) => ({
+      default: m.ShopDesktopToolbar,
+    })),
+  { ssr: false },
+);
+
 type Tab = "ordenes" | "productos";
 
 export function ShopView() {
@@ -73,13 +81,21 @@ export function ShopView() {
     <div className="flex flex-col h-full max-md:pt-0">
       <AdminPageHeader
         title="Tienda online (admin)"
-        subtitle="Administrá tus productos y las órdenes de tus clientes."
+        subtitle={
+          <>
+            <span className="2xl:hidden">Administrá tus productos y las órdenes</span>
+            <span className="hidden 2xl:inline">Administrá tus productos y las órdenes de tus clientes.</span>
+          </>
+        }
         mobileControls={<ShopMobileDropdown />}
-        desktopControls={<ShopMobileDropdown />}
+        desktopControls={
+          <ShopDesktopToolbar activeTab={activeTab} onTabChange={setActiveTab} />
+        }
+        desktopControlsExpand
       />
 
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-7 py-5 max-md:px-4 max-md:py-4 gap-5">
-        <div className="shrink-0 flex items-center gap-1 p-1 rounded-xl bg-surface dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700">
+        <div className="shrink-0 flex lg:hidden items-center gap-1 p-1 rounded-xl bg-surface dark:bg-zinc-800 border border-border-subtle dark:border-zinc-700">
           {tabs.map((tab) => (
             <Button
               key={tab.id}

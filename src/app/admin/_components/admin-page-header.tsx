@@ -10,7 +10,7 @@ const MobileSheet = dynamic(() => import("./admin-mobile-sheet"), {
 
 interface AdminPageHeaderProps {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   badge?: number;
   /** Controls rendered to the right of the title — desktop only */
   desktopControls?: React.ReactNode;
