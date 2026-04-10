@@ -118,11 +118,9 @@ export function AppointmentsDesktopToolbar({
         Cancelados
       </Button>
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-border-subtle dark:bg-zinc-700 shrink-0" />
-
-      {/* View mode buttons */}
-      <div className="flex items-center gap-1">
+      {/* View mode buttons — hidden at lg, visible at xl */}
+      <div className="hidden xl:block w-px h-6 bg-border-subtle dark:bg-zinc-700 shrink-0" />
+      <div className="hidden xl:flex items-center gap-1">
         {VIEW_BUTTONS.map(({ mode, icon, label }) => (
           <Button
             key={mode}
@@ -141,11 +139,9 @@ export function AppointmentsDesktopToolbar({
         ))}
       </div>
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-border-subtle dark:bg-zinc-700 shrink-0" />
-
-      {/* Theme buttons */}
-      <div className="flex items-center gap-1">
+      {/* Theme buttons — hidden at lg, visible at xl */}
+      <div className="hidden xl:block w-px h-6 bg-border-subtle dark:bg-zinc-700 shrink-0" />
+      <div className="hidden xl:flex items-center gap-1">
         <Button
           aria-label="Modo claro"
           variant="outline"
@@ -172,7 +168,7 @@ export function AppointmentsDesktopToolbar({
         </Button>
       </div>
 
-      {/* Divider */}
+      {/* Divider before CTA */}
       <div className="w-px h-6 bg-border-subtle dark:bg-zinc-700 shrink-0" />
 
       {/* New appointment */}
@@ -185,14 +181,14 @@ export function AppointmentsDesktopToolbar({
         Nuevo turno
       </Button>
 
-      {/* Refresh */}
+      {/* Refresh — hidden at lg, visible at xl */}
       <Button
         aria-label="Actualizar"
         variant="outline"
         size="icon"
         onClick={vm.handleRefresh}
         disabled={vm.isLoading}
-        className="h-8 w-8 border-border-subtle dark:border-zinc-700 dark:bg-zinc-800/50"
+        className="hidden xl:flex h-8 w-8 border-border-subtle dark:border-zinc-700 dark:bg-zinc-800/50"
       >
         <RefreshCw
           className={cn("w-3.5 h-3.5", vm.isLoading && "animate-spin")}

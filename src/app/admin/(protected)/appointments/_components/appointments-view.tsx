@@ -305,7 +305,7 @@ export default function AdminAppointments() {
                   </div>
                 )
               ) : (
-                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-border-subtle dark:border-zinc-800 shadow-sm text-center max-w-sm mt-4">
+                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-border-subtle dark:border-zinc-800 shadow-sm text-center w-full sm:max-w-sm sm:mx-auto lg:mx-0 mt-4">
                   <p className="text-content dark:text-zinc-100 font-medium">
                     Sin turnos
                   </p>
