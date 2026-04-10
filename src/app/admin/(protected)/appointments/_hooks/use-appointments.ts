@@ -16,12 +16,18 @@ interface AdminAppointmentsStore {
   showCancelled: boolean;
   monthlyCounts: Record<string, number>;
   isLoadingCounts: boolean;
+  /** Current value of the global search input */
+  searchQuery: string;
+  /** ID of the appointment the user last clicked in search results */
+  highlightedAppointmentId: string | null;
   fetchAppointments: (date: Date) => Promise<void>;
   fetchMonthlyCounts: (year: number, month: number) => Promise<void>;
   handleDateSelect: (date: Date | undefined) => void;
   handleRefresh: () => void;
   handleDelete: (id: string) => void;
   toggleShowCancelled: () => void;
+  setSearchQuery: (q: string) => void;
+  setHighlightedAppointmentId: (id: string | null) => void;
 }
 
 export const useAdminAppointments = create<AdminAppointmentsStore>(
@@ -33,6 +39,8 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
     showCancelled: false,
     monthlyCounts: {},
     isLoadingCounts: false,
+    searchQuery: "",
+    highlightedAppointmentId: null,
 
     fetchAppointments: async (date: Date) => {
       set({ isLoading: true, hasFetched: false });
@@ -77,5 +85,8 @@ export const useAdminAppointments = create<AdminAppointmentsStore>(
       set((state) => ({ showCancelled: !state.showCancelled }));
       get().fetchAppointments(get().selectedDate);
     },
+
+    setSearchQuery: (q) => set({ searchQuery: q }),
+    setHighlightedAppointmentId: (id) => set({ highlightedAppointmentId: id }),
   }),
 );

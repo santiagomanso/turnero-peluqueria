@@ -95,6 +95,30 @@ export async function getAppointmentsByDate(
   });
 }
 
+export async function searchAppointments(
+  query: string,
+  limit = 20,
+): Promise<Appointment[]> {
+  const clean = query.trim();
+  const idFragment = clean.replace(/^#/, "").toLowerCase();
+  const phoneDigits = clean.replace(/\D/g, "");
+
+  return db.appointment.findMany({
+    where: {
+      OR: [
+        ...(phoneDigits.length >= 5
+          ? [{ telephone: { contains: phoneDigits } }]
+          : []),
+        { payerEmail: { contains: clean, mode: "insensitive" as const } },
+        { payerName: { contains: clean, mode: "insensitive" as const } },
+        { id: { contains: idFragment } },
+      ],
+    },
+    orderBy: [{ date: "asc" }, { time: "asc" }],
+    take: limit,
+  });
+}
+
 export async function getMonthlyAppointmentCounts(
   year: number,
   month: number,
