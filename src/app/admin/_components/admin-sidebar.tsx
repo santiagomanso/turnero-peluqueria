@@ -24,9 +24,7 @@ const NAV_ITEMS = [
   { href: "/admin/config", label: "Configuración", icon: Settings },
 ];
 
-const PUBLIC_ITEMS = [
-  { href: "/", label: "Inicio", icon: Home },
-];
+const PUBLIC_ITEMS = [{ href: "/", label: "Inicio", icon: Home }];
 
 export default function AdminSidebar() {
   const router = useRouter();
@@ -38,7 +36,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-55 bg-gray-50 dark:bg-zinc-900 border-r border-border-subtle dark:border-zinc-800 sticky top-0 h-full shrink-0 flex flex-col max-lg:hidden">
+    <aside className="w-55 dark:bg-zinc-900/40 border-r border-border-subtle dark:border-zinc-800 sticky top-0 h-full shrink-0 flex flex-col max-lg:hidden">
       <div className="h-19 shrink-0 border-b border-border-subtle dark:border-zinc-800 flex items-center justify-center">
         <Image
           src="/logo.png"

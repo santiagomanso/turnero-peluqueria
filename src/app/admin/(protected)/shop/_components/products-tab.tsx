@@ -42,7 +42,10 @@ import {
   SHOP_ACTIVE_CATEGORY_EVENT,
   SHOP_SELECT_CATEGORY_EVENT,
   SHOP_FILTER_STATUS_EVENT,
+  SHOP_PRODUCTS_SEARCH_EVENT,
+  SHOP_SORT_ORDER_EVENT,
   type StatusFilter,
+  type SortOrder,
 } from "@/app/admin/_components/shop-mobile-controls";
 import Image from "next/image";
 import ShopCategoriesBento from "@/app/shop/_components/shop-categories-bento";
@@ -118,7 +121,7 @@ function AdminProductCard({
             {product.name}
           </p>
           {product.description && (
-            <p className="text-[0.6rem] text-content-quaternary dark:text-zinc-500 mt-0.5 line-clamp-2">
+            <p className="text-xs text-content-quaternary dark:text-zinc-500 mt-0.5 line-clamp-2">
               {product.description}
             </p>
           )}
@@ -143,15 +146,17 @@ function AdminProductCard({
           </div>
           <button
             onClick={() => onEdit(product)}
-            className="flex items-center justify-center h-7 w-7 rounded-md border border-border-subtle dark:border-zinc-700 text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100 hover:bg-surface dark:hover:bg-zinc-800 transition-colors"
+            className="flex items-center justify-center gap-1 h-7 px-2 rounded-md border border-border-subtle dark:border-zinc-700 text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-100 hover:bg-surface dark:hover:bg-zinc-800 transition-colors"
           >
             <Pencil size={13} />
+            <span className="hidden sm:inline text-[0.65rem] font-medium">Editar</span>
           </button>
           <button
             onClick={() => onDelete(product)}
-            className="flex items-center justify-center h-7 w-7 rounded-md border border-border-subtle dark:border-zinc-700 text-content-tertiary dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+            className="flex items-center justify-center gap-1 h-7 px-2 rounded-md border border-border-subtle dark:border-zinc-700 text-content-tertiary dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
           >
             <Trash2 size={13} />
+            <span className="hidden sm:inline text-[0.65rem] font-medium">Borrar</span>
           </button>
         </div>
       </div>
@@ -277,7 +282,7 @@ function ProductGrid({
   }
   return (
     <div className="flex-1 overflow-y-auto pb-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
         {items.map((product) => (
           <AdminProductCard
             key={product.id}
@@ -318,6 +323,7 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [modalProduct, setModalProduct] = useState<Product | undefined>(
     undefined,
   );
@@ -356,10 +362,11 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
           category: selectedCategory,
           gestorActive: true,
           statusFilter,
+          sortOrder,
         },
       }),
     );
-  }, [selectedCategory, statusFilter]);
+  }, [selectedCategory, statusFilter, sortOrder]);
 
   useEffect(() => {
     return () => {
@@ -393,27 +400,54 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
     return () => window.removeEventListener(SHOP_FILTER_STATUS_EVENT, handle);
   }, []);
 
+  useEffect(() => {
+    function handle(e: Event) {
+      setSearch((e as CustomEvent<{ search: string }>).detail.search);
+    }
+    window.addEventListener(SHOP_PRODUCTS_SEARCH_EVENT, handle);
+    return () => window.removeEventListener(SHOP_PRODUCTS_SEARCH_EVENT, handle);
+  }, []);
+
+  useEffect(() => {
+    function handle(e: Event) {
+      setSortOrder((e as CustomEvent<{ sortOrder: SortOrder }>).detail.sortOrder);
+    }
+    window.addEventListener(SHOP_SORT_ORDER_EVENT, handle);
+    return () => window.removeEventListener(SHOP_SORT_ORDER_EVENT, handle);
+  }, []);
+
   const isSearching = search.trim().length > 0;
 
   const applyStatusFilter = (p: Product) =>
     statusFilter === "todos" ||
     (statusFilter === "activos" ? p.active : !p.active);
 
+  const applySortOrder = (arr: Product[]) =>
+    [...arr].sort((a, b) =>
+      sortOrder === "newest"
+        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+
   const globalResults = isSearching
-    ? products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) &&
-          applyStatusFilter(p),
+    ? applySortOrder(
+        products.filter(
+          (p) =>
+            p.name.toLowerCase().includes(search.toLowerCase()) &&
+            applyStatusFilter(p),
+        ),
       )
     : [];
 
   const filtered =
     selectedCategory === null
       ? []
-      : products.filter(
-          (p) =>
-            (selectedCategory === "todas" || p.category === selectedCategory) &&
-            applyStatusFilter(p),
+      : applySortOrder(
+          products.filter(
+            (p) =>
+              (selectedCategory === "todas" || p.category === selectedCategory) &&
+              applyStatusFilter(p),
+          ),
         );
 
   function handleOpenCreate() {
@@ -496,8 +530,8 @@ export function ProductosTab({ registerOpenCreate }: ProductosTabProps) {
 
       {/* ── Controles — siempre visibles ── */}
       <div className="shrink-0">
-        {/* Desktop: una sola fila */}
-        <div className="hidden sm:flex gap-2 items-center">
+        {/* Desktop: una sola fila (hidden at lg+ where toolbar takes over) */}
+        <div className="hidden sm:flex lg:hidden gap-2 items-center">
           <SearchBar search={search} onSearch={setSearch} className="flex-1" />
           <CategoryFilter
             value={selectedCategory ?? "todas"}

@@ -28,9 +28,9 @@ import type { DayButton } from "react-day-picker";
 
 function getPaymentDayColor(count: number): string | undefined {
   if (count === 0) return undefined;
-  if (count <= 4) return "bg-green-500/20 !text-green-700 dark:!text-green-400";
-  if (count <= 10) return "bg-amber-500/20 !text-amber-700 dark:!text-amber-400";
-  return "bg-red-500/20 !text-red-700 dark:!text-red-400";
+  if (count <= 4) return "bg-green-500/20 dark:!bg-green-500/20 !text-green-700 dark:!text-green-400";
+  if (count <= 10) return "bg-amber-500/20 dark:!bg-amber-500/20 !text-amber-700 dark:!text-amber-400";
+  return "bg-red-500/20 dark:!bg-red-500/20 !text-red-700 dark:!text-red-400";
 }
 
 const LEGEND = [

@@ -26,6 +26,10 @@ import {
   type Order,
   type OrderStatus,
 } from "@/types/shop";
+import {
+  SHOP_ORDERS_SEARCH_EVENT,
+  SHOP_ORDERS_STATUS_EVENT,
+} from "@/app/admin/_components/shop-mobile-controls";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -146,6 +150,22 @@ export function OrdersTab() {
   useEffect(() => {
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    function handle(e: Event) {
+      setSearch((e as CustomEvent<{ search: string }>).detail.search);
+    }
+    window.addEventListener(SHOP_ORDERS_SEARCH_EVENT, handle);
+    return () => window.removeEventListener(SHOP_ORDERS_SEARCH_EVENT, handle);
+  }, []);
+
+  useEffect(() => {
+    function handle(e: Event) {
+      setFilterStatus((e as CustomEvent<{ status: OrderStatus | "todos" }>).detail.status);
+    }
+    window.addEventListener(SHOP_ORDERS_STATUS_EVENT, handle);
+    return () => window.removeEventListener(SHOP_ORDERS_STATUS_EVENT, handle);
   }, []);
 
   function toggleControls() {
@@ -277,8 +297,8 @@ export function OrdersTab() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Filters — desktop only (always visible) */}
-        <div className="hidden md:flex shrink-0 flex-row gap-2">
+        {/* Filters — desktop only (hidden at lg+ where toolbar takes over) */}
+        <div className="hidden md:flex lg:hidden shrink-0 flex-row gap-2">
           <div className="flex items-center gap-2 flex-1 rounded-lg px-3 py-2 border border-border-subtle dark:border-zinc-700 bg-white dark:bg-zinc-900">
             <Search size={15} className="text-content-tertiary dark:text-zinc-500 shrink-0" />
             <input

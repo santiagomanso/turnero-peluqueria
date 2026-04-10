@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings2, Plus, Sun, Moon, Tag, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { Settings2, Plus, Sun, Moon, Tag, RotateCcw, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,8 +24,13 @@ export const SHOP_REFRESH_EVENT = "shop:refresh";
 export const SHOP_ACTIVE_CATEGORY_EVENT = "shop:active-category";
 export const SHOP_SELECT_CATEGORY_EVENT = "shop:select-category";
 export const SHOP_FILTER_STATUS_EVENT = "shop:filter-status";
+export const SHOP_ORDERS_SEARCH_EVENT = "shop:orders-search";
+export const SHOP_ORDERS_STATUS_EVENT = "shop:orders-status";
+export const SHOP_PRODUCTS_SEARCH_EVENT = "shop:products-search";
+export const SHOP_SORT_ORDER_EVENT = "shop:sort-order";
 
 export type StatusFilter = "todos" | "activos" | "inactivos";
+export type SortOrder = "newest" | "oldest";
 
 const STATUS_LABELS: Record<StatusFilter, string> = {
   todos: "Todos",
@@ -33,20 +38,27 @@ const STATUS_LABELS: Record<StatusFilter, string> = {
   inactivos: "Solo inactivos",
 };
 
+const SORT_LABELS: Record<SortOrder, string> = {
+  newest: "Más nuevos primero",
+  oldest: "Más viejos primero",
+};
+
 export function ShopMobileControls() {
   const { isDark, toggle } = useAdminTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [gestorActive, setGestorActive] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
 
   useEffect(() => {
     function handle(e: Event) {
       const detail = (
-        e as CustomEvent<{ category: string | null; gestorActive: boolean; statusFilter: StatusFilter }>
+        e as CustomEvent<{ category: string | null; gestorActive: boolean; statusFilter: StatusFilter; sortOrder?: SortOrder }>
       ).detail;
       setActiveCategory(detail.category);
       setGestorActive(detail.gestorActive);
       setStatusFilter(detail.statusFilter ?? "todos");
+      setSortOrder(detail.sortOrder ?? "newest");
     }
     window.addEventListener(SHOP_ACTIVE_CATEGORY_EVENT, handle);
     return () => window.removeEventListener(SHOP_ACTIVE_CATEGORY_EVENT, handle);
@@ -64,6 +76,14 @@ export function ShopMobileControls() {
     window.dispatchEvent(
       new CustomEvent(SHOP_FILTER_STATUS_EVENT, {
         detail: { statusFilter: value as StatusFilter },
+      }),
+    );
+  }
+
+  function selectSortOrder(value: string) {
+    window.dispatchEvent(
+      new CustomEvent(SHOP_SORT_ORDER_EVENT, {
+        detail: { sortOrder: value as SortOrder },
       }),
     );
   }
@@ -155,6 +175,30 @@ export function ShopMobileControls() {
                   {(Object.keys(STATUS_LABELS) as StatusFilter[]).map((key) => (
                     <DropdownMenuRadioItem key={key} value={key} className="text-xs">
                       {STATUS_LABELS[key]}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="flex items-center gap-2 cursor-pointer">
+                <ArrowUpDown className="w-3.5 h-3.5 text-content-tertiary dark:text-zinc-400 shrink-0" />
+                <span className="truncate text-sm">
+                  Ordenar
+                  {sortOrder !== "newest" && (
+                    <span className="ml-1 text-[0.6rem] text-gold font-semibold">·</span>
+                  )}
+                </span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-48 dark:bg-zinc-900 dark:border-zinc-800">
+                <DropdownMenuRadioGroup
+                  value={sortOrder}
+                  onValueChange={selectSortOrder}
+                >
+                  {(Object.keys(SORT_LABELS) as SortOrder[]).map((key) => (
+                    <DropdownMenuRadioItem key={key} value={key} className="text-xs">
+                      {SORT_LABELS[key]}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
