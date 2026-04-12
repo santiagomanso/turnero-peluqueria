@@ -1,9 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Controller } from "react-hook-form";
 import { es } from "date-fns/locale";
+import type { WeekProps } from "react-day-picker";
 import useCreateAppointmentForm from "@/app/appointments/_hooks/use-create-appointment-form";
 
 type Props = {
@@ -50,6 +52,18 @@ export default function DateStep({
     ? new Date()
     : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d; })();
 
+  // Hide calendar rows where every day falls before the booking cutoff.
+  // Prevents large blank space at the top when the first weeks of the month are all past.
+  const FilteredWeek = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cutoff = allowToday ? today : new Date(today.getTime() + 86_400_000);
+    return function FilteredWeek({ week, children, ...props }: WeekProps) {
+      if (week.days.every((d) => d.date < cutoff))
+        return <tr {...props} style={{ display: "none" }} />;
+      return <tr {...props}>{children}</tr>;
+    };
+  }, [allowToday]);
 
   return (
     <div className="flex flex-col">
@@ -99,6 +113,7 @@ export default function DateStep({
                 classNames={{
                   disabled: "invisible pointer-events-none",
                 }}
+                components={{ Week: FilteredWeek }}
                 className="w-full"
               />
               {fieldState.invalid && (

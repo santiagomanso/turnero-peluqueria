@@ -7,6 +7,8 @@ import { useSearchParams } from "next/navigation";
 import AppointmentCard from "@/components/appointment-card";
 import AppointmentSkeleton from "@/components/appointment-skeleton";
 import { useAdminAppointments } from "../_hooks/use-appointments";
+// Mock — para activar: cambiar MOCK_ENABLED=true en _mock/appointments.ts
+import { getMockAppointments, MOCK_ENABLED } from "../_mock/appointments";
 import { formatDateLongFromISO, formatDateFromISO } from "@/lib/format-date";
 import { AdminPageHeader } from "@/app/admin/_components/admin-page-header";
 import {
@@ -91,8 +93,10 @@ export default function AdminAppointments() {
   const vm = useAdminAppointments();
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>("cards-square");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem(LS_KEY) as ViewMode | null;
     if (saved && VALID_MODES.includes(saved)) {
       setViewMode(saved);
@@ -121,16 +125,20 @@ export default function AdminAppointments() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const appointments = MOCK_ENABLED
+    ? getMockAppointments(vm.selectedDate)
+    : vm.appointments;
+
   const badge =
-    vm.hasFetched && !vm.isLoading && vm.appointments.length > 0
-      ? vm.appointments.length
+    vm.hasFetched && !vm.isLoading && appointments.length > 0
+      ? appointments.length
       : undefined;
 
   return (
     <div className="flex flex-col h-full max-md:pt-0">
       <AdminPageHeader
         title="Turnos"
-        subtitle={formatDateLongFromISO(vm.selectedDate)}
+        subtitle={mounted ? formatDateLongFromISO(vm.selectedDate) : undefined}
         badge={badge}
         desktopControlsExpand
         desktopControls={
@@ -166,7 +174,7 @@ export default function AdminAppointments() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              {vm.appointments.length > 0 ? (
+              {appointments.length > 0 ? (
                 viewMode === "table" ? (
                   /* ── TABLE ── */
                   <div className="rounded-md border border-border-subtle dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800">
@@ -197,7 +205,7 @@ export default function AdminAppointments() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {vm.appointments.map((appointment) => {
+                        {appointments.map((appointment) => {
                           const displayName =
                             appointment.payerName ??
                             appointment.payerEmail ??
@@ -268,7 +276,7 @@ export default function AdminAppointments() {
                 ) : viewMode === "cards-square" ? (
                   /* ── CARDS SQUARE ── */
                   <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3 sm:gap-5 pb-6">
-                    {vm.appointments.map((appointment) => (
+                    {appointments.map((appointment) => (
                       <AppointmentCard
                         key={appointment.id}
                         appointment={appointment}
@@ -288,7 +296,7 @@ export default function AdminAppointments() {
                 ) : (
                   /* ── CARDS FLAT ── */
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
-                    {vm.appointments.map((appointment) => (
+                    {appointments.map((appointment) => (
                       <AppointmentCard
                         key={appointment.id}
                         appointment={appointment}
@@ -305,7 +313,7 @@ export default function AdminAppointments() {
                   </div>
                 )
               ) : (
-                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-border-subtle dark:border-zinc-800 shadow-sm text-center w-full sm:max-w-sm sm:mx-auto lg:mx-0 mt-4">
+                <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 border border-border-subtle dark:border-zinc-800 shadow-sm text-center w-full sm:w-auto sm:max-w-sm mt-4">
                   <p className="text-content dark:text-zinc-100 font-medium">
                     Sin turnos
                   </p>
