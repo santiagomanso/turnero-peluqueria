@@ -7,30 +7,6 @@ Users book appointments, pay via MercadoPago, and receive WhatsApp notifications
 The admin panel allows the salon owner to manage, create, and update appointments.
 
 - **Production URL:** https://turnero-peluqueria.vercel.app
-- **Stack:** Next.js 16, TypeScript, Prisma, PostgreSQL (Neon), TailwindCSS v4, Vercel
-- **Package manager:** pnpm
-- **Repo:** GitHub (deployed via Vercel)
-
-### Admin Panel Features
-
-- Ver, crear, modificar y cancelar turnos
-- Cambiar estado de turnos (PENDING → PAID → CANCELLED)
-- Enviar mensajes WhatsApp a clientes via templates aprobados (sobre el turno, desde Luckete, general)
-- Configurar días disponibles para reservas (por día de semana)
-- Configurar horarios disponibles por día, con slots de media hora y máximo de reservas simultáneas
-- Gestionar códigos de descuento (crear, activar/desactivar, eliminar)
-- Configurar precio base del turno
-- Cambiar tema visual (light/dark)
-- Ver métricas: ingresos, conversión, crecimiento, top horas, distribución por día
-- **Gestionar productos de tienda** (crear, editar, activar/desactivar, stock, imagen vía Cloudinary con prompt AI)
-- **Ver pedidos de tienda** (órdenes con estado, detalles de productos, marcar como recogido/enviado)
-- **Ver historial de pagos** (filtrado por día, con calendario coloreado por volumen)
-
-A Next.js appointment booking web app for a hair salon called **Luckete Colorista**.
-Users book appointments, pay via MercadoPago, and receive WhatsApp notifications.
-The admin panel allows the salon owner to manage, create, and update appointments.
-
-- **Production URL:** https://turnero-peluqueria.vercel.app
 - **Stack:** Next.js 16, React 19, TypeScript, Prisma 7, PostgreSQL (Neon), TailwindCSS v4, Vercel
 - **UI:** Radix UI, shadcn/ui, Lucide React, Framer Motion, Recharts, Vaul, Sonner
 - **Forms:** React Hook Form + Zod + @hookform/resolvers
@@ -41,6 +17,22 @@ The admin panel allows the salon owner to manage, create, and update appointment
 - **State:** Zustand v5
 - **Package manager:** pnpm
 - **Repo:** GitHub (deployed via Vercel)
+
+### Admin Panel Features
+
+- Ver, crear, modificar y cancelar turnos (vistas: tarjetas planas, tarjetas, tabla, calendario)
+- Cambiar estado de turnos (PENDING → PAID → CANCELLED)
+- Buscar turnos por nombre, teléfono o #ID (CUID)
+- Enviar mensajes WhatsApp a clientes via templates aprobados (sobre el turno, desde Luckete, general)
+- Configurar días disponibles para reservas (por día de semana)
+- Configurar horarios disponibles por día, con slots de media hora y máximo de reservas simultáneas
+- Gestionar códigos de descuento (crear, activar/desactivar, eliminar)
+- Configurar precio base del turno
+- Cambiar tema visual (light/dark)
+- Ver métricas: ingresos, conversión, crecimiento, top horas, distribución por día
+- **Gestionar productos de tienda** (crear, editar, activar/desactivar, stock, imagen vía Cloudinary con prompt AI; filtro por categoría, estado, orden)
+- **Ver pedidos de tienda** (órdenes con estado, detalles de productos, marcar como recogido/enviado; búsqueda y filtro de estado)
+- **Ver historial de pagos** (filtrado por día, con calendario coloreado por volumen)
 
 ---
 
@@ -395,9 +387,12 @@ export function formatArgentinianPhone(telephone: string): string {
 | `admin-create-appointment.tsx`                            | Dialog 3 pasos (date → time → telephone)                                     |
 | `admin-theme-provider.tsx`                                | Lee/escribe cookie `admin-theme`, aplica `.dark` en `<html>`                 |
 | `(protected)/payments/_components/payments-view.tsx`      | Vista pagos: `specificDate` siempre seteado (default hoy), sin period pills  |
-| `(protected)/shop/products/_components/products-tab.tsx`  | Tabla/cards de productos con crear/editar/toggle activo                      |
-| `(protected)/shop/products/_components/product-modal.tsx` | Dialog shadcn para crear/editar producto; upload imagen vía Cloudinary       |
-| `(protected)/shop/orders/_components/orders-view.tsx`     | Lista de órdenes con detalles y cambio de estado                             |
+| `(protected)/shop/_components/shop-view.tsx`              | Tab switcher Órdenes/Productos; pasa ShopDesktopToolbar a desktopControls    |
+| `(protected)/shop/_components/shop-desktop-toolbar.tsx`   | Toolbar desktop completo: search, filtros, nuevo producto, tabs, ⚙           |
+| `(protected)/shop/_components/products-tab.tsx`           | Cards/tabla de productos con filtros de categoría, estado y sort order       |
+| `(protected)/shop/_components/orders-tab.tsx`             | Lista de órdenes con search y filtro de estado                               |
+| `(protected)/shop/_components/product-modal.tsx`          | Dialog shadcn para crear/editar producto; upload imagen vía Cloudinary       |
+| `_components/shop-mobile-controls.tsx`                    | Dropdown ⚙ mobile+tablet para shop: categoría, estado, sort, theme           |
 
 ### Layout Structure (`src/app/admin/(protected)/layout.tsx`)
 
@@ -428,6 +423,8 @@ Todas las páginas tienen header sticky `h-19` (76px) alineado con el logo del s
 **Appointments:** `[título+subtítulo] [ml-auto] [AppointmentsMobileDropdown]`
 **Metrics:** `[Métricas/subtítulo] [ml-auto] [MetricsMobileDropdown]`
 **Pagos:** `[Pagos/subtítulo] [ml-auto] [PaymentsMobileDropdown]`
+**Shop (desktop lg+):** `ShopDesktopToolbar` full-width con search | dropdown de categoría/estado (contextual) | Nuevo producto | tab switcher Órdenes/Productos | ⚙ gear. Responsive: 3 niveles de labels (xl:hidden icono-only / xl-2xl texto corto / 2xl+ texto completo). Sin theme switcher (espacio limitado).
+**Shop (mobile/tablet <lg):** `ShopMobileControls` — mismo gear ⚙ dropdown con categoría, filtros, sort order y theme toggle.
 
 El dropdown contiene: refresh, theme toggle, y calendario. En Pagos el orden es `refresh | theme | calendar`.
 
@@ -477,22 +474,6 @@ Cuando `publicView={true}` (usado en `get-appointments.tsx`): oculta Estado, Wha
 - **Sobre el turno** (Scissors): `Hola! Te contactamos por tu turno del ${formatDateShort(date)} a las ${time} hs.`
 - **Desde Luckete** (Store): `Hola! Nos comunicamos desde Luckete 👋`
 - **General** (MessageCircle): `https://wa.me/${telephone}` sin texto
-
-### Lucide Imports
-
-```ts
-(Calendar,
-  Clock,
-  Phone,
-  Edit,
-  Trash2,
-  DollarSign,
-  Check,
-  MoreHorizontal,
-  MessageCircle,
-  Scissors,
-  Store);
-```
 
 ### Lucide Imports
 
@@ -747,12 +728,20 @@ CRON_SECRET=...
 - [x] **MercadoPago webhook P2025 fix** — manejo de error Prisma `P2025` (appointment no encontrado) sin romper el webhook; responde 200 para evitar reintentos de MP
 - [x] **`services/` pattern** — todas las actions son wrappers delgados; lógica de BD en `src/services/*.ts`; `src/services/payments.ts` y `src/services/shop.ts` creados
 - [x] Hacer funcional el checkout del shop online MercadoPago para productos
+- [x] **Appointments admin:** #ID visible en tarjeta plana y tabla; búsqueda por ID funcional (CUID lowercase, `contains + toLowerCase`)
+- [x] **Appointments admin:** tarjetas planas `lg:grid-cols-3`; card "Sin turnos" full-width mobile, centrado tablet, left-aligned desktop
+- [x] **Appointments admin:** botón "Ver cancelados" dark-mode active color unificado; calendar hover ring-inset dorado; fondos de color calendario corregidos con `dark:!bg-*`
+- [x] **Shop admin toolbar desktop:** `ShopDesktopToolbar` con search, dropdown categoría/estado, nuevo producto, tab switcher 3 niveles responsive, gear ⚙
+- [x] **Shop admin:** sort order filter (más nuevos / más viejos) en toolbar desktop y ⚙ mobile
+- [x] **Shop admin products-tab:** labels Edit/Delete visibles en `sm+`; descripción `text-xs`; grid `xl:grid-cols-4`
+- [x] **Shop público:** imágenes `object-contain` en category-view, product-view y cart-drawer
+- [x] **`admin-page-header.tsx`:** `subtitle` acepta `React.ReactNode` para subtítulos responsive
+- [x] **Payments calendar:** fondos de color (verde/amber/rojo) visibles en dark mode con `dark:!bg-*`
 
 ## ITEMS PENDIENTES
 
 - [ ] agregar seguridad al FRONT y BACK end respecto de la creación de turnos (para que no nos colmen la DB con bots) captcha y alguna otra forma de restringir
 - [ ] nichos personalizados (agrupar personas de la misma edad y mismo tratamiento, marketing dirigido)
-- [ ] hacer funcional el checkout del shop online (MercadoPago para compras de productos)
 - [ ] implementar notificaciones a la dueña para nuevos pedidos de tienda
 - [ ] Orden de compra confirmada => Enviar whatsapp de confirmación de compra en tienda online
 - [ ] orden de compra luego de pagar arranco en estado procesando => revisar, debería empezar en pendiente de preparación
@@ -801,15 +790,28 @@ Panel de gestión de productos y órdenes de la tienda online.
 
 ```
 src/app/admin/(protected)/shop/
-├── page.tsx                         — Tabs: Productos / Pedidos
-├── products/
-│   └── _components/
-│       ├── products-tab.tsx         — Lista de productos (tabla desktop, cards mobile)
-│       └── product-modal.tsx        — Dialog crear/editar producto
-└── orders/
-    └── _components/
-        └── orders-view.tsx          — Lista de pedidos con estado
+├── page.tsx                         — Non-async, Suspense wrapper
+└── _components/
+    ├── shop-view.tsx                — Estado del tab activo; pasa ShopDesktopToolbar a desktopControls
+    ├── shop-desktop-toolbar.tsx     — Toolbar full-width desktop (lg+): search, categoría, filtros, nuevo producto, tab switcher, gear
+    ├── products-tab.tsx             — Cards/tabla de productos; escucha eventos window para search/sort/categoría/estado
+    └── orders-tab.tsx               — Lista de pedidos; escucha eventos window para search/estado
 ```
+
+`src/app/admin/_components/shop-mobile-controls.tsx` — Dropdown ⚙ mobile+tablet: categoría, estado, sort order, theme toggle. Emite window events que `products-tab` y `orders-tab` escuchan.
+
+**Window events (shop):**
+| Evento | Emisor | Receptor |
+|--------|--------|----------|
+| `shop:open-create` | toolbar/mobile | products-tab (abre modal) |
+| `shop:refresh` | toolbar/mobile | products-tab/orders-tab |
+| `shop:active-category` | products-tab | mobile controls (sync state) |
+| `shop:select-category` | mobile controls | products-tab |
+| `shop:filter-status` | toolbar/mobile | products-tab |
+| `shop:orders-search` | toolbar | orders-tab |
+| `shop:orders-status` | toolbar/mobile | orders-tab |
+| `shop:products-search` | toolbar | products-tab |
+| `shop:sort-order` | toolbar/mobile | products-tab |
 
 `src/services/shop.ts` — lógica de BD:
 
