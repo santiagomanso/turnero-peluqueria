@@ -601,7 +601,7 @@ export default function AppointmentCard({
       {square && (
         <div
           className={cn(
-            "flex-col rounded-xl border overflow-hidden aspect-square max-w-52 sm:max-w-none mx-auto w-full",
+            "flex-col rounded-xl border overflow-hidden sm:aspect-square w-full",
             forceSquare ? "flex" : "hidden lg:flex",
             status === "CANCELLED"
               ? "border-danger/35 dark:border-danger/25 opacity-50"
@@ -683,7 +683,7 @@ export default function AppointmentCard({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-dashed border-border-soft dark:border-zinc-700">
+            <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-dashed border-border-soft dark:border-zinc-700">
               <span className="text-xs uppercase tracking-[0.12em] font-medium text-content-tertiary dark:text-zinc-500">
                 Total
               </span>
