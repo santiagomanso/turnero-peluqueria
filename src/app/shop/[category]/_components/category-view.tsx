@@ -3,28 +3,9 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, ChevronRight, Check, Star } from "lucide-react";
-import { SHOP_CATEGORIES, type ShopCategory, type Product } from "@/types/shop";
+import { type ShopCategory, type Product } from "@/types/shop";
 import { categoryToSlug } from "@/lib/shop-utils";
 import { useCart } from "@/app/shop/_store/use-cart";
-
-// ─── Category accent colors ────────────────────────────────────────────────────
-
-const CATEGORY_ACCENT: Record<ShopCategory, string> = {
-  "Shampoo y Acondicionador":
-    "bg-violet-500/15 text-violet-700 dark:text-violet-400 border-violet-500/25",
-  "Mascarillas y Baños de Crema":
-    "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/25",
-  "Tratamientos Capilares":
-    "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25",
-  "Aceites y Serums":
-    "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/25",
-  "Protectores y Sprays":
-    "bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/25",
-  "Cremas para Peinar":
-    "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-400 border-fuchsia-500/25",
-  Accesorios:
-    "bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/25",
-};
 
 const CATEGORY_EMOJI: Record<ShopCategory, string> = {
   "Shampoo y Acondicionador": "💧",
@@ -115,33 +96,6 @@ function ProductCard({
   );
 }
 
-// ─── Category switcher ────────────────────────────────────────────────────────
-
-function CategorySwitcher({ active }: { active: ShopCategory }) {
-  return (
-    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4">
-      {SHOP_CATEGORIES.map((cat) => {
-        const isActive = cat === active;
-        const accent = CATEGORY_ACCENT[cat];
-        return (
-          <Link
-            key={cat}
-            href={`/shop/${categoryToSlug(cat)}`}
-            className={`shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
-              isActive
-                ? accent
-                : "border-border-subtle dark:border-zinc-800 text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-300"
-            }`}
-          >
-            <span className="text-sm leading-none">{CATEGORY_EMOJI[cat]}</span>
-            <span className="hidden xs:inline">{cat.split(" ")[0]}</span>
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
 // ─── Fixed header (rendered outside the scrollable area by page.tsx) ──────────
 
 export function CategoryHeader({ category }: { category: ShopCategory }) {
@@ -159,7 +113,7 @@ export function CategoryHeader({ category }: { category: ShopCategory }) {
       </div>
 
       {/* Category title */}
-      <div className="mb-4">
+      <div className="mb-6">
         <div className="flex items-center gap-2 mb-0.5">
           <span className="text-2xl">{CATEGORY_EMOJI[category]}</span>
           <h2 className="text-xl font-extrabold text-content dark:text-zinc-100 leading-tight">
@@ -167,11 +121,6 @@ export function CategoryHeader({ category }: { category: ShopCategory }) {
           </h2>
         </div>
         <div className="w-7 h-px mt-1.5 bg-gold-gradient" />
-      </div>
-
-      {/* Category switcher */}
-      <div className="mb-4">
-        <CategorySwitcher active={category} />
       </div>
     </>
   );
