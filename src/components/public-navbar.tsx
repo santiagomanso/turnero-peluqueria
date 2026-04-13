@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -20,7 +20,7 @@ const LINKS = [
   },
 ] as const;
 
-function PublicNavbarComponent() {
+function PublicNavbarComponent({ rightExtra }: { rightExtra?: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Lock body scroll when mobile menu is open
@@ -78,19 +78,27 @@ function PublicNavbarComponent() {
               </Link>
             ),
           )}
+          {rightExtra && (
+            <div className="ml-1">
+              {rightExtra}
+            </div>
+          )}
           <div className="ml-3">
             <ThemeToggle />
           </div>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="lg:hidden ml-auto flex items-center justify-center w-9 h-9 rounded-lg text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/8 transition-colors"
-          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          {menuOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        {/* Mobile: rightExtra + hamburger */}
+        <div className="lg:hidden ml-auto flex items-center gap-2">
+          {rightExtra}
+          <button
+            className="flex items-center justify-center w-9 h-9 rounded-lg text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/8 transition-colors"
+            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile menu overlay */}
