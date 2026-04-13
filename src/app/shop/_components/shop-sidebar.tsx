@@ -54,7 +54,7 @@ export default function ShopSidebar() {
                 : "text-content-tertiary dark:text-zinc-500 hover:text-content dark:hover:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5",
             )}
           >
-            <span className="text-base leading-none w-5 text-center">
+            <span className="text-lg leading-none w-5 text-center">
               {CATEGORY_EMOJI[cat]}
             </span>
             <span className="truncate">{cat}</span>
