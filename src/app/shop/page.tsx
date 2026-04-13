@@ -1,29 +1,26 @@
 import { Suspense } from "react";
-import { Container } from "@/components/ui/container";
-import Navbar from "@/components/navbar";
-import CartButton from "./_components/cart-button";
+import ShopNavbar from "./_components/shop-navbar";
+import ShopSidebar from "./_components/shop-sidebar";
 import ShopHeader from "./_components/shop-header";
 import ShopCategoriesData from "./_components/shop-categories-data";
 import BentoSkeleton from "./_components/bento-skeleton";
 
 export default function ShopPage() {
   return (
-    <Container.wrapper className="h-svh">
-      <Container.content className="h-svh md:h-[85vh]">
-        {/* Fixed: navbar + section header */}
-        <Navbar
-          title="Tienda Online"
-          rightElement={<CartButton />}
-        />
-        <ShopHeader />
+    <div className="min-h-svh flex flex-col bg-surface dark:bg-zinc-950 font-archivo">
+      <ShopNavbar />
 
-        {/* Scrollable: bento grid only */}
-        <div className="flex-1 overflow-y-auto -mx-4 px-4">
+      <div className="flex flex-1 min-h-0">
+        <ShopSidebar />
+
+        {/* Main content */}
+        <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-12 lg:py-10">
+          <ShopHeader />
           <Suspense fallback={<BentoSkeleton />}>
             <ShopCategoriesData />
           </Suspense>
         </div>
-      </Container.content>
-    </Container.wrapper>
+      </div>
+    </div>
   );
 }
