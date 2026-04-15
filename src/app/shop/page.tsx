@@ -14,7 +14,7 @@ export default function ShopPage() {
         <ShopSidebar />
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-12 lg:py-10">
+        <div className="flex-1 min-w-0 overflow-y-auto px-5 py-6 lg:px-12 lg:py-10">
           <ShopHeader />
           <Suspense fallback={<BentoSkeleton />}>
             <ShopCategoriesData />

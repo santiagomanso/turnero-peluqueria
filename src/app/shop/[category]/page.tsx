@@ -26,9 +26,9 @@ export default async function CategoryPage({ params }: Props) {
         <ShopSidebar />
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 min-w-0 flex flex-col min-h-0">
           {/* Mobile/tablet pills */}
-          <div className="pt-5">
+          <div className="pt-5 lg:hidden">
             <ShopCategoryPills />
           </div>
 
