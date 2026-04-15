@@ -1,16 +1,21 @@
-import { Container } from "@/components/ui/container";
-import Navbar from "@/components/navbar";
+import ShopNavbar from "@/app/shop/_components/shop-navbar";
+import ShopSidebar from "@/app/shop/_components/shop-sidebar";
 import CheckoutForm from "./_components/checkout-form";
 
 export default function CheckoutPage() {
   return (
-    <Container.wrapper className="h-svh">
-      <Container.content className="h-svh md:h-[85vh]">
-        <Navbar title="Checkout" />
-        <div className="flex-1 overflow-y-auto -mx-4 px-4">
-          <CheckoutForm />
+    <div className="min-h-svh flex flex-col bg-surface dark:bg-zinc-950 font-archivo">
+      <ShopNavbar />
+
+      <div className="flex flex-1 min-h-0">
+        <ShopSidebar />
+
+        <div className="flex-1 min-w-0 overflow-y-auto px-5 py-8 lg:px-12 lg:py-10">
+          <div className="max-w-2xl mx-auto lg:mx-0">
+            <CheckoutForm />
+          </div>
         </div>
-      </Container.content>
-    </Container.wrapper>
+      </div>
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import {
   Menu,
   X,
@@ -79,9 +79,10 @@ function isActive(href: string, pathname: string): boolean {
 type Props = {
   position?: "fixed" | "sticky";
   pageTitle?: string;
+  rightExtra?: ReactNode;
 };
 
-export function HomeNavbar({ position = "fixed", pageTitle }: Props) {
+export function HomeNavbar({ position = "fixed", pageTitle, rightExtra }: Props) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
@@ -108,7 +109,7 @@ export function HomeNavbar({ position = "fixed", pageTitle }: Props) {
     <>
       <nav
         className={cn(
-          "h-16 flex items-center px-5 lg:px-8 transition-all duration-300 font-archivo",
+          "h-19 flex items-center px-5 lg:px-12 transition-all duration-300 font-archivo",
           position === "fixed"
             ? "fixed top-0 left-0 right-0 z-50"
             : "sticky top-0 z-50 shrink-0",
@@ -119,7 +120,7 @@ export function HomeNavbar({ position = "fixed", pageTitle }: Props) {
               : "backdrop-blur-md border-b border-border-subtle dark:border-zinc-800",
         )}
       >
-        {/* ── Mobile: logo | page title | hamburger ── */}
+        {/* ── Mobile: logo | page title | extras | hamburger ── */}
         <div className="flex lg:hidden items-center w-full">
           <Link href="/" className="shrink-0">
             <Image
@@ -134,6 +135,7 @@ export function HomeNavbar({ position = "fixed", pageTitle }: Props) {
           <span className="flex-1 text-center text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-content dark:text-zinc-100 px-3 truncate">
             {pageTitle ?? "Luckete Colorista"}
           </span>
+          {rightExtra && <div className="shrink-0 mr-1">{rightExtra}</div>}
           <button
             className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg text-content-secondary dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/8 transition-colors"
             aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
@@ -194,6 +196,7 @@ export function HomeNavbar({ position = "fixed", pageTitle }: Props) {
               </Link>
             );
           })}
+          {rightExtra && <div className="ml-1">{rightExtra}</div>}
           <div className="ml-3">
             <ThemeToggle />
           </div>
@@ -213,7 +216,7 @@ export function HomeNavbar({ position = "fixed", pageTitle }: Props) {
               onClick={() => setMenuOpen(false)}
             />
             <motion.div
-              className="fixed top-14 left-0 right-0 z-40 lg:hidden bg-surface dark:bg-[#141210] border-b border-border-subtle dark:border-zinc-800 px-5 pb-6 pt-4"
+              className="fixed top-19 left-0 right-0 z-40 lg:hidden bg-surface dark:bg-[#141210] border-b border-border-subtle dark:border-zinc-800 px-5 pb-6 pt-4"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}

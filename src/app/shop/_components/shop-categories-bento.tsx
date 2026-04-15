@@ -219,13 +219,6 @@ function XLCard({
       )}
       <div className="relative h-full flex flex-col p-5 gap-3 [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
         <div className="flex items-start justify-between">
-          <motion.span
-            className="text-5xl lg:text-6xl select-none"
-            animate={{ y: [0, -4, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
-            {meta.emoji}
-          </motion.span>
           <span
             className={`text-xs font-bold px-2.5 py-1 rounded-full border ${meta.accentBg} ${meta.accentText}`}
           >
@@ -324,7 +317,6 @@ function WideCard({
         className={`absolute inset-0 bg-linear-to-br ${meta.gradient} ${hasImage ? "opacity-100" : "opacity-50 group-hover:opacity-90"} transition-opacity duration-300`}
       />
       <div className="relative h-full flex items-center gap-4 px-5 [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
-        <span className="text-4xl select-none shrink-0">{meta.emoji}</span>
         <div className="flex-1 min-w-0">
           <h3
             className={`text-sm font-extrabold leading-tight ${hasImage ? "text-white" : "text-content dark:text-zinc-100"}`}
@@ -423,7 +415,6 @@ function SmCard({
       />
       <div className="relative h-full flex flex-col p-4 justify-between [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
         <div>
-          <span className="text-3xl select-none block mb-2">{meta.emoji}</span>
           <h3
             className={`text-sm font-extrabold leading-tight ${hasImage ? "text-white" : "text-content dark:text-zinc-100"}`}
           >
