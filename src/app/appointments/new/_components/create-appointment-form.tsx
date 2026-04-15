@@ -216,13 +216,13 @@ function AppointmentFormInner({
   const currentHeading = STEP_HEADINGS[currentStep - 1];
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="lg:flex-1 flex flex-col lg:min-h-0">
       {/* Mobile: progress bar */}
       <div className="lg:hidden px-5 py-4">
         <ProgressBar appointmentForm={appointmentForm} />
       </div>
 
-      <div className="flex flex-1 min-h-0">
+      <div className="flex w-full lg:flex-1 lg:min-h-0">
         {/* ── Desktop sidebar ── */}
         <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-border-subtle dark:border-zinc-800 py-8 px-4 gap-1">
           {visibleStepNames.map((name, i) => (
@@ -239,10 +239,10 @@ function AppointmentFormInner({
         {/* ── Form (content + nav buttons) ── */}
         <form
           onSubmit={appointmentForm.form.handleSubmit(appointmentForm.onSubmit)}
-          className="flex-1 flex flex-col min-h-0"
+          className="w-full lg:flex-1 flex flex-col lg:min-h-0"
         >
           {/* Scrollable content — flat, no card */}
-          <div className="flex-1 overflow-y-auto px-5 py-2  lg:px-12 lg:py-10">
+          <div className="lg:flex-1 lg:overflow-y-auto px-5 py-2 lg:px-12 lg:py-10">
             {/* Wrapper header — shown on ALL screens */}
             <div className="flex justify-between items-start mb-6">
               <div>

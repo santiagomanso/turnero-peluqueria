@@ -7,7 +7,7 @@ import type { Appointment } from "@/types/appointment";
 //   3. Reemplazar `vm.appointments` por:
 //        const displayAppointments = MOCK_ENABLED ? getMockAppointments(vm.selectedDate) : vm.appointments;
 //      y usar displayAppointments en todo el render
-export const MOCK_ENABLED = true;
+export const MOCK_ENABLED = false;
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
