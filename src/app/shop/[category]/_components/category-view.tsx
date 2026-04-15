@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, ChevronRight, Check, Star } from "lucide-react";
+import { Package, ChevronRight, Check, Star, ArrowLeft } from "lucide-react";
 import { type ShopCategory, type Product } from "@/types/shop";
 import { categoryToSlug } from "@/lib/shop-utils";
 import { useCart } from "@/app/shop/_store/use-cart";
 
+// Kept for ProductCard image fallback only
 const CATEGORY_EMOJI: Record<ShopCategory, string> = {
   "Shampoo y Acondicionador": "💧",
   "Mascarillas y Baños de Crema": "🫙",
@@ -26,6 +29,7 @@ function ProductCard({
   product: Product;
   category: ShopCategory;
 }) {
+  const [imgLoaded, setImgLoaded] = useState(false);
   const added = useCart((state) =>
     state.items.some((i) => i.id === product.id),
   );
@@ -58,12 +62,21 @@ function ProductCard({
       {/* Image */}
       <div className="bg-surface dark:bg-zinc-800 aspect-4/3 flex items-center justify-center relative overflow-hidden">
         {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full h-full object-contain"
-          />
+          <>
+            {!imgLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-gold/40 border-t-gold rounded-full animate-spin" />
+              </div>
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgLoaded(true)}
+            />
+          </>
         ) : (
           <span className="text-5xl select-none">
             {CATEGORY_EMOJI[product.category as ShopCategory] ?? "📦"}
@@ -99,10 +112,12 @@ function ProductCard({
 // ─── Fixed header (rendered outside the scrollable area by page.tsx) ──────────
 
 export function CategoryHeader({ category }: { category: ShopCategory }) {
+  const router = useRouter();
+
   return (
     <>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 text-[0.65rem] text-content-tertiary dark:text-zinc-500 mb-4">
+      <div className="flex items-center gap-1.5 text-xs text-content-secondary dark:text-zinc-400 mb-4">
         <Link href="/shop" className="hover:text-gold transition-colors">
           Tienda
         </Link>
@@ -112,15 +127,21 @@ export function CategoryHeader({ category }: { category: ShopCategory }) {
         </span>
       </div>
 
-      {/* Category title */}
+      {/* Category title + back button */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-2xl">{CATEGORY_EMOJI[category]}</span>
+        <div className="flex items-center gap-3 mb-0.5">
+          <button
+            onClick={() => router.back()}
+            className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 text-content-secondary dark:text-zinc-400 hover:text-content dark:hover:text-zinc-100 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            aria-label="Volver"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
           <h2 className="text-xl font-extrabold text-content dark:text-zinc-100 leading-tight">
             {category}
           </h2>
         </div>
-        <div className="w-7 h-px mt-1.5 bg-gold-gradient" />
+        <div className="w-7 h-px mt-1.5 ml-11 bg-gold-gradient" />
       </div>
     </>
   );
@@ -140,13 +161,13 @@ export default function CategoryView({
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* Product count — fixed outside scroll */}
-      <p className="shrink-0 text-[0.65rem] text-content-tertiary dark:text-zinc-500 uppercase tracking-widest mb-4">
+      <p className="shrink-0 text-xs text-content-secondary dark:text-zinc-300 uppercase tracking-widest mb-4">
         {products.length} producto{products.length !== 1 ? "s" : ""} disponible
         {products.length !== 1 ? "s" : ""}
       </p>
 
-      {/* Scrollable area — only the product grid */}
-      <div className="flex-1 overflow-y-auto pb-8 px-0.5 pt-0.5">
+      {/* Product grid */}
+      <div className="pb-8 px-0.5 pt-0.5">
         {products.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -172,7 +193,7 @@ export default function CategoryView({
           <AnimatePresence mode="popLayout">
             <motion.div
               key={category}
-              className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+              className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
             >
               {products.map((product, i) => (
                 <motion.div
