@@ -87,7 +87,7 @@ export default function ConfirmationStep({
           label="Teléfono"
           value={formatPhone(formData.telephone)}
         />
-        <InfoCard icon={DollarSign} label="Precio" value={formattedBase} />
+        <InfoCard icon={DollarSign} label="Seña" value={formattedBase} />
       </div>
     </div>
   );
