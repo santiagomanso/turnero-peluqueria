@@ -93,6 +93,14 @@ async function handleAppointmentPayment(
     return;
   }
 
+  // Idempotency: already processed, skip to avoid duplicate WhatsApp
+  if (existing.status === "PAID") {
+    console.log(
+      `[MP Webhook] Appointment already PAID — skipping duplicate: ${appointmentId}`,
+    );
+    return;
+  }
+
   const payerEmail = payment.payer?.email ?? null;
   const directFirst = payment.payer?.first_name ?? "";
   const directLast = payment.payer?.last_name ?? "";
@@ -141,6 +149,15 @@ async function handleShopOrderPayment(
 
   if (!existing) {
     console.warn(`[MP Webhook] Order not found: ${orderId} — skipping`);
+    return;
+  }
+
+  // Idempotency: if payment record already exists, order was already processed
+  const existingPayment = await db.payment.findUnique({ where: { orderId } });
+  if (existingPayment) {
+    console.log(
+      `[MP Webhook] Order payment already processed — skipping duplicate: ${orderId}`,
+    );
     return;
   }
 
